@@ -1,0 +1,25 @@
+/* ui.css: buttons, debug stats */
+#upgrades button,
+#settings-panel button {
+  display: block;
+  margin: 5px 0;
+  padding: 5px 10px;
+  background: #222;
+  border: 1px solid #444;
+  border-radius: 3px;
+  color: #eee;
+  cursor: pointer;
+}
+#upgrades button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+#points {
+  font-size: 1.2rem;
+  margin-bottom: 8px;
+}
+#debug {
+  margin-top: 8px;
+  font-size: 0.9rem;
+  opacity: 0.7;
+}
