@@ -4,7 +4,7 @@
     SAVE_KEY: "cosmicIdleEnergyV2",
     SIMULATION_TPS: 20,
     AUTOSAVE_MS: 10000,
-    MAX_REAL_DELTA: 0.25,
+    OFFLINE: { maxSeconds: 86400, minSeconds: 30, frameBudgetMs: 16 },
 
     ENERGY: {
       manualGain: "1"

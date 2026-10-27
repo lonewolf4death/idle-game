@@ -288,6 +288,10 @@
           <button id="import-button">Import</button>
           <button id="reset-button" class="danger">Hard Reset</button>
         </div>
+        <div id="save-safety" class="settings-save-actions" role="group" aria-label="Backups" hidden>
+          <button id="restore-backup-button" hidden>Restore session backup</button>
+          <button id="export-recovery-button" hidden>Export unreadable save</button>
+        </div>
         <p id="save-status" class="settings-note" role="status">Autosave enabled.</p>
         <div class="settings-list">
           <label><span>Sound</span><input id="setting-sound" type="checkbox"></label>
@@ -306,6 +310,7 @@
           <label><span>Volume</span><input id="setting-volume" type="range" min="0" max="1" step="0.01" aria-label="Volume"></label>
           <label><span>Visual feedback</span><select id="setting-visuals"><option value="0">None — sound only</option><option value="1">Faint abstract glow</option><option value="2">Classic sparks</option></select></label>
           <label><span>Automatically dismiss lore and notifications after 6 seconds</span><input id="setting-autoDismiss" type="checkbox"></label>
+          <label><span>Offline progress (up to 24 hours)</span><input id="setting-offlineProgress" type="checkbox"></label>
         </div>
         <p class="settings-note">Popups wait for a click by default. Generator hotkeys: 1–9 buy Gen 1–9; 0 buys Gen 10, when available. Uses the selected buy amount in the Energy tab. Sounds begin after your first interaction. Settings are saved with your progress.</p><div class="sound-previews"><button id="preview-sound">Preview click</button><button id="preview-auto-sound">Preview automatic impulse</button><button id="preview-perk-sound">Preview skill purchase</button></div><p id="music-stage" class="settings-note"></p><p id="audio-status" class="settings-note" role="status"></p>
       </section>
@@ -330,6 +335,8 @@
 
   <dialog id="challenge-dialog" aria-labelledby="challenge-confirm-title" aria-describedby="challenge-confirm-description"><span class="label">Alter the primordial field</span><h2 id="challenge-confirm-title"></h2><p id="challenge-confirm-description"></p><div class="respec-choices"><button id="challenge-cancel">Keep this run</button><button id="challenge-confirm">Restart run</button></div></dialog>
   <dialog id="respec-dialog" aria-labelledby="respec-title" aria-describedby="respec-description"><span class="label">Reform the constellation</span><h2 id="respec-title">Respec skills?</h2><strong id="respec-refund"></strong><p id="respec-description"></p><div class="respec-choices"><button id="cancel-respec">Keep my skills</button><button id="confirm-respec">Respec · restart run</button></div></dialog>
+  <dialog id="save-dialog" class="save-dialog" aria-labelledby="save-dialog-title" aria-describedby="save-dialog-note"><span class="label">Your progress</span><h2 id="save-dialog-title">Export save</h2><p id="save-dialog-note"></p><textarea id="save-text" rows="7" spellcheck="false" autocomplete="off" aria-labelledby="save-dialog-title"></textarea><p id="save-dialog-status" class="settings-note" role="status" aria-live="polite"></p><div class="respec-choices"><button id="save-copy">Copy</button><button id="save-download">Download file</button><button id="save-upload-button">Load file</button><input id="save-upload" type="file" accept=".txt,text/plain" hidden><button id="save-import-confirm">Import</button><button id="save-close">Close</button></div></dialog>
+  <div id="offline-progress" class="offline-progress" role="status" aria-live="polite" hidden><span class="label">Catching up on time away</span><div class="milestone-track"><div id="offline-fill"></div></div><span id="offline-text" class="muted"></span></div>
   <dialog id="story-dialog" aria-labelledby="story-title" aria-describedby="story-text">
     <button id="story-dismiss" class="story-card" aria-label="Dismiss message">
       <span id="story-icon" aria-hidden="true"></span><span id="story-kind" class="label">Lore</span><h2 id="story-title">Before structure</h2><p id="story-text"></p><span id="story-hint">Click to continue</span>
@@ -373,6 +380,7 @@
   <script src="js/ui/treeMap.js"></script>
   <script src="js/ui/automation.js"></script>
   <script src="js/ui/render.js"></script>
+  <script src="js/core/offline.js"></script>
   <script src="js/core/gameLoop.js"></script>
   <script src="js/main.js"></script>
 </body>

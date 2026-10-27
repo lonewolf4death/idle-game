@@ -4,6 +4,7 @@
     Game.UI.init();
     Game.Experience.init();
     Game.PotentialBubble.init();
+    Game.Offline.resumeFromSave();
     Game.UI.render();
     Game.Loop.start();
 

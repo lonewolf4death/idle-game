@@ -56,10 +56,20 @@
         Game.Automation.resolve();
       }
     },
+    // Coarser stepping for offline catch-up; buyers act once per slice.
+    simulateBatch: function (realDelta) {
+      this.coarse = true;
+      try { this.advanceGameTime(Game.Time.getGameDelta(realDelta)); } finally { this.coarse = false; }
+      Game.Time.advance(realDelta, Game.D(0));
+      Game.Automation.advanceBatch(realDelta);
+    },
     pump: function (now) {
       const elapsed = Math.max(0, (now - this.lastTime) / 1000);
       this.lastTime = now;
       this.accumulator += elapsed;
+      // Long gaps (a hidden tab or a sleeping device) go through the sliced
+      // offline simulation instead of freezing the page.
+      if (this.accumulator > Game.CONFIG.OFFLINE.minSeconds && Game.Offline.begin(this.accumulator, false)) this.accumulator = 0;
       this.catchingUp = this.accumulator > 1;
       try {
         // Normal play stays at 20 TPS. Delayed timers catch up in one-second chunks;
@@ -72,6 +82,7 @@
       } finally { this.catchingUp = false; }
     },
     frame: function (now) {
+      if (Game.Offline.active) Game.Offline.step(Game.CONFIG.OFFLINE.frameBudgetMs);
       Game.Loop.pump(now);
       if (!document.hidden && now - Game.Loop.lastDisplay >= Game.Loop.displayInterval) {
         Game.UI.render();Game.Loop.lastDisplay = now;
@@ -82,7 +93,10 @@
       this.lastTime = performance.now();
       requestAnimationFrame(this.frame);
       // Browsers throttle this while hidden; the shared clock accounts for the gap.
-      this.backgroundTimer = setInterval(function () { Game.Loop.pump(performance.now()); }, 250);
+      this.backgroundTimer = setInterval(function () {
+        if (Game.Offline.active && document.hidden) Game.Offline.step(Game.CONFIG.OFFLINE.frameBudgetMs);
+        Game.Loop.pump(performance.now());
+      }, 250);
       document.addEventListener("visibilitychange", function () {
         Game.Loop.pump(performance.now());
         if (!document.hidden) Game.UI.render();

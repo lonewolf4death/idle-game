@@ -2,8 +2,10 @@
   const D = Game.D;
 
   Game.Time = {
+    // Single hook for any future speed effects; the public edition runs at 1×.
+    speed: D(1),
     getGameSpeed: function () {
-      return D(1).mul(Game.player.meta.gameSpeedMultiplier);
+      return this.speed;
     },
 
     getGameDelta: function (realDeltaSeconds) {

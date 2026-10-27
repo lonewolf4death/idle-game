@@ -268,6 +268,72 @@
       byId("export-button").addEventListener("click", function () { Game.Save.exportSave(); });
       byId("import-button").addEventListener("click", function () { Game.Save.importSave(); });
       byId("reset-button").addEventListener("click", function () { Game.Save.hardReset(); });
+      byId("restore-backup-button").addEventListener("click", function () { Game.Save.restoreBackup();Game.UI.updateSaveSafety(); });
+      byId("export-recovery-button").addEventListener("click", function () { Game.UI.openSaveDialog("recovery"); });
+      this.initSaveDialog();
+      this.updateSaveSafety();
+    },
+
+    updateSaveSafety: function () {
+      const backup = Game.Save.hasBackup(), recovery = Game.Save.hasRecovery();
+      byId("restore-backup-button").hidden = !backup;
+      byId("export-recovery-button").hidden = !recovery;
+      byId("save-safety").hidden = !backup && !recovery;
+    },
+
+    initSaveDialog: function () {
+      const dialog = byId("save-dialog"), text = byId("save-text"), status = byId("save-dialog-status");
+      byId("save-close").addEventListener("click", function () { dialog.close(); });
+      dialog.addEventListener("close", function () { text.value = "";if (Game.Experience) Game.Experience.next(); });
+      byId("save-copy").addEventListener("click", function () {
+        text.select();
+        const done = function () { status.textContent = "Copied to the clipboard."; };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text.value).then(done, function () { status.textContent = "Select the text and copy it manually."; });
+        else { try { document.execCommand("copy");done(); } catch (error) { status.textContent = "Select the text and copy it manually."; } }
+      });
+      byId("save-download").addEventListener("click", function () {
+        const url = URL.createObjectURL(new Blob([text.value], { type: "text/plain" }));
+        const link = document.createElement("a"), stamp = new Date().toISOString().slice(0, 10);
+        link.href = url;link.download = (dialog.dataset.mode === "recovery" ? "cosmic-idle-unreadable-" : "cosmic-idle-save-") + stamp + ".txt";
+        document.body.appendChild(link);link.click();link.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+        status.textContent = "Save file downloaded.";
+      });
+      byId("save-upload-button").addEventListener("click", function () { byId("save-upload").click(); });
+      byId("save-upload").addEventListener("change", function () {
+        const file = this.files && this.files[0];
+        if (!file) return;
+        file.text().then(function (value) { text.value = value.trim();status.textContent = "File loaded. Press Import to continue."; });
+        this.value = "";
+      });
+      byId("save-import-confirm").addEventListener("click", function () {
+        if (!text.value.trim()) { status.textContent = "Paste a save or load a save file first.";return; }
+        if (!confirm("Replace your current progress with this save? Your current progress is kept as a backup.")) return;
+        if (Game.Save.importText(text.value)) { dialog.close();Game.UI.updateSaveSafety(); }
+        else status.textContent = "That save is invalid or belongs to a different version. Your game has not changed.";
+      });
+    },
+
+    openSaveDialog: function (mode) {
+      const dialog = byId("save-dialog"), text = byId("save-text"), importing = mode === "import";
+      dialog.dataset.mode = mode;
+      byId("save-dialog-title").textContent = importing ? "Import save" : mode === "recovery" ? "Unreadable save" : "Export save";
+      byId("save-dialog-note").textContent = importing ? "Paste a save below or load a save file, then press Import." : mode === "recovery" ? "This save could not be loaded. Keep a copy so it can be repaired later." : "Copy this text or download it as a file to back up your progress or move it to another device.";
+      text.value = importing ? "" : mode === "recovery" ? Game.Save.recoveryText() : Game.Save.exportText();
+      text.readOnly = !importing;
+      byId("save-dialog-status").textContent = "";
+      ["save-copy", "save-download"].forEach(function (id) { byId(id).hidden = importing; });
+      ["save-upload-button", "save-import-confirm"].forEach(function (id) { byId(id).hidden = !importing; });
+      dialog.showModal();
+      if (importing) text.focus(); else text.select();
+    },
+
+    showOffline: function (progress) {
+      const panel = byId("offline-progress");
+      if (progress === null) { panel.hidden = true;return; }
+      panel.hidden = false;
+      byId("offline-fill").style.width = Math.round(progress * 100) + "%";
+      setText(byId("offline-text"), Math.round(progress * 100) + "% of " + Game.Format.duration(Game.Offline.total));
     },
 
     updateCompactBuy: function (compact, full, name) {

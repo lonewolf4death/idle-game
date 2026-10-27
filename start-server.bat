@@ -1,4 +1,4 @@
 @echo off
-REM Run a simple HTTP server on port 8080
-py -m http.server 8080
+REM Serve the game at http://localhost:8080
+py -m http.server 8080 --directory docs
 pause

@@ -118,7 +118,7 @@
     introduction: 'Existence contains potential, but no meaningful structure has formed.',
     enqueue: function (message) { this.queue.push(message); this.next(); },
     next: function () {
-      if (this.active || !this.queue.length || byId('respec-dialog').open || byId('challenge-dialog').open || Game.CondenseFX && Game.CondenseFX.active) return;
+      if (this.active || !this.queue.length || byId('respec-dialog').open || byId('challenge-dialog').open || byId('save-dialog').open || Game.CondenseFX && Game.CondenseFX.active) return;
       this.active = this.queue.shift();
       const dialog = byId('story-dialog');
       dialog.classList.remove('is-dismissing');
@@ -172,7 +172,7 @@
       this.queue = []; this.active = null; this.coherenceQueued = false; this.fieldQueued = false; this.dismissing = false; clearTimeout(this.timer); clearTimeout(this.dismissTimer); byId('story-dialog').close(); byId('story-dialog').classList.remove('is-dismissing'); byId('story-dismiss').removeAttribute('aria-disabled');
       if (Game.UI.syncCollapseState) Game.UI.syncCollapseState();
       const settings = Game.player.settings;
-      ['sound', 'muteUnfocused', 'clickSound', 'autoClickSound', 'bubbleSound', 'perkSound', 'perkVisuals', 'generatorSound', 'fluctuationSound', 'coherentSound', 'fieldSound', 'condenseSound', 'condenseVisuals', 'autoDismiss'].forEach(function (key) { byId('setting-' + key).checked = !!settings[key]; });
+      ['sound', 'muteUnfocused', 'clickSound', 'autoClickSound', 'bubbleSound', 'perkSound', 'perkVisuals', 'generatorSound', 'fluctuationSound', 'coherentSound', 'fieldSound', 'condenseSound', 'condenseVisuals', 'autoDismiss', 'offlineProgress'].forEach(function (key) { byId('setting-' + key).checked = !!settings[key]; });
       byId('setting-volume').value = settings.volume;
       byId('setting-visuals').value = settings.visuals;
       Game.Audio.updateVolume(); this.loreKey = ''; this.updateLore();
@@ -194,7 +194,7 @@
       byId('story-dismiss').addEventListener('click', function () { Game.Experience.dismiss(); });
       byId('story-dialog').addEventListener('click', function (event) { if (event.target === this) Game.Experience.dismiss(); });
       byId('story-dialog').addEventListener('cancel', function (event) { event.preventDefault(); });
-      ['sound','muteUnfocused','clickSound','autoClickSound','bubbleSound','perkSound','perkVisuals','generatorSound','fluctuationSound','coherentSound','fieldSound','condenseSound','condenseVisuals','autoDismiss','volume','visuals'].forEach(function (key) {
+      ['sound','muteUnfocused','clickSound','autoClickSound','bubbleSound','perkSound','perkVisuals','generatorSound','fluctuationSound','coherentSound','fieldSound','condenseSound','condenseVisuals','autoDismiss','offlineProgress','volume','visuals'].forEach(function (key) {
         const input = byId('setting-' + key);
         input.addEventListener(key === 'volume' ? 'input' : 'change', function () {
           Game.player.settings[key] = this.type === 'checkbox' ? Number(this.checked) : Number(this.value);

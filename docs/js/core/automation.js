@@ -53,6 +53,19 @@
         else Game.Energy.buyGenerator(buyer.id,'max');
       });
     },
+    // Offline catch-up: give each buyer all attempts that fell inside a longer
+    // slice at once. Failed attempts are still not banked beyond the slice.
+    advanceBatch: function (seconds) {
+      Game.CONFIG.AUTOMATION.buyers.forEach(function (buyer) {
+        const state=Game.player.automation.buyers[buyer.id];
+        if (!Game.Automation.active(buyer.id)) { state.elapsed=0;return; }
+        const interval=Game.Automation.interval(buyer.id), total=state.elapsed+seconds, attempts=Math.floor((total+1e-9)/interval);
+        state.elapsed=Math.max(0,Math.round((total-attempts*interval)*1e9)/1e9);
+        if (!attempts) return;
+        if (buyer.id === 'condense') { if(Game.Prestige.reward().gte(Game.player.settings.autoCondenseTarget)) Game.Prestige.condense(true); }
+        else Game.Energy.buyGenerator(buyer.id,attempts);
+      });
+    },
     preserve: function (old,fresh) {
       fresh.challenges.highestEnergy=Decimal.max(old.challenges.highestEnergy,old.resources.energy);
       // Challenge mastery survives both Condense and respec; timers start fresh.
