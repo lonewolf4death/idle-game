@@ -31,7 +31,8 @@
       return state.purchased.add(state.added).add(id === "fieldExcitation" ? this.getCoupledFields() : id === "fieldResonance" ? this.getSharedResonance() : 0);
     },
     getSharedResonance: function () { return Game.Challenges.produces("fieldCoupling") && Game.Progression.hasSkill("3-5-2") ? Game.player.generators.fieldCoupling.purchased : D(0); },
-    resonanceCountMultiplier: function () { return Game.Progression.hasSkill("3-5-1") ? D(Math.max(1, Game.player.resources.quantumResonance.gt(0) ? Game.player.resources.quantumResonance.log10() / Math.log10(2) : 1)) : D(1); },
+    // log₁₀ rather than log₂: Gen 6's count is an exponent on the Oscillation peak, so log₂ caused a runaway jump.
+    resonanceCountMultiplier: function () { return Game.Progression.hasSkill("3-5-1") ? D(Math.max(1, Game.player.resources.quantumResonance.gt(0) ? Game.player.resources.quantumResonance.log10() : 1)) : D(1); },
     getCoupledFields: function () {
       if(!Game.Challenges.produces("fieldCoupling")) return D(0);
       const state = Game.player.generators.fieldCoupling;

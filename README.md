@@ -12,7 +12,7 @@ Eight 100-Quanta skills unlock Gen 1–7 Max buyers and auto-Condense in the Aut
 
 Once every skill in the Condense tree is owned and a run holds 1e100 Energy, the Symmetry tab opens. Breaking Symmetry resets your run, Quanta, Condense count and Mass in exchange for Broken Symmetries: one at 1e100 Energy and one more each time the exponent doubles, plus 10% per order of magnitude of Mass. The skill tree, achievements, lore, playtime, challenge levels and settings stay.
 
-Broken Symmetries buy eight permanent perks (a 1e30 Energy head start, double Quanta, keeping your Condense count, faster buyers, a Gen 8 head start, Mass that survives Breaks at half strength, and more) and the repeatable Deeper asymmetry. Breaking also opens Gen 8 (Symmetry Breaking), which produces Mass; perks add Gen 9 (Massive Particles) and Gen 10 (Binding Force). Mass multiplies all Energy and persists through Condenses until the next Break. Gathering 1e20 Mass forms the first stable atom, which is the ending. You can keep playing afterwards.
+Broken Symmetries buy eight permanent perks (a 1e30 Energy head start, double Quanta, keeping your Condense count, faster buyers, a Gen 8 head start, Mass that survives Breaks at half strength, and more) and the repeatable Deeper asymmetry. Breaking also opens Gen 8 (Symmetry Breaking), which produces Mass; perks add Gen 9 (Massive Particles) and Gen 10 (Binding Force). Mass multiplies all Energy and persists through Condenses until the next Break. Gathering 1e16 Mass forms the first stable atom, which is the ending. You can keep playing afterwards.
 
 ## Saving and offline progress
 

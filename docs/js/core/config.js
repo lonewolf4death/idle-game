@@ -85,7 +85,7 @@
         "2-4-1": { name: "Resonant echoes", cost: "15", requires: "2-3-1", description: "Every Quantum Resonance production cycle also grants the same amount of Energy Resonance as the whole Quantum Resonance produced. The normal Energy Resonance cycle continues separately. Each Energy Resonance adds one Gen 1. Click-granted Quantum Resonance does not trigger an extra cycle." },
         "2-4-2": { name: "Excitation cascade", cost: "25", requires: "2-3-2", fieldSeconds: "15", description: "Each Quantum Resonance production cycle advances Gen 4 (Field Excitation)'s current cycle by 15 game seconds. Any excess carries into following cycles, including immediate payouts. Requires an owned Gen 4; does not advance other clocks or trigger from click-granted Resonance." },
         "3-2-3": { name: "Compressed rhythm", cost: "25", requires: "3-2-2", cycle: "45", description: "Shorten Gen 5 (Field Oscillation)'s total cycle to 45 game seconds. Its peak duration stays unchanged, shortening only the rise. Keeps the current rise or peak progress when unlocked. Combines with held and positive-only peaks." },
-        "3-5-1": { name: "Logarithmic harmony", cost: "50", requires: "3-4-1", description: "Multiply Gen 6 (Field Resonance)'s effective count by log₂ of held Quantum Resonance, with a minimum multiplier of ×1. Uses the actual resource amount, before Fluct soft caps. Also strengthens units supplied by Shared harmonics; does not raise purchase costs." },
+        "3-5-1": { name: "Logarithmic harmony", cost: "50", requires: "3-4-1", description: "Multiply Gen 6 (Field Resonance)'s effective count by log₁₀ of held Quantum Resonance, with a minimum multiplier of ×1. Uses the actual resource amount, before Fluct soft caps. Also strengthens units supplied by Shared harmonics; does not raise purchase costs." },
         "3-5-2": { name: "Shared harmonics", cost: "50", requires: "3-4-2", description: "Every purchased Gen 7 (Field Coupling) also contributes one effective Gen 6 (Field Resonance). Includes past and future purchases. Added Gen 7 units do not contribute. Gen 6 costs and purchase achievements remain based on its own purchases." },
         "4-4-1": { name: "Deferred resistance", cost: "50", requires: "4-3-2", softcapStart: "150", description: "Quantum Resonance's first Fluct soft cap starts at 150 held Resonance instead of 100. All later thresholds shift with it, keeping the current ×3 or ×3.3 spacing. Production slowdown milestones are unchanged." },
         "4-4-2": { name: "Lasting potential", cost: "25", requires: "4-3-1", description: "The Quanta Energy bonus uses whichever is higher: current unspent Quanta or half of all lifetime Quanta earned. These amounts are compared, not added. Fractional halves count toward the bonus, following the same Quanta soft cap. Applies immediately, including past Quanta." },
@@ -206,15 +206,15 @@
     // exponent doubles past 100, and each Gen 8–10 unit costs a fixed number
     // of extra orders of magnitude.
     unlockEnergy: "1e100",
-    atomMass: "1e20",
+    atomMass: "1e16",
     massEnergyPower: 0.2,
     massRewardStep: 0.1,
     lore: "The field was perfectly balanced, and balance cannot build. Something tips. The mirror cracks, and what falls out of it has weight.",
     atomLore: "Mass gathers, binds and holds. For the first time, something exists that does not fade back into the field: a stable atom. Existence has structure.",
     structures: [
-      { id: "symmetryBreaking", name: "Symmetry Breaking", baseCost: "1e100", costScaling: "1e50", description: "Produces 1 Mass per game second. Mass strengthens all Energy and adds Broken Symmetries." },
-      { id: "massiveParticles", name: "Massive Particles", baseCost: "1e300", costScaling: "1e150", interval: "10", perk: "particles", description: "Every 10 game seconds, each unit creates one added Gen 8 (Symmetry Breaking)." },
-      { id: "bindingForce", name: "Binding Force", baseCost: "1e500", costScaling: "1e200", massMultiplier: "10", perk: "binding", description: "Each unit multiplies Mass production by ×10." }
+      { id: "symmetryBreaking", name: "Symmetry Breaking", baseCost: "1e100", costScaling: "1e25", description: "Produces 1 Mass per game second. Mass strengthens all Energy and adds Broken Symmetries." },
+      { id: "massiveParticles", name: "Massive Particles", baseCost: "1e150", costScaling: "1e50", interval: "10", perk: "particles", description: "Every 10 game seconds, each unit creates one added Gen 8 (Symmetry Breaking)." },
+      { id: "bindingForce", name: "Binding Force", baseCost: "1e250", costScaling: "1e75", massMultiplier: "10", perk: "binding", description: "Each unit multiplies Mass production by ×10." }
     ],
     perks: [
       { id: "headStart", name: "Head start", cost: "1", startingEnergy: "1e30", description: "Begin every run with 1e30 Energy." },
@@ -287,7 +287,7 @@
     "3-4-1": "Each Gen 6 strengthens the peak by ×1.033 instead of ×1.025.",
     "3-4-2": "Start every run with 1 free Gen 7.",
     "3-4-3": "The wandering bonus hits two generators at ×1.2.",
-    "3-5-1": "Gen 6 counts ×log₂(Quantum Resonance).",
+    "3-5-1": "Gen 6 counts ×log₁₀(Quantum Resonance).",
     "3-5-2": "Each Gen 7 bought also counts as a Gen 6.",
     "4-1": "Resonance soft caps spaced ×3.3 apart instead of ×3.",
     "4-2": "×1.2 all Energy.",

@@ -11,6 +11,11 @@ const seed = Number(process.argv[3] || 1);
 const scenario = process.argv[4] || "fresh";
 const { Game } = createGame({ random: mulberry32(seed) });
 const D = Game.D;
+// PATCH='{"SYMMETRY.structures.2.baseCost":"1e300"}' overrides config values for tuning experiments.
+if (process.env.PATCH) Object.entries(JSON.parse(process.env.PATCH)).forEach(function (entry) {
+  const keys = entry[0].split("."), last = keys.pop();
+  keys.reduce(function (node, key) { return node[key]; }, Game.CONFIG)[last] = entry[1];
+});
 const STEP = 10, CLICK_SECONDS = 600, CLICKS_PER_SECOND = 4, REPORT_HOURS = Number(process.env.REPORT_HOURS || 6);
 // NOBREAK=1 measures the Energy curve without ever Breaking Symmetry.
 const allowBreak = process.env.NOBREAK !== "1";
