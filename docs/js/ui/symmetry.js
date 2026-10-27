@@ -54,7 +54,6 @@
     },
     render: function () {
       const p = Game.player, s = p.symmetry, discovered = Game.Symmetry.discovered(), F = Game.Format;
-      byId("symmetry-tab").hidden = !discovered;
       const placeholder = byId("symmetry-placeholder");
       if (placeholder) placeholder.classList.toggle("is-formed", discovered);
       Game.CONFIG.SYMMETRY.structures.forEach(function (structure, index) {

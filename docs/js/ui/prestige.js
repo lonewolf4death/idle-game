@@ -172,6 +172,10 @@
       if (selected === "0-0") description += " Current bonus: ×" + Game.Format.number(Game.Progression.hasSkill("0-0") ? Game.Progression.condenseMemoryMultiplier() : Game.D(definition.energyPerCondense).pow(Game.Progression.effectiveCondenses()), 5) + " from " + number(p.prestige.times) + " lifetime Condenses" + (Game.Progression.hasSkill("4-3-1") ? " (" + number(Game.Progression.effectiveCondenses()) + " effective)" : "") + ".";
       if (selected === "1-2" && Game.Progression.hasSkill("1-2-1")) description += " Replaced by 1-2-1: clicks now advance all generators by 0.33 game seconds instead of granting this Energy-only payout.";
       if (selected === "3-3" && Game.Progression.hasSkill("3-4-3")) description += " Upgraded by 3-4-3: the current bonus is ×1.2 for two adjacent generators.";
+      // Live notes appended above (current bonus, replacements) stay visible with the summary.
+      const hasSummary = !!(definition && definition.summary), live = hasSummary ? description.slice(definition.description.length) : "";
+      setText(byId("skill-detail-summary"), hasSummary ? definition.summary + live : description);
+      byId("skill-detail-rules").hidden = !hasSummary;
       setText(byId("skill-detail-description"), description);
       const afterSpend=Decimal.max(0,p.prestige.quanta.sub(definition.cost));
       const afterBasis=Decimal.max(afterSpend,Game.Progression.hasSkill("4-4-2") || selected==="4-4-2" ? p.prestige.totalQuanta.div(2) : 0);

@@ -204,7 +204,7 @@
     // exponent doubles past 100, and each Gen 8–10 unit costs a fixed number
     // of extra orders of magnitude.
     unlockEnergy: "1e100",
-    atomMass: "1e25",
+    atomMass: "1e20",
     massEnergyPower: 0.2,
     massRewardStep: 0.1,
     lore: "The field was perfectly balanced, and balance cannot build. Something tips. The mirror cracks, and what falls out of it has weight.",
@@ -212,7 +212,7 @@
     structures: [
       { id: "symmetryBreaking", name: "Symmetry Breaking", baseCost: "1e100", costScaling: "1e50", description: "Produces 1 Mass per game second. Mass strengthens all Energy and adds Broken Symmetries." },
       { id: "massiveParticles", name: "Massive Particles", baseCost: "1e300", costScaling: "1e150", interval: "10", perk: "particles", description: "Every 10 game seconds, each unit creates one added Gen 8 (Symmetry Breaking)." },
-      { id: "bindingForce", name: "Binding Force", baseCost: "1e600", costScaling: "1e400", massMultiplier: "10", perk: "binding", description: "Each unit multiplies Mass production by ×10." }
+      { id: "bindingForce", name: "Binding Force", baseCost: "1e500", costScaling: "1e200", massMultiplier: "10", perk: "binding", description: "Each unit multiplies Mass production by ×10." }
     ],
     perks: [
       { id: "headStart", name: "Head start", cost: "1", startingEnergy: "1e30", description: "Begin every run with 1e30 Energy." },
@@ -255,9 +255,50 @@
   });
   Game.CONFIG.DISCOVERY_ACHIEVEMENTS.push({id:"allChallenges",name:"Eight facets of existence",kind:"allChallenges",amount:"1",reward:"power",multiplier:"1.02",icon:"coherent",requirement:"Complete at least one level of all eight challenges."});
   const automationParents=["1-5-1","2-4-1","2-4-2","4-4-1","3-2-3","3-5-1","3-5-2","4-4-2"];
+  // One-line summaries shown first in the skill panel; full rules sit behind a toggle.
+  const summaries = {
+    "0-0": "×1.05 all Energy for every lifetime Condense. Free.",
+    "1-1": "×2 click Energy.",
+    "1-2": "Each click also grants 0.25s of generator production.",
+    "1-2-1": "Each click advances all generators by 0.33 game seconds instead.",
+    "1-2-2": "At max Disturb, an automatic click every 9 seconds.",
+    "1-3-1": "Gen 1 output ×1.005 per Gen 1 you bought.",
+    "1-3-2": "Gen 1 counts as (owned)^1.1 for production.",
+    "1-4-1": "Each click grants 1% of a second of all output.",
+    "1-4-2": "Each Gen 1 bought shortens its cycle by 0.025s (min 1s).",
+    "1-5-1": "Gen 1 doubles itself after 60s, then 90s, 120s, …",
+    "1-5-2": "A bubble appears every 10s; click it for +1 of every generator.",
+    "2-1": "+5 points positive Fluct chance, and shows the odds.",
+    "2-1-2": "Each negative Fluct in a row makes the next roll 1s sooner.",
+    "2-2": "Fluct rolls every 6.7s instead of 10s.",
+    "2-3-1": "Quantum Resonance slows down less (0.9s per step).",
+    "2-3-2": "Energy Resonance every 25s instead of 30s.",
+    "2-3-3": "Quantum Resonance slows every 11 instead of every 10.",
+    "2-4-1": "Each Quantum Resonance cycle also grants Energy Resonance.",
+    "2-4-2": "Each Quantum Resonance cycle advances Gen 4 by 15s.",
+    "3-1": "Oscillation holds its peak for 10s instead of 5s.",
+    "3-2": "Start every run with 1 free Gen 5.",
+    "3-2-1": "Toggle: freeze Oscillation just before its peak, release with a click.",
+    "3-2-2": "Oscillation peak pauses (not lost) while Fluct is negative.",
+    "3-2-3": "Oscillation cycle shortened to 45s.",
+    "3-3": "A ×1.15 bonus visits each generator for 30s in turn.",
+    "3-4-1": "Each Gen 6 strengthens the peak by ×1.033 instead of ×1.025.",
+    "3-4-2": "Start every run with 1 free Gen 7.",
+    "3-4-3": "The wandering bonus hits two generators at ×1.2.",
+    "3-5-1": "Gen 6 counts ×log₂(Quantum Resonance).",
+    "3-5-2": "Each Gen 7 bought also counts as a Gen 6.",
+    "4-1": "Resonance soft caps spaced ×3.3 apart instead of ×3.",
+    "4-2": "×1.2 all Energy.",
+    "4-3-1": "Each Condense counts twice for Memory of condensation.",
+    "4-3-2": "Timed output arrives 1 second sooner.",
+    "4-3-3": "Gen 4 growth ×1.01 per Gen 4 you bought.",
+    "4-4-1": "Resonance soft cap starts at 150 instead of 100.",
+    "4-4-2": "Quanta bonus uses the higher of unspent or half of lifetime Quanta."
+  };
+  Object.keys(summaries).forEach(function (id) { Game.CONFIG.PRESTIGE.skills[id].summary = summaries[id]; });
   Game.CONFIG.AUTOMATION.buyers.forEach(function (buyer,index) {
     buyer.title=Game.CONFIG.CHALLENGES[index].name;
-    Game.CONFIG.PRESTIGE.skills[buyer.skill]={name:index===7 ? "Automatic condensation" : "Automatic "+Game.CONFIG.GENERATORS[index].name.toLowerCase(),cost:"100",requires:automationParents[index],
+    Game.CONFIG.PRESTIGE.skills[buyer.skill]={name:index===7 ? "Automatic condensation" : "Automatic "+Game.CONFIG.GENERATORS[index].name.toLowerCase(),cost:"100",requires:automationParents[index],summary:index===7 ? "Condense automatically at your chosen Quanta target." : "Automatically buy as many "+buyer.name+" as you can afford, every few seconds.",
       description:(index===7 ? "Automatically Condense once the available reward reaches the Quanta target chosen in the Automation tab (default: 1). The normal 1e50 Energy minimum applies; each reset claims the full available reward. Resets the run as normal. Repeat automatic Condenses skip the cinematic." : "Automatically buy Max "+buyer.name+" using available Energy per activation. Respects unlock conditions and current costs; ignores the manual buy quantity.")+" Starts at one attempt every 5 real seconds. Its ten-level restricted-run challenge reduces the interval by 0.4 seconds per level, reaching 1 second. Configure individual buyers or all buyers in the Automation tab. Unlocked automation starts OFF. Timers continue while unfocused, do not bank failed purchases, and restart each run. Challenge progress is permanent."};
     Game.CONFIG.PRESTIGE.branches.find(function (branch) { return branch.id===Number(buyer.skill[0]); }).nodes.push(buyer.skill);
   });

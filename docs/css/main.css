@@ -801,3 +801,8 @@ summary.contribution-row { cursor:pointer; }
 .symmetry-placeholder.is-formed { border-style:solid; border-color:#5b7690; }
 .symmetry-placeholder.is-formed strong::after { content:' · formed'; }
 @media (max-width:640px) { .symmetry-perk { flex-direction:column; align-items:stretch; } .symmetry-perk button { width:100%; } }
+
+/* Skill panel: one-line summary first, full rules on demand */
+.skill-summary { color:var(--text); font-size:13px; line-height:1.7; margin:6px 0 8px; }
+.skill-rules summary { cursor:pointer; color:var(--muted); font-size:11px; }
+.skill-rules[open] summary { margin-bottom:6px; }

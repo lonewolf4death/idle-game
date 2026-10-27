@@ -355,8 +355,33 @@
 
     },
 
+    // Tabs appear as the player reaches them, based on progress that survives resets.
+    tabVisible: function (view) {
+      const p = Game.player;
+      const automation = Game.CONFIG.AUTOMATION.buyers.some(function (buyer) { return Game.Progression.hasSkill(buyer.skill) || p.automation.buyers[buyer.id].level > 0; });
+      switch (view) {
+        case "prestige": return p.prestige.times.gt(0) || p.symmetry.times.gt(0) || p.resources.energy.gte(1e30);
+        case "achievements": return Game.Progression.achievementUnlocked() || Game.Progression.firstGeneratorAchievementUnlocked() || Object.keys(p.achievements).some(function (id) { return p.achievements[id] === 1; }) || Game.Playtime.state().level > 0 || Game.Achievements.fluctLevel() > 0;
+        case "stats": return p.lore.generatorSeen === 1 || p.stats.generatorsBought.gt(0);
+        case "lore": return p.lore.clickSeen === 1 || p.stats.manualClicks.gt(0);
+        case "challenges": case "automation": return automation || !!p.challenges.active;
+        case "symmetry": return Game.Symmetry.discovered();
+        default: return true;
+      }
+    },
+    updateTabs: function () {
+      const self = this;
+      this.views.forEach(function (view) {
+        const tab = byId(view + "-tab"), visible = self.tabVisible(view);
+        if (tab.hidden === !visible) return;
+        tab.hidden = !visible;
+        if (!visible && tab.getAttribute("aria-selected") === "true") self.selectView("energy");
+      });
+    },
+
     render: function () {
       const p = Game.player;
+      this.updateTabs();
       if (Game.PotentialBubble) Game.PotentialBubble.update();
       Game.AutomationUI.render();
       Game.SymmetryUI.render();

@@ -268,21 +268,21 @@
       <section id="automation-view" class="achievements-view automation-view" role="tabpanel" aria-labelledby="automation-tab" tabindex="0" hidden>
         <div class="achievements-heading"><span class="label">Let the field sustain itself</span><h2 id="automation-heading">Automation</h2><p>Configure generator buyers and automatic Condensing.</p></div>
         <section class="automation-settings" aria-labelledby="automation-heading">
-          <p class="settings-note">Unlock a buyer in the skill tree, then enable it here. One purchase per attempt. Timers use real seconds, including time out of focus; clicks do not accelerate them. Failed attempts are not saved up. When timers coincide, buyers act in Gen order, then Condense.</p>
+          <p class="settings-note">Unlock buyers in the skill tree, then switch them on here. Each attempt buys one unit on a real-time timer.</p>
           <div class="automation-actions"><button id="automation-all-on">Enable all unlocked</button><button id="automation-all-off">Disable all</button><button id="automation-challenges">View challenges</button></div>
           <div id="automation-settings-list" class="settings-list"></div>
           <form id="auto-condense-target-form" class="auto-condense-target" novalidate>
             <label for="auto-condense-target">Auto-Condense minimum reward <span class="muted">(Primordial Quanta)</span></label>
             <div><input id="auto-condense-target" type="text" inputmode="decimal" value="1" autocomplete="off" spellcheck="false" aria-describedby="auto-condense-target-help auto-condense-target-status"><button id="auto-condense-target-apply" type="submit">Apply target</button></div>
-            <p id="auto-condense-target-help" class="settings-note">Enter a whole number of 1 or more. Scientific notation is supported, for example 1e3. Auto-Condense pauses while you edit this field.</p>
+            <p id="auto-condense-target-help" class="settings-note">A whole number, 1 or more (1e3 works). Paused while you edit.</p>
             <p id="auto-condense-target-status" class="settings-note" role="status" aria-live="polite"></p>
             <p id="auto-condense-target-progress" class="settings-note"></p>
           </form>
-          <p class="settings-note">Auto-Condense waits until the available reward meets your Quanta target, then claims the full reward on its next attempt. The normal 1e50 Energy minimum still applies. Automatic Condenses skip the cinematic. New automation starts disabled.</p>
+          <p class="settings-note">Auto-Condense waits until the reward reaches your target, then Condenses without the cinematic.</p>
         </section>
       </section>
       <section id="symmetry-view" class="achievements-view symmetry-view" role="tabpanel" aria-labelledby="symmetry-tab" tabindex="0" hidden>
-        <div class="achievements-heading"><span class="label">The mirror cracks</span><h2>Symmetry</h2><p>Reset your run, Quanta and Condense count for Broken Symmetries (BS); your skill tree stays. You earn one at 1e100 Energy, and one more each time Energy's exponent doubles. Spend them on permanent perks and Mass. Mass strengthens Energy, adds 10% to Breaks per order of magnitude, and at 1e25 forms the first stable atom.</p></div>
+        <div class="achievements-heading"><span class="label">The mirror cracks</span><h2>Symmetry</h2><p>Reset your run, Quanta and Condense count for Broken Symmetries (BS); your skill tree stays. You earn one at 1e100 Energy, and one more each time Energy's exponent doubles. Spend them on permanent perks and Mass. Mass strengthens Energy, adds 10% to Breaks per order of magnitude, and at 1e20 forms the first stable atom.</p></div>
         <div class="condense-panel symmetry-panel">
           <span class="label">Break Symmetry now to receive</span><strong id="symmetry-reward">+0 Broken Symmetries</strong>
           <p id="symmetry-requirement" class="muted"></p>
@@ -326,7 +326,7 @@
           <label><span>Automatically dismiss lore and notifications after 6 seconds</span><input id="setting-autoDismiss" type="checkbox"></label>
           <label><span>Offline progress (up to 24 hours)</span><input id="setting-offlineProgress" type="checkbox"></label>
         </div>
-        <p class="settings-note">Popups wait for a click by default. Generator hotkeys: 1–9 buy Gen 1–9; 0 buys Gen 10, when available. Uses the selected buy amount in the Energy tab. Sounds begin after your first interaction. Settings are saved with your progress.</p><div class="sound-previews"><button id="preview-sound">Preview click</button><button id="preview-auto-sound">Preview automatic impulse</button><button id="preview-perk-sound">Preview skill purchase</button></div><p id="music-stage" class="settings-note"></p><p id="audio-status" class="settings-note" role="status"></p>
+        <p class="settings-note">Hotkeys 1–9 and 0 buy Gen 1–10 at the selected amount. Sound starts after your first click.</p><div class="sound-previews"><button id="preview-sound">Preview click</button><button id="preview-auto-sound">Preview automatic impulse</button><button id="preview-perk-sound">Preview skill purchase</button></div><p id="music-stage" class="settings-note"></p><p id="audio-status" class="settings-note" role="status"></p>
       </section>
     </section>
     </div>
@@ -345,7 +345,7 @@
     </section>
     </section>
   </main>
-  <section id="skill-detail" class="skill-detail" role="dialog" aria-labelledby="skill-detail-name" aria-describedby="skill-detail-description" hidden><button id="close-skill-detail" aria-label="Close skill details">×</button><div><span id="skill-detail-id" class="label">1-1 · Impulse</span><h4 id="skill-detail-name">Focused disturbance</h4><p id="skill-detail-description"></p><p id="skill-detail-cost" class="stats-note"></p></div><button id="buy-skill">Unlock · 1 Quanta</button><p id="skill-purchase-status" role="status" aria-live="polite"></p></section>
+  <section id="skill-detail" class="skill-detail" role="dialog" aria-labelledby="skill-detail-name" aria-describedby="skill-detail-description" hidden><button id="close-skill-detail" aria-label="Close skill details">×</button><div><span id="skill-detail-id" class="label">1-1 · Impulse</span><h4 id="skill-detail-name">Focused disturbance</h4><p id="skill-detail-summary" class="skill-summary"></p><details id="skill-detail-rules" class="skill-rules"><summary>Full rules</summary><p id="skill-detail-description"></p></details><p id="skill-detail-cost" class="stats-note"></p></div><button id="buy-skill">Unlock · 1 Quanta</button><p id="skill-purchase-status" role="status" aria-live="polite"></p></section>
 
   <dialog id="challenge-dialog" aria-labelledby="challenge-confirm-title" aria-describedby="challenge-confirm-description"><span class="label">Alter the primordial field</span><h2 id="challenge-confirm-title"></h2><p id="challenge-confirm-description"></p><div class="respec-choices"><button id="challenge-cancel">Keep this run</button><button id="challenge-confirm">Restart run</button></div></dialog>
   <dialog id="respec-dialog" aria-labelledby="respec-title" aria-describedby="respec-description"><span class="label">Reform the constellation</span><h2 id="respec-title">Respec skills?</h2><strong id="respec-refund"></strong><p id="respec-description"></p><div class="respec-choices"><button id="cancel-respec">Keep my skills</button><button id="confirm-respec">Respec · restart run</button></div></dialog>
