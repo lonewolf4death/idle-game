@@ -60,7 +60,7 @@
       text(el('symmetry-reset-note'),'Condense resets Symmetry and Field Alignment. Purchased Unified Interaction upgrades remain. Discovered features stay revealed.');
       if(!Game.Challenges.active() && open) {
         text(el('milestone-title'),'Symmetry');text(el('milestone-value'),pct+' · '+S.type());
-        el('milestone-fill').style.width=percent+'%';el('milestone-bar').setAttribute('aria-valuenow',String(percent));el('milestone-bar').setAttribute('aria-label','Symmetry progress to Perfect Symmetry');el('milestone-bar').setAttribute('aria-valuetext',pct+' · '+S.type());
+        el('milestone-fill').style.width=percent+'%';el('milestone-bar').setAttribute('aria-valuenow',String(percent));el('milestone-bar').setAttribute('aria-label',S.discovered(1)||reveal?'Symmetry progress to Perfect Symmetry':'Symmetry progress');el('milestone-bar').setAttribute('aria-valuetext',pct+' · '+S.type());
         const next=S.nextMilestone(),known=next&&(S.discovered(next.at)||reveal);text(el('milestone-caption'),(known?'Next: '+Math.round(next.at*100)+'% · '+next.type+' · ':!next?'Perfect Symmetry · ':'')+'Energy ×'+number(S.multiplier(),5));
         el('milestone-bar').classList.add('symmetry-progress');
       } else el('milestone-bar').classList.remove('symmetry-progress');
