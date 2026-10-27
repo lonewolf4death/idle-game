@@ -62,17 +62,25 @@
     }
     const player = merge(data, fresh);
     const challengeVersion=data.challenges && data.challenges.rulesVersion;
-    if (challengeVersion!==undefined && ![1,2].includes(challengeVersion)) throw new Error('Unsupported challenge rules');
-    if(player.challenges.active===5 && challengeVersion!==2) {
+    if (challengeVersion!==undefined && ![1,2,3].includes(challengeVersion)) throw new Error('Unsupported challenge rules');
+    if(player.challenges.active===5 && (challengeVersion===undefined || challengeVersion<2)) {
       const rule=Game.CONFIG.CHALLENGES[4];
       player.resources.energy=Decimal.max(player.resources.energy,rule.startingEnergy);
       player.challenges.bestEnergy=Decimal.max(player.challenges.bestEnergy,player.resources.energy);
       player.generators.fieldOscillation.added=Decimal.max(player.generators.fieldOscillation.added,rule.startingOscillations);
     }
-    player.challenges.rulesVersion=2;
+    player.challenges.highestEnergy=Decimal.max(player.challenges.highestEnergy,player.resources.energy,player.challenges.bestEnergy);
+    // Changed challenge rules must not trap an older active run. Keep that run
+    // and every earned level; only clear its obsolete challenge restriction.
+    if(challengeVersion!==3 && player.challenges.active && player.challenges.active!==5) {
+      player.challenges.active=0;player.challenges.bestEnergy=Game.D(0);
+    }
+    if(player.challenges.active) player.challenges.highestEnergy=Decimal.max(player.challenges.highestEnergy,Game.CONFIG.CHALLENGES[player.challenges.active-1].unlockEnergy);
+    player.challenges.rulesVersion=3;
     // Older saves have no real duration for the ongoing run. Track from load
     // and label it partial instead of inferring real time from accelerated time.
     if (data.time && data.time.currentEnergyRunReal===undefined) player.time.currentEnergyRunPartial=Number(player.time.realPlayed>0 || player.time.currentEnergyRun.gt(0));
+    if(![0,1].includes(player.prestige.symmetry)) throw new Error('Invalid Symmetry progress');
     if (![0,1].includes(player.time.currentEnergyRunPartial) || player.time.currentEnergyRunReal>player.time.realPlayed+1e-6) throw new Error('Invalid real run duration');
     player.prestige.history.forEach(function (entry,index,history) {
       if (!entry.condense.eq(entry.condense.floor()) || entry.condense.lt(1) || entry.condense.gt(player.prestige.times) || !entry.quanta.eq(entry.quanta.floor()) || entry.quanta.lt(1) || entry.quanta.gt(player.prestige.totalQuanta) || entry.realSeconds>player.time.realPlayed+1e-6 || ![0,1].includes(entry.partial) || index>0 && entry.condense.gte(history[index-1].condense)) throw new Error('Invalid Condense record');
@@ -114,14 +122,17 @@
     });
     const challenge=player.challenges;
     if (!Number.isInteger(challenge.active) || challenge.active<0 || challenge.active>8) throw new Error('Invalid challenge run');
+    if(![challenge.failed,challenge.qualified,challenge.resetArmed].every(function (v) { return v===0 || v===1; }) || ![challenge.purchases,challenge.resets,challenge.latestGenerator].every(Number.isInteger) || challenge.latestGenerator>7 || challenge.lastPurchase>challenge.elapsed+1e-6) throw new Error('Invalid challenge clocks');
+    if(challenge.active===1 && !challenge.failed && !challenge.qualified && challenge.elapsed>30-player.automation.buyers.energyDisturbance.level+1e-6) throw new Error('Invalid challenge deadline');
+    if(challenge.active===4 && challenge.resetArmed && !challenge.qualified && challenge.resetAt<challenge.elapsed-1e-6) throw new Error('Invalid collapse clock');
     if (challenge.active) {
       const buyer=Game.CONFIG.AUTOMATION.buyers[challenge.active-1];
       if (!player.prestige.skills[buyer.skill] || player.automation.buyers[buyer.id].level>=10) throw new Error('Invalid active challenge');
       challenge.bestEnergy=Decimal.max(challenge.bestEnergy,player.resources.energy);
       const rule=Game.CONFIG.CHALLENGES[challenge.active-1];
       if (rule.blocked && rule.blocked.some(function (id) { return player.generators[id].purchased.gt(0) || player.generators[id].added.gt(0); })) throw new Error('Forbidden challenge generator');
-      if (challenge.active===2 && player.fluctuation.positive!==0) throw new Error('Invalid forced Fluct state');
-      if (challenge.active===7 && Game.CONFIG.GENERATORS.some(function (gen) { return player.generators[gen.id].purchased.gt(10) || player.generators[gen.id].added.gt(0); })) throw new Error('Invalid sparse generator count');
+
+
     }
     Game.Progression.captureAchievements(player);
     Game.player = player;

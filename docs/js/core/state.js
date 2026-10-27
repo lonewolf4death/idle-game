@@ -19,14 +19,14 @@
     });
     return {
       automation: {buyers:buyers},
-      challenges: {active:0,bestEnergy:D(0),rulesVersion:2},
+      challenges: {active:0,bestEnergy:D(0),highestEnergy:D(0),rulesVersion:3,elapsed:0,purchases:0,failed:0,qualified:0,resetArmed:0,resetAt:0,resets:0,lastPurchase:0,latestGenerator:0},
       unlocks: { fluctOdds: 0, fieldExcitation: 0 },
       ui: { collapsed: collapsed, skillTree2D: 0 },
       version: Game.CONFIG.VERSION,
       generatorSchema: 2,
       fluctuation: { positive: 1, elapsed: D(0), negativeStreak: 0, negativeStreakAchievement: 0, negativeStreakLevel:0, positiveChanceMastery:0, rollReductionStacks: D(0) },
       achievements: achievements,
-      prestige: { quanta: D(0), totalQuanta: D(0), times: D(0), skills: skills, history: [] },
+      prestige: { quanta: D(0), totalQuanta: D(0), times: D(0), skills: skills, history: [], symmetry:0 },
       generatorFocus: { elapsed: D(0) },
       autoClick: { elapsed: D(0) },
       disturbanceReplication: { elapsed: D(0), doubles: D(0) },

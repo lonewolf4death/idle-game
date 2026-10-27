@@ -31,7 +31,7 @@
       this.tierRows.forEach(function (tier,index) { tier.hidden=!(index<level||reveal);tier.classList.toggle("earned",index<level); });
       Game.CONFIG.DISCOVERY_ACHIEVEMENTS.forEach(function (definition) {
         const item=Game.AchievementsUI.rows[definition.id], owned=Boolean(p.achievements[definition.id]);
-        item.row.hidden=false;item.row.classList.toggle("unlocked",owned);set(item.status,owned?"Unlocked":"Locked");
+        item.row.hidden=false;item.row.classList.toggle("unlocked",owned);set(item.status,definition.kind==='challenge' ? (function () { const n=p.automation.buyers[Game.CONFIG.AUTOMATION.buyers[definition.track-1].id].level;return (n>=10?'Mastered':n>=5?'Established':n>=1?'Initiated':'Locked')+' · '+n+'/10'; })() : owned?"Unlocked":"Locked");
       });
     }
   };

@@ -6,7 +6,9 @@
     catchingUp: false,
     displayInterval: 1000 / 15,
     lastDisplay: -Infinity,
-    advanceGameTime: function (gameDelta) {
+    advanceGameTime: function (gameDelta, realDelta) {
+      Game.Challenges.realRate=realDelta && Game.D(gameDelta).gt(0) ? realDelta/Game.D(gameDelta).toNumber() : 0;
+      if(realDelta && Game.D(gameDelta).eq(0)) Game.Challenges.advanceClock(realDelta);
       Game.Achievements.checkFluctMastery();
       const before = Game.Playtime.state().level;
       let remaining = Game.D(gameDelta);
@@ -44,12 +46,13 @@
       // subsequent production and each Condense records the correct duration.
       let remaining=realDelta;
       while (remaining>1e-10) {
-        const step=Math.min(remaining,Game.Automation.remaining());
+        const step=Math.min(remaining,Game.Automation.remaining(),Game.Challenges.realRemaining());
         if (step>0) {
-          this.advanceGameTime(Game.Time.getGameDelta(step));
+          this.advanceGameTime(Game.Time.getGameDelta(step),step);
           Game.Time.advance(step, Game.D(0));
           Game.Automation.advance(step);remaining=Math.max(0,remaining-step);
         }
+        Game.Challenges.resolveClockEvents();
         Game.Automation.resolve();
       }
     },

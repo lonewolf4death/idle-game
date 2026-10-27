@@ -48,6 +48,7 @@
     },
     init: function () {
       Game.CondenseFX.init();
+      byId('unlock-symmetry').addEventListener('click',function () { Game.Loop.pump(performance.now());Game.Prestige.unlockSymmetry(); });
       const tree = byId("skill-world");
       Game.CONFIG.PRESTIGE.branches.forEach(function (branch) {
         branch.nodes.forEach(function (id, index) {
@@ -128,6 +129,9 @@
     },
     render: function (reveal) {
       Game.TreeMap.syncMode();
+      const sym=byId('unlock-symmetry'),symOwned=Game.player.prestige.symmetry;
+      sym.disabled=!Game.Prestige.canUnlockSymmetry();setText(sym,symOwned?'Unlocked · 10,000 Quanta':'Unlock · 10,000 Quanta');
+      setText(byId('symmetry-state'),symOwned?'Unlocked · future mechanics unformed':'Disconnected · future tree');
       const p = Game.player, reward = Game.Prestige.reward(), ready = reward.gt(0), experienced = p.prestige.times.gt(0);
       setText(byId("quanta-balance"), number(p.prestige.quanta));
       byId("quanta-header").hidden = !(experienced || p.prestige.quanta.gt(0) || reveal);

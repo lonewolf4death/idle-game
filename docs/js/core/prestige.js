@@ -1,6 +1,12 @@
 (function (Game) {
   const D = Game.D;
   Game.Prestige = {
+    canUnlockSymmetry: function () { return !Game.Challenges.active() && !Game.player.prestige.symmetry && Game.player.prestige.quanta.gte(Game.CONFIG.SYMMETRY.cost); },
+    unlockSymmetry: function () {
+      if(!this.canUnlockSymmetry()) return false;
+      Game.player.prestige.quanta=Game.player.prestige.quanta.sub(Game.CONFIG.SYMMETRY.cost);Game.player.prestige.symmetry=1;
+      Game.Save.save();if(Game.Audio) Game.Audio.play('perk');if(Game.UI) Game.UI.render();return true;
+    },
     canBuySkill: function (id) {
       const definition = Game.CONFIG.PRESTIGE.skills[id];
       if (Game.Challenges.active() || !definition || Game.Progression.hasSkill(id)) return false;
@@ -62,7 +68,7 @@
       fresh.fluctuation.positiveChanceMastery = old.fluctuation.positiveChanceMastery;
       fresh.prestige.quanta = old.prestige.quanta.add(refund);
       fresh.prestige.totalQuanta = old.prestige.totalQuanta;fresh.prestige.times = old.prestige.times;
-      fresh.prestige.history = old.prestige.history;
+      fresh.prestige.history = old.prestige.history;fresh.prestige.symmetry=old.prestige.symmetry;
       Game.Automation.preserve(old,fresh);
       fresh.settings = old.settings;fresh.ui = old.ui;
       Game.player = fresh;

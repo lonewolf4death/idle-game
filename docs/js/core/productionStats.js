@@ -21,7 +21,7 @@
     },
 
     fluctBreakdown: function (s) {
-      const enabled = s.fluct.owned.gt(0), rules = s.fluct.rules;
+      const enabled = Game.Challenges.produces('quantumFluctuation') && s.fluct.owned.gt(0), rules = s.fluct.rules;
       const growth = D(rules.growth), increment = D(Game.CONFIG.COHERENCE.quantumFluctGrowth);
       const rawGrowth = growth.add(s.coherence.quantum.mul(increment));
       const effectiveGrowth = growth.add(s.coherence.softcap.effective.mul(increment));
@@ -108,6 +108,10 @@
           { id: "echo-energy", label: "1-4-1 · 1% of per-second Energy", factor: amount.echo.energy, output: amount.echo.energy, share: amount.echo.energy.div(amount.total).toNumber() }
         ]
       });
+      const product=entries.reduce(function (value,entry) { return value.mul(entry.factor); },D(1));
+      if((Game.Challenges.gainPower()!==1 || !Game.Challenges.energyFactor().eq(1))) {
+        entries.push({id:'energy-transformation',label:'Energy gains · power '+Game.Challenges.gainPower().toFixed(3)+(Game.Challenges.active()?' · '+Game.Challenges.definition().name:''),factor:product.gt(0)?output.div(product):D(1),color:'quanta'});
+      }
       return { kind: kind, output: output, active: active, entries: this.withShares(entries, active, "base") };
     },
 
@@ -156,7 +160,7 @@
           perGameSecond: generatorRate, perRealSecond: generatorRate.mul(speed),
           cadence: D(disturbance.burstInterval).div(Game.Energy.burstInterval(disturbance)),
           burstInterval: Game.Energy.burstInterval(disturbance), smooth: owned.gte(disturbance.smoothAt),
-          burstPerUnit: Game.Energy.getBaseRate(disturbance).mul(Game.Energy.burstInterval(disturbance)).mul(generatorBonus)
+          burstPerUnit: owned.gt(0) ? generatorRate.mul(Game.Energy.burstInterval(disturbance)).div(owned) : D(0)
         },
         fluct: {
           owned: Game.Energy.getOwned("quantumFluctuation"), positive: Boolean(p.fluctuation.positive),
@@ -167,7 +171,7 @@
         },
         coherence: {
           owned: coherenceOwned, bonus: generatorAchievements,
-          perCycle: coherenceOwned.mul(generatorAchievements).mul(Game.Progression.generatorFocusMultiplier("coherentEnergy")),
+          perCycle: Game.Coherence.outputPerCycle(),
           quantum: p.resources.quantumResonance, energy: p.resources.energyResonance,
           quantumInterval: Game.Coherence.quantumInterval(), energyInterval: Game.Coherence.energyInterval(),
           softcap: Game.Coherence.quantumSoftcapState()

@@ -647,7 +647,7 @@ summary.contribution-row { cursor:pointer; }
 .skill-map .is-locked .cosmic-icon { color:#66767a; border-color:#405258; background:#121b1d; }
 .skill-map .constellation-node:hover .cosmic-icon,.skill-map .constellation-node:focus-visible .cosmic-icon,.skill-map .constellation-node[aria-expanded=true] .cosmic-icon { outline:2px solid #c8b5df; outline-offset:3px; }
 .skill-map .constellation-node:hover { background:#0b1012; color:#e1d7eb; }
-.symmetry-placeholder { position:absolute; right:26px; bottom:26px; width:175px; display:flex; flex-direction:column; gap:5px; padding:15px; border:1px dashed #405153; color:#78908d; font-size:11px; background:#0b1012e8; z-index:2; text-align:center; pointer-events:none; }
+.symmetry-placeholder { position:absolute; right:26px; bottom:26px; width:195px; display:flex; flex-direction:column; gap:5px; padding:15px; border:1px dashed #405153; color:#78908d; font-size:11px; background:#0b1012e8; z-index:2; text-align:center; pointer-events:auto; }
 .symmetry-mark { font-size:24px; color:#8cae9b; }.symmetry-placeholder strong { font-weight:400; color:#a2b9ac; letter-spacing:.12em; text-transform:uppercase; }.symmetry-placeholder small { font-size:10px; line-height:1.6; }
 .constellation-tree>.symmetry-placeholder { bottom:62px; width:155px; font-size:10px; }
 @media(max-width:600px) { .tree-view-switch { margin-left:0; }.tree-view-switch button { font-size:10px; padding:5px 8px; } }
@@ -655,10 +655,10 @@ summary.contribution-row { cursor:pointer; }
 .constellation-tree>.symmetry-placeholder { right:10px; bottom:62px; width:110px; padding:8px; gap:2px; font-size:9px; }
 .constellation-tree>.symmetry-placeholder>span,.constellation-tree>.symmetry-placeholder>small { display:none; }
 .constellation-tree>.symmetry-placeholder strong { font-size:10px; }
-.constellation-tree>.symmetry-placeholder::after { content:'Future tree'; font-size:9px; }
+.constellation-tree>.symmetry-placeholder button { padding:5px; font-size:9px; }
 
 @media(max-width:600px) {
-  .constellation-tree>.symmetry-placeholder { display:none; }
+  .constellation-tree>.symmetry-placeholder { bottom:62px; right:8px; }
 }
 @media(max-width:600px) and (max-height:800px) {
   .condense-active #prestige-view:has(#skill-map:not([hidden])) { overflow-y:auto; }

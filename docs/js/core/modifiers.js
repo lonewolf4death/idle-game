@@ -24,7 +24,7 @@
       }, chance);
       rules.positiveChance = Math.max(0, Math.min(1, chance));
       if (Game.player.fluctuation.positiveChanceMastery) rules.positiveChance = Math.max(rules.positiveChance,Game.CONFIG.FLUCT_STREAK_ACHIEVEMENT.masteryFloor);
-      if (Game.Challenges.active(2)) rules.positiveChance=0;
+
       return rules;
     },
     clickUpgradeRules: [],

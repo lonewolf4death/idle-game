@@ -174,7 +174,7 @@
     render: function (reveal) {
       if (this.page==="condense") { this.renderHistory();return; }
       const s = Game.ProductionStats.snapshot(), p = Game.player, a = s.achievements;
-      const hasFluct = s.fluct.owned.gt(0), hasCoherence = Game.Coherence.discovered();
+      const hasFluct = Game.Challenges.produces("quantumFluctuation") && s.fluct.owned.gt(0), hasCoherence = Game.Coherence.discovered();
       const hasField = p.unlocks.fieldExcitation || s.field.owned.gt(0) || s.field.accumulated.gt(0);
       const showTime = reveal || s.time.level > 0, showSpeed = reveal || s.timeRelevant;
       text("stats-click-total", number(s.clicks.total));
@@ -277,7 +277,7 @@
       text("stats-coherence-owned", number(s.coherence.owned, 0));
       text("stats-coherence-bonus", multiplier(s.coherence.bonus));
       text("stats-quantum-output", increase(s.coherence.perCycle));
-      text("stats-resonance-output", Game.Challenges.active(7)?"Disabled · Sparse universe":increase(s.coherence.perCycle) + (Game.Progression.hasSkill("2-4-1") ? " · plus matching ER on each QR cycle" : ""));
+      text("stats-resonance-output", increase(s.coherence.perCycle) + (Game.Progression.hasSkill("2-4-1") ? " · plus matching ER on each QR cycle" : ""));
       text("stats-quantum-interval", number(s.coherence.quantumInterval) + "s");
       text("stats-resonance-interval", number(s.coherence.energyInterval) + "s");
       text("stats-quantum-held", number(s.coherence.quantum, 0));

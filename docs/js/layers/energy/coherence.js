@@ -31,10 +31,10 @@
       const config = this.rules();
       return Game.Progression.productionInterval(D(config.quantumInterval).add(Game.player.stats.totalQuantumResonance.div(config.quantumSlowdownEvery).floor().mul(config.quantumSlowdownSeconds)));
     },
-    outputPerCycle: function () { return Game.Energy.getOwned("coherentEnergy").mul(Game.Progression.generatorMultiplier()).mul(Game.Progression.generatorFocusMultiplier("coherentEnergy")); },
-    energyPerSecond: function () { if (Game.Challenges.active(7)) return D(0);return this.outputPerCycle().mul(D(1).div(this.energyInterval()).add(Game.Progression.hasSkill("2-4-1") ? D(1).div(this.quantumInterval()) : 0)); },
+    outputPerCycle: function () { return (Game.Challenges.produces("coherentEnergy")?Game.Energy.getOwned("coherentEnergy"):D(0)).mul(Game.Progression.generatorMultiplier()).mul(Game.Progression.generatorFocusMultiplier("coherentEnergy")); },
+    energyPerSecond: function () { return this.outputPerCycle().mul(D(1).div(this.energyInterval()).add(Game.Progression.hasSkill("2-4-1") ? D(1).div(this.quantumInterval()) : 0)); },
     grantOutput: function (kind, amount) {
-      if (Game.Challenges.active(3) || Game.Challenges.active(7) && kind==="energyResonance") return D(0);
+      if(!Game.Challenges.produces("coherentEnergy")) return D(0);
       const state = Game.player.coherence, carryKey = kind === "quantumResonance" ? "quantumCarry" : "energyCarry";
       const total = D(amount).add(state[carryKey]), produced = total.add(1e-12).floor();
       state[carryKey] = Decimal.max(0, total.sub(produced));
@@ -50,24 +50,24 @@
       return Decimal.max(0, this.energyInterval().sub(Game.player.coherence.energyElapsed));
     },
     nextEventIn: function () {
-      if (Game.Energy.getOwned("coherentEnergy").lte(0)) return D(Infinity);
+      if (!Game.Challenges.produces("coherentEnergy") || Game.Energy.getOwned("coherentEnergy").lte(0)) return D(Infinity);
       return Decimal.min(this.quantumRemaining(), this.energyRemaining());
     },
     advance: function (gameDelta) {
-      if (Game.Energy.getOwned("coherentEnergy").lte(0)) return;
+      if (!Game.Challenges.produces("coherentEnergy") || Game.Energy.getOwned("coherentEnergy").lte(0)) return;
       Game.player.coherence.quantumElapsed = Game.player.coherence.quantumElapsed.add(gameDelta);
       Game.player.coherence.energyElapsed = Game.player.coherence.energyElapsed.add(gameDelta);
     },
     resolveEvents: function () {
       const owned = Game.Energy.getOwned("coherentEnergy");
-      if (owned.lte(0)) return;
+      if (!Game.Challenges.produces("coherentEnergy") || owned.lte(0)) return;
       const state = Game.player.coherence;
       const interval = this.quantumInterval();
       if (state.quantumElapsed.add(1e-12).gte(interval)) {
         state.quantumElapsed = Decimal.max(0, state.quantumElapsed.sub(interval));
         const produced = this.grantOutput("quantumResonance", this.outputPerCycle());
         if (Game.Progression.hasSkill("2-4-1")) this.grantOutput("energyResonance", produced);
-        if (Game.Progression.hasSkill("2-4-2") && Game.Energy.getOwned("fieldExcitation").gt(0)) Game.player.fieldExcitation.elapsed = Game.player.fieldExcitation.elapsed.add(Game.CONFIG.PRESTIGE.skills["2-4-2"].fieldSeconds);
+        if (Game.Progression.hasSkill("2-4-2") && Game.Challenges.produces("fieldExcitation") && Game.Energy.getOwned("fieldExcitation").gt(0)) Game.player.fieldExcitation.elapsed = Game.player.fieldExcitation.elapsed.add(Game.CONFIG.PRESTIGE.skills["2-4-2"].fieldSeconds);
         if (Game.UI) Game.UI.resonanceFeedback("quantumResonance");
       }
       if (state.energyElapsed.add(1e-12).gte(this.energyInterval())) {

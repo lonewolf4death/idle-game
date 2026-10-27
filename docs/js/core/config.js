@@ -146,6 +146,8 @@
         costScaling: "1.025",
         scalingStepLevels: 10,
         scalingStepIncrease: "0.00125",
+        lateScalingStart: 6000,
+        lateScalingStepIncrease: "0.5",
         production: "0"
       },
       {
@@ -188,20 +190,26 @@
     ]
   };
   Game.CONFIG.CHALLENGES = [
-    {name:"Hands off",startExponent:10,exponentStep:4,description:"Clicks and their Energy, resource payouts, time advances and peak release are disabled.",devDescription:"Starts with one added Gen 1 (Energy Disturbance)."},
-    {name:"Against the tide",startExponent:12,exponentStep:4,description:"Fluct is permanently negative. Forced rolls do not count toward fluct-streak achievements.",devDescription:"Starts with one added Gen 2 (Quantum Fluctuation)."},
-    {name:"Severed resonance",startExponent:10,exponentStep:4,blocked:["coherentEnergy"],description:"Gen 3 (Coherent Energy) is unavailable. Quantum Resonance and Energy Resonance production are disabled, including click grants."},
-    {name:"Unexcited field",startExponent:10,exponentStep:4,blocked:["fieldExcitation","fieldCoupling"],description:"Gen 4 (Field Excitation) and Gen 7 (Field Coupling) are unavailable. Field growth and click-granted base growth are disabled."},
+    {name:"Brief window",unlockEnergy:"1e55",startExponent:8,exponentStep:3,deadline:30,deadlineStep:1,requiredPurchases:3,description:"The run has a real-time deadline. Progress after the deadline cannot complete the attempt."},
+    {name:"Diminishing reality",unlockEnergy:"1e65",startExponent:20,exponentStep:20,description:"All Energy gains are raised to a reduced power, falling from 0.95 at level one to 0.50 at level ten. Generator Energy is transformed per game second; click payouts are transformed once."},
+    {name:"Slow awakening",unlockEnergy:"1e75",startExponent:25,exponentStep:10,wallOrders:100,wallStep:15,description:"Energy production begins heavily suppressed. Suppression weakens by one order of magnitude per real second, eventually disappearing."},
+    {name:"Unstable origin",unlockEnergy:"1e85",startExponent:25,exponentStep:10,resetSeconds:60,resetStep:3,description:"After the first Gen 2 purchase, Energy, generators, Disturb, Resonance and field growth reset periodically. The reset timer continues after each collapse."},
     {name:"Costly potential",startExponent:30,exponentStep:4,purchasePriceMultiplier:"1e6",maxPurchaseQuantity:"1000",startingEnergy:"1.1e10",startingOscillations:"1",description:"Generator and Disturb purchase prices are multiplied by ×1e6.",devDescription:"Starts with 1.1e10 Energy and one added Gen 5. Quantity = 1 + floor(999 × (current Oscillation multiplier − 1) / (peak multiplier − 1)), bounded from 1 to 1000. A paused negative-Fluct peak gives quantity 1. Snapshot before purchase; bonus generators are added units, so only paid purchases raise generator costs. Disturb grants extra levels up to its normal cap."},
-    {name:"Chain reaction",startExponent:12,exponentStep:4,description:"Buying a generator erases the purchased and added counts of every lower-numbered generator."},
-    {name:"Sparse universe",startExponent:8,exponentStep:4,description:"Each generator is limited to ten paid purchases per run. Added-unit grants and Energy Resonance production are disabled."},
-    {name:"Forgotten origin",startExponent:8,exponentStep:4,description:"Unspent and lifetime Quanta Energy bonuses and the Memory of condensation multiplier are disabled."}
+    {name:"Single voice",unlockEnergy:"1e105",startExponent:12,exponentStep:6,description:"Only the most recently purchased generator has an active effect. All other generator effects and production clocks are paused. Existing resources and accumulated field growth remain."},
+    {name:"Silent fluctuations",unlockEnergy:"1e115",startExponent:18,exponentStep:8,blocked:["quantumFluctuation"],description:"Gen 2 (Quantum Fluctuation) is unavailable and Fluct has no effect."},
+    {name:"Fading momentum",unlockEnergy:"1e125",startExponent:15,exponentStep:6,description:"Energy production falls continuously to 85% of its previous strength each real second. Any successful generator or Disturb purchase resets this suppression."}
   ];
+  Game.CONFIG.CHALLENGES[4].unlockEnergy="1e95";
+  Game.CONFIG.SYMMETRY={cost:"10000"};
+  Game.CONFIG.CHALLENGES.forEach(function (rule,index) {
+    Game.CONFIG.DISCOVERY_ACHIEVEMENTS.push({id:"challenge"+(index+1),name:rule.name+" · Challenge",kind:"challenge",track:index+1,amount:"1",reward:"none",icon:"condense",requirement:"Complete level one of "+rule.name+". Further milestones: levels 5 and 10."});
+  });
+  Game.CONFIG.DISCOVERY_ACHIEVEMENTS.push({id:"allChallenges",name:"Eight facets of existence",kind:"allChallenges",amount:"1",reward:"power",multiplier:"1.02",icon:"coherent",requirement:"Complete at least one level of all eight challenges."});
   const automationParents=["1-5-1","2-4-1","2-4-2","4-4-1","3-2-3","3-5-1","3-5-2","4-4-2"];
   Game.CONFIG.AUTOMATION.buyers.forEach(function (buyer,index) {
     buyer.title=Game.CONFIG.CHALLENGES[index].name;
     Game.CONFIG.PRESTIGE.skills[buyer.skill]={name:index===7 ? "Automatic condensation" : "Automatic "+Game.CONFIG.GENERATORS[index].name.toLowerCase(),cost:"100",requires:automationParents[index],
-      description:(index===7 ? "Automatically Condense once the available reward reaches the Quanta target chosen in the Automation tab (default: 1). The normal 1e50 Energy minimum applies; each reset claims the full available reward. Resets the run as normal. Repeat automatic Condenses skip the cinematic." : "Automatically attempt to buy exactly one "+buyer.name+" using Energy per activation. Respects unlock conditions and current costs; ignores the manual buy quantity.")+" Starts at one attempt every 5 real seconds. Its ten-level restricted-run challenge reduces the interval by 0.4 seconds per level, reaching 1 second. Configure individual buyers or all buyers in the Automation tab. Unlocked automation starts OFF. Timers continue while unfocused, do not bank failed purchases, and restart each run. Challenge progress is permanent."};
+      description:(index===7 ? "Automatically Condense once the available reward reaches the Quanta target chosen in the Automation tab (default: 1). The normal 1e50 Energy minimum applies; each reset claims the full available reward. Resets the run as normal. Repeat automatic Condenses skip the cinematic." : "Automatically buy Max "+buyer.name+" using available Energy per activation. Respects unlock conditions and current costs; ignores the manual buy quantity.")+" Starts at one attempt every 5 real seconds. Its ten-level restricted-run challenge reduces the interval by 0.4 seconds per level, reaching 1 second. Configure individual buyers or all buyers in the Automation tab. Unlocked automation starts OFF. Timers continue while unfocused, do not bank failed purchases, and restart each run. Challenge progress is permanent."};
     Game.CONFIG.PRESTIGE.branches.find(function (branch) { return branch.id===Number(buyer.skill[0]); }).nodes.push(buyer.skill);
   });
 })(window.CosmicIdle);

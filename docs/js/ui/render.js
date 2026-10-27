@@ -344,18 +344,19 @@
           if (Game.Progression.hasSkill("2-1-2") && p.fluctuation.rollReductionStacks.gt(0)) fluctText += " · negative chain: " + Game.Format.number(p.fluctuation.rollReductionStacks, 0) + " · interval " + Game.Format.number(fluctRules.rollInterval, 5) + "s";
           setText(node.production, fluctText);
         } else if (gen.type === "coherent") {
-          const output = owned.mul(Game.Progression.generatorMultiplier()).mul(Game.Progression.generatorFocusMultiplier(gen.id));
-          const energyOutput=Game.Challenges.active(7)?Game.D(0):output;
-          setText(node.production, Game.Format.number(output) + " Quantum Resonance / " + Game.Format.number(Game.Coherence.quantumInterval()) + "s · " + Game.Format.number(energyOutput) + " Energy Resonance / " + Game.Coherence.energyInterval().toString() + "s" + (Game.Progression.hasSkill("2-4-1") && !Game.Challenges.active(7) ? " · QR cycles also produce ER" : "") + (Game.Progression.hasSkill("2-4-2") ? " · each QR cycle advances Gen 4 by 15s" : ""));
+          const output = Game.Coherence.outputPerCycle();
+          const energyOutput=output;
+          setText(node.production, Game.Format.number(output) + " Quantum Resonance / " + Game.Format.number(Game.Coherence.quantumInterval()) + "s · " + Game.Format.number(energyOutput) + " Energy Resonance / " + Game.Coherence.energyInterval().toString() + "s" + (Game.Progression.hasSkill("2-4-1") ? " · QR cycles also produce ER" : "") + (Game.Progression.hasSkill("2-4-2") ? " · each QR cycle advances Gen 4 by 15s" : ""));
         } else if (gen.type === "field") {
           setText(node.production, "+" + Game.Format.number(Game.FieldExcitation.boostPerCycle(), 5) + " base Energy/sec to Energy Disturbance every " + Game.FieldExcitation.interval().toString() + "s · next in " + Game.Format.number(Game.FieldExcitation.remaining()) + "s · accumulated base bonus +" + Game.Format.number(p.fieldExcitation.baseRateBonus, 5) + "/sec");
         } else if (gen.burstInterval && owned.lt(gen.smoothAt)) {
           const timers = p.generators[gen.id].burstTimers;
           const next = timers.length ? Game.Energy.burstInterval(gen).sub(timers.reduce(function (latest, timer) { return Decimal.max(latest, timer); }, Game.D(0))) : Game.Energy.burstInterval(gen).sub(p.generators[gen.id].burstElapsed);
-          setText(node.production, Game.Format.number(Game.Energy.getBaseRate(gen).mul(Game.Energy.burstInterval(gen)).mul(Game.Energy.getCountMultiplier(gen.id)).mul(Game.Progression.generatorFocusMultiplier(gen.id)).mul(Game.Progression.generatorMultiplier()).mul(Game.Progression.energyMultiplier()).mul(Game.Energy.fluctMultiplier()).mul(Game.FieldDynamics.multiplier())) + " Energy each / " + Game.Energy.burstInterval(gen).toString() + "s · independent timers · next in " + Game.Format.number(next) + "s");
+          setText(node.production, Game.Format.number(Game.Energy.getGeneratorProduction(gen).mul(Game.Energy.burstInterval(gen)).div(Decimal.max(1,owned))) + " Energy each / " + Game.Energy.burstInterval(gen).toString() + "s · independent timers · next in " + Game.Format.number(next) + "s");
         } else {
           setText(node.production, "Producing " + Game.Format.number(genProduction.mul(Game.Time.getGameSpeed())) + "/sec" + (gen.burstInterval ? " · smooth flow (25+ owned)" : ""));
         }
+        if(Game.Challenges.active(6) && !Game.Challenges.produces(gen.id)) setText(node.production,"Paused · only the last purchased generator is active");
         if (gen.id === "energyDisturbance") {
           const description = "Base production: " + Game.Format.number(Game.Energy.getBaseRate(gen).mul(Game.Energy.burstInterval(gen)), 5) + " Energy every " + Game.Energy.burstInterval(gen).toString() + "s each · " + Game.Format.number(Game.Energy.getBaseRate(gen), 5) + " Energy/sec average";
           if (node.description.textContent !== description) node.description.textContent = description;

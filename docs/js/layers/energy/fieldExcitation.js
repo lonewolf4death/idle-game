@@ -7,22 +7,22 @@
       return Decimal.max(0, this.interval().sub(Game.player.fieldExcitation.elapsed));
     },
     nextEventIn: function () {
-      return Game.Energy.getOwned("fieldExcitation").gt(0) ? this.remaining() : D(Infinity);
+      return Game.Challenges.produces("fieldExcitation") && Game.Energy.getOwned("fieldExcitation").gt(0) ? this.remaining() : D(Infinity);
     },
     boostPerCycle: function () {
-      if (Game.Challenges.active(4)) return D(0);
+      if (!Game.Challenges.produces("fieldExcitation")) return D(0);
       return Game.Energy.getOwned("fieldExcitation").mul(Game.CONFIG.FIELD_EXCITATION.baseRateIncrease).mul(Game.Progression.generatorMultiplier()).mul(Game.Progression.generatorFocusMultiplier("fieldExcitation")).mul(this.purchasedMultiplier());
     },
     purchasedMultiplier: function () { return Game.Progression.hasSkill("4-3-3") ? D(Game.CONFIG.PRESTIGE.skills["4-3-3"].fieldMultiplierPerPurchased).pow(Game.player.generators.fieldExcitation.purchased) : D(1); },
-    growthPerSecond: function () { if (Game.Challenges.active(4)) return D(0);return this.boostPerCycle().div(this.interval()).mul(D(1).add(Game.Progression.hasSkill("2-4-2") && Game.Energy.getOwned("coherentEnergy").gt(0) ? D(Game.CONFIG.PRESTIGE.skills["2-4-2"].fieldSeconds).div(Game.Coherence.quantumInterval()) : 0)); },
+    growthPerSecond: function () { if (!Game.Challenges.produces("fieldExcitation")) return D(0);return this.boostPerCycle().div(this.interval()).mul(D(1).add(Game.Progression.hasSkill("2-4-2") && Game.Challenges.produces("coherentEnergy") && Game.Energy.getOwned("coherentEnergy").gt(0) ? D(Game.CONFIG.PRESTIGE.skills["2-4-2"].fieldSeconds).div(Game.Coherence.quantumInterval()) : 0)); },
     advance: function (gameDelta) {
-      if (Game.Energy.getOwned("fieldExcitation").gt(0)) {
+      if (Game.Challenges.produces("fieldExcitation") && Game.Energy.getOwned("fieldExcitation").gt(0)) {
         Game.player.fieldExcitation.elapsed = Game.player.fieldExcitation.elapsed.add(gameDelta);
         if (Game.UI) Game.UI.streamFieldWaves(gameDelta);
       }
     },
     resolveEvents: function () {
-      if (Game.Energy.getOwned("fieldExcitation").lte(0) || this.remaining().gt(1e-12)) return;
+      if (!Game.Challenges.produces("fieldExcitation") || Game.Energy.getOwned("fieldExcitation").lte(0) || this.remaining().gt(1e-12)) return;
       const state = Game.player.fieldExcitation;
       const cycles=state.elapsed.div(this.interval()).add(1e-12).floor();
       state.elapsed = Decimal.max(0, state.elapsed.sub(this.interval().mul(cycles)));

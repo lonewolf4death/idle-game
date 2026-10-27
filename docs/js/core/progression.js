@@ -148,6 +148,7 @@
       if (quote.count.lte(0)) return false;
       Game.player.resources.energy = Game.player.resources.energy.sub(quote.cost);
       Game.player.upgrades.clickPower = Game.player.upgrades.clickPower.add(quote.gain);
+      Game.Challenges.afterPurchase("clickPower");
       Game.Achievements.capture(Game.player, true);
       if (Game.Energy.getOwned("fieldCoupling").gt(0) && Game.UI) Game.UI.dynamicsFeedback("fieldCoupling");
       return true;
@@ -167,11 +168,13 @@
   Game.Achievements = {
     matches: function (definition, player) {
       const p=player||Game.player;
+      if(definition.kind==='challenge') return p.automation.buyers[Game.CONFIG.AUTOMATION.buyers[definition.track-1].id].level>=1;
+      if(definition.kind==='allChallenges') return Game.CONFIG.AUTOMATION.buyers.every(function (b) { return p.automation.buyers[b.id].level>=1; });
       const amount=definition.kind==="purchased" ? p.generators[definition.generator].purchased : definition.kind==="clicks" ? p.stats.manualClicks : definition.kind==="autoClicks" ? p.stats.autoClicks : p.upgrades.clickPower;
       const required=definition.amount==="max" ? Game.Modifiers.getClickUpgradeRules().maxLevel : definition.amount;
       return definition.exact ? amount.eq(required) : amount.gte(required);
     },
-    rewardText: function (definition) { return "×"+definition.multiplier+" "+({clicks:"click Energy",generators:"generator production",energy:"all Energy"}[definition.reward]); },
+    rewardText: function (definition) { if(definition.reward==='none') return 'Milestone only · no production reward';if(definition.reward==='power') return 'All Energy gains raised to '+definition.multiplier+' (generator rate per game second)';return "×"+definition.multiplier+" "+({clicks:"click Energy",generators:"generator production",energy:"all Energy"}[definition.reward]); },
     capture: function (player, notify) {
       const p=player||Game.player;
       Game.CONFIG.DISCOVERY_ACHIEVEMENTS.forEach(function (definition) {

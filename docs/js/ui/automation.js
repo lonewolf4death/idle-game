@@ -41,6 +41,7 @@
       element('challenge-detail').addEventListener('click',function (event) {
         if(event.target.closest('#challenge-enter')) view.confirmRun('enter');
         if(event.target.closest('#challenge-exit')) view.confirmRun('exit');
+        if(event.target.closest('#challenge-retry')) view.confirmRun('retry');
         if(event.target.closest('#challenge-complete')) { Game.Loop.pump(performance.now());Game.Challenges.complete(); }
         if(event.target.closest('#challenge-tree')) {
           const buyer=Game.Automation.definition(view.selected);Game.UI.selectView('prestige',true);Game.PrestigeUI.showDetails(buyer.skill,true);
@@ -57,14 +58,14 @@
     },
     confirmRun: function (action) {
       Game.Loop.pump(performance.now());
-      const index=action==='exit'?Game.Challenges.active():Game.CONFIG.AUTOMATION.buyers.findIndex(function (buyer) { return buyer.id===Game.AutomationUI.selected; })+1;
-      if(!index || action==='enter' && (Game.Challenges.active() || !Game.Automation.unlocked(this.selected) || Game.Challenges.level(index)>=10)) return;
+      const index=action!=='enter'?Game.Challenges.active():Game.CONFIG.AUTOMATION.buyers.findIndex(function (buyer) { return buyer.id===Game.AutomationUI.selected; })+1;
+      if(!index || action==='enter' && (Game.Challenges.active() || !Game.Challenges.unlocked(index) || Game.Challenges.level(index)>=10)) return;
       const rule=Game.Challenges.definition(index),dialog=element('challenge-dialog');
       this.pending={action:action,index:index,owner:Game.player};
       Game.Challenges.confirming=true;
-      text(element('challenge-confirm-title'),action==='enter' ? 'Enter '+rule.name+' · Level '+(Game.Challenges.level(index)+1)+'?' : 'Exit '+rule.name+'?');
-      text(element('challenge-confirm-description'),(action==='enter' ? rule.description+' Goal: '+number(Game.Challenges.goal(index))+' Energy. ' : 'This attempt will not earn a completion. ')+ 'Restart the current run, losing its Energy, generators, Disturb, Resonance and run timers. No Quanta is awarded. Keep all Quanta, skills, achievements, lore, total playtime and completed challenge levels. '+(action==='enter'?'All automation, automatic clicks and bubbles pause; starting-unit skills are replaced by this challenge’s stated starting units. Skill purchases and respec are locked until you leave.':''));
-      text(element('challenge-confirm'),action==='enter'?'Enter · restart run':'Exit · restart run');
+      text(element('challenge-confirm-title'),action==='enter' ? 'Enter '+rule.name+' · Level '+(Game.Challenges.level(index)+1)+'?' : (action==='retry'?'Retry ':'Exit ')+rule.name+'?');
+      text(element('challenge-confirm-description'),(action==='enter' ? Game.Challenges.ruleText(index)+' Goal: '+number(Game.Challenges.goal(index))+' Energy. ' : 'This attempt will not earn a completion. ')+ 'Restart the current run, losing its Energy, generators, Disturb, Resonance and run timers. No Quanta is awarded. Keep all Quanta, skills, achievements, lore, total playtime and completed challenge levels. '+(action==='enter'?'All automation, automatic clicks and bubbles pause; normal starting-unit gifts are disabled. Skill purchases and respec are locked until you leave.':''));
+      text(element('challenge-confirm'),action==='enter'?'Enter · restart run':action==='retry'?'Retry · restart attempt':'Exit · restart run');
       element('challenge-confirm').disabled=false;element('challenge-cancel').disabled=false;dialog.classList.remove('is-dismissing');dialog.showModal();element('challenge-cancel').focus();
     },
     finishConfirmation: function (accept) {
@@ -75,6 +76,7 @@
         Game.Loop.pump(performance.now());dialog.close();dialog.classList.remove('is-dismissing');view.pending=null;Game.Challenges.confirming=false;
         if(accept && Game.player===pending.owner) {
           if(pending.action==='enter') { Game.Challenges.enter(pending.index);Game.UI.selectView('energy',true); }
+          else if(pending.action==='retry') { Game.Challenges.restart(pending.index);Game.UI.selectView('energy',true); }
           else Game.Challenges.exit();
         }
         view.key=null;view.render();Game.Experience.next();
@@ -95,7 +97,7 @@
       if(!clicks) text(element('click-gain'),'Clicks disabled · Hands off');
       const rule=Game.Challenges.definition(),level=Game.Challenges.level()+1,goal=Game.Challenges.goal(),best=Game.player.challenges.bestEnergy;
       text(element('active-challenge-name'),rule.name+' · Level '+level+'/10');
-      text(element('active-challenge-progress'),(ready?'Goal reached · ':'Best Energy: '+number(best)+' / '+number(goal)+' · ')+'Automation paused');
+      text(element('active-challenge-progress'),(ready?'Goal reached · ':'Best Energy: '+number(best)+' / '+number(goal)+' · ')+Game.Challenges.status()+' · Automation paused');
       element('active-challenge-complete').disabled=!ready;
       const percent=Math.max(0,Math.min(100,best.add(1).log10()/goal.log10()*100));
       element('milestone-fill').style.width=percent+'%';element('milestone-bar').setAttribute('aria-valuenow',percent.toFixed(2));
@@ -114,11 +116,11 @@
         const state=Game.player.automation.buyers[buyer.id],unlocked=Game.Automation.unlocked(buyer.id),interval=Game.Automation.interval(buyer.id).toFixed(1);
         if(automationVisible) {
           const row=view.rows[buyer.id],input=row.querySelector('input');input.disabled=!unlocked;input.checked=!!Game.player.settings.autoBuyers[buyer.id];
-          text(row.querySelector('small'),unlocked ? (active?'Paused in challenge · ':buyer.id==='condense' && Game.Automation.editingCondenseTarget?'Paused while editing · ':'')+'Every '+interval+'s · challenge '+state.level+'/10' : 'Unlock skill '+buyer.skill+' · 100 Quanta');
+          text(row.querySelector('small'),unlocked ? (active?'Paused in challenge · ':buyer.id==='condense' && Game.Automation.editingCondenseTarget?'Paused while editing · ':'')+'Every '+interval+'s · '+(buyer.id==='condense'?'Target reward':'Buy Max')+' · challenge '+state.level+'/10' : 'Unlock skill '+buyer.skill+' · 100 Quanta');
         }
         if(challengesVisible) {
           const track=view.tracks[buyer.id];track.setAttribute('aria-pressed',String(view.selected===buyer.id));
-          text(track.querySelector('small'),unlocked ? (active===index+1?'Running · ':'')+state.level+'/10 · '+interval+'s · '+buyer.name : 'Locked · skill '+buyer.skill+' · 100 Quanta');
+          text(track.querySelector('small'),unlocked ? (active===index+1?'Running · ':'')+state.level+'/10 · '+interval+'s · '+buyer.name+(Game.Challenges.unlocked(index+1)?'':' · Requires '+number(Game.Challenges.definition(index+1).unlockEnergy)+' Energy') : 'Locked · '+number(Game.Challenges.definition(index+1).unlockEnergy)+' Energy + skill '+buyer.skill+' · 100 Quanta');
         }
       });
       if(automationVisible) {
@@ -130,20 +132,20 @@
         text(element('auto-condense-target-progress'),'Saved target: '+number(target)+' Quanta · Available now: '+number(Game.Prestige.reward())+' Quanta'+(active?' · Automation paused in challenge':Game.Automation.editingCondenseTarget?' · Auto-Condense paused while editing':''));
       }
       if(!challengesVisible) return;
-      const buyer=Game.Automation.definition(this.selected),index=Game.CONFIG.AUTOMATION.buyers.indexOf(buyer)+1,state=Game.player.automation.buyers[buyer.id],unlocked=Game.Automation.unlocked(buyer.id),rule=Game.Challenges.definition(index),running=active===index;
-      const key=[buyer.id,state.level,active,unlocked,false].join('|');
+      const buyer=Game.Automation.definition(this.selected),index=Game.CONFIG.AUTOMATION.buyers.indexOf(buyer)+1,state=Game.player.automation.buyers[buyer.id],unlocked=Game.Challenges.unlocked(index),rule=Game.Challenges.definition(index),running=active===index;
+      const key=[buyer.id,state.level,active,unlocked,Game.player.challenges.failed,false].join('|');
       if(this.key!==key) {
         this.key=key;const detail=element('challenge-detail');
-        detail.innerHTML='<span class="label">'+buyer.name+' automation</span><h3>'+rule.name+'</h3><p class="challenge-reward">'+state.level+'/10 completed · '+Game.Automation.interval(buyer.id).toFixed(1)+'s per attempt</p><div class="challenge-levels" aria-label="Ten challenge levels">'+Array.from({length:10},function (_,i) { return '<span title="Level '+(i+1)+': '+number(Game.D(10).pow(rule.startExponent+rule.exponentStep*i))+' Energy" class="'+(i<state.level?'is-complete':'')+'">'+(i+1)+'</span>'; }).join('')+'</div><p class="challenge-rules">'+rule.description+'</p>';
+        detail.innerHTML='<span class="label">'+buyer.name+' automation</span><h3>'+rule.name+'</h3><p class="challenge-reward">'+state.level+'/10 completed · '+Game.Automation.interval(buyer.id).toFixed(1)+'s per attempt · '+(buyer.id==='condense'?'Full reward':'Max purchases')+'</p><div class="challenge-levels" aria-label="Ten challenge levels">'+Array.from({length:10},function (_,i) { return '<span title="Level '+(i+1)+': '+number(Game.D(10).pow(rule.startExponent+rule.exponentStep*i))+' Energy" class="'+(i<state.level?'is-complete':'')+'">'+(i+1)+'</span>'; }).join('')+'</div><p class="challenge-rules">'+Game.Challenges.ruleText(index)+'</p>';
         if(false && rule.devDescription) detail.insertAdjacentHTML('beforeend','<p class="dev-challenge-details">Dev: '+rule.devDescription+'</p>');
-        if(!unlocked) detail.insertAdjacentHTML('beforeend',(state.level<10?'<div class="challenge-goal"><span class="label">Next · Level '+(state.level+1)+'</span><strong>Reach '+number(Game.Challenges.goal(index))+' Energy</strong></div><p class="challenge-instructions">Reward: −0.4s to this buyer’s interval per completion, down to 1s at level ten.</p>':'<p class="challenge-result">Track mastered · Rebuy its automation skill to use the 1s interval.</p>')+'<p class="challenge-instructions">Unlock skill <b>'+buyer.skill+'</b> for 100 Quanta to enter this challenge.</p><button id="challenge-tree">Open skill tree</button>');
+        if(!unlocked) detail.insertAdjacentHTML('beforeend',(state.level<10?'<div class="challenge-goal"><span class="label">Next · Level '+(state.level+1)+'</span><strong>Reach '+number(Game.Challenges.goal(index))+' Energy'+(index===1?' + '+rule.requiredPurchases+' generator purchases in '+Game.Challenges.deadline()+'s':'')+'</strong></div><p class="challenge-instructions">Reward: −0.4s to this buyer’s interval per completion, down to 1s at level ten.</p>':'<p class="challenge-result">Track mastered · Rebuy its automation skill to use the 1s interval.</p>')+'<p class="challenge-instructions">Reach '+number(rule.unlockEnergy)+' Energy at least once and unlock skill <b>'+buyer.skill+'</b> for 100 Quanta to enter this challenge.</p><button id="challenge-tree">Open skill tree</button>');
         else if(state.level>=10) detail.insertAdjacentHTML('beforeend','<p class="challenge-result">Mastered · One automation attempt every 1 real second.</p>');
         else {
-          detail.insertAdjacentHTML('beforeend','<div class="challenge-goal"><span class="label">'+(running?'Active':'Next')+' · Level '+(state.level+1)+'</span><strong>Reach '+number(Game.Challenges.goal(index))+' Energy</strong><p id="challenge-run-progress"></p></div><p class="challenge-instructions">Reward: '+buyer.name+' automation interval '+Game.Automation.interval(buyer.id).toFixed(1)+'s → '+(Game.Automation.interval(buyer.id)-.4).toFixed(1)+'s. Each completion removes 0.4s, reaching 1s at level ten.</p><div class="challenge-actions">'+(running?'<button id="challenge-complete">Complete · restart run</button><button id="challenge-exit">Exit challenge</button>':'<button id="challenge-enter" '+(active?'disabled':'')+'>'+(active?'Exit current challenge first':'Enter challenge')+'</button>')+'</div>');
+          detail.insertAdjacentHTML('beforeend','<div class="challenge-goal"><span class="label">'+(running?'Active':'Next')+' · Level '+(state.level+1)+'</span><strong>Reach '+number(Game.Challenges.goal(index))+' Energy'+(index===1?' + '+rule.requiredPurchases+' generator purchases in '+Game.Challenges.deadline()+'s':'')+'</strong><p id="challenge-run-progress"></p></div><p class="challenge-instructions">Reward: '+buyer.name+' automation interval '+Game.Automation.interval(buyer.id).toFixed(1)+'s → '+(Game.Automation.interval(buyer.id)-.4).toFixed(1)+'s. Each completion removes 0.4s, reaching 1s at level ten.</p><div class="challenge-actions">'+(running?'<button id="challenge-complete">Complete · restart run</button><button id="challenge-retry">Retry · restart attempt</button><button id="challenge-exit">Exit challenge</button>':'<button id="challenge-enter" '+(active?'disabled':'')+'>'+(active?'Exit current challenge first':'Enter challenge')+'</button>')+'</div>');
         }
         detail.insertAdjacentHTML('beforeend','<p class="challenge-instructions">One challenge at a time. Entry, completion and exit restart the run without Quanta or a Condense. Skills, Quanta, achievements, lore and total playtime are retained. Normal starting-unit skills, buyers, automatic impulses, bubbles, skill purchases and respec are disabled during challenges.</p>');
       }
-      if(element('challenge-run-progress')) text(element('challenge-run-progress'),running?'Best held: '+number(Game.player.challenges.bestEnergy)+' / '+number(Game.Challenges.goal(index))+' Energy':'A fresh run with altered rules. No resource entry fee.');
+      if(element('challenge-run-progress')) text(element('challenge-run-progress'),running?'Best held: '+number(Game.player.challenges.bestEnergy)+' / '+number(Game.Challenges.goal(index))+' Energy · '+Game.Challenges.status():'A fresh run with altered rules. No resource entry fee.');
       if(element('challenge-complete')) element('challenge-complete').disabled=!Game.Challenges.ready();
     }
   };
