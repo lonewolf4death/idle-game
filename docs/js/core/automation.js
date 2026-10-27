@@ -61,6 +61,7 @@
         const state=old.automation.buyers[buyer.id];
         fresh.automation.buyers[buyer.id]={level:state.level,elapsed:0};
       });
+      Game.Progression.keepDisturbMaxed(fresh);
     }
   };
 

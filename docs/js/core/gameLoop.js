@@ -7,6 +7,7 @@
     displayInterval: 1000 / 15,
     lastDisplay: -Infinity,
     advanceGameTime: function (gameDelta, realDelta) {
+      Game.Progression.keepDisturbMaxed();
       Game.Challenges.realRate=realDelta && Game.D(gameDelta).gt(0) ? realDelta/Game.D(gameDelta).toNumber() : 0;
       if(realDelta && Game.D(gameDelta).eq(0)) Game.Challenges.advanceClock(realDelta);
       Game.Achievements.checkFluctMastery();

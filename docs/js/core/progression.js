@@ -1,6 +1,10 @@
 (function (Game) {
   const D = Game.D;
   Game.Progression = {
+    keepDisturbMaxed: function (player) {
+      const p = player || Game.player;
+      if (p.achievements.allChallenges) p.upgrades.clickPower = D(Game.Modifiers.getClickUpgradeRules().maxLevel);
+    },
     // Latch run-based achievements before saving or replacing the current run.
     // Getters remain read-only so the Stats screen never changes player state.
     captureAchievements: function (player) {
@@ -174,7 +178,7 @@
       const required=definition.amount==="max" ? Game.Modifiers.getClickUpgradeRules().maxLevel : definition.amount;
       return definition.exact ? amount.eq(required) : amount.gte(required);
     },
-    rewardText: function (definition) { if(definition.reward==='none') return 'Milestone only · no production reward';if(definition.reward==='power') return 'All Energy gains raised to '+definition.multiplier+' (generator rate per game second)';return "×"+definition.multiplier+" "+({clicks:"click Energy",generators:"generator production",energy:"all Energy"}[definition.reward]); },
+    rewardText: function (definition) { if(definition.reward==='none') return 'Milestone only · no production reward';if(definition.reward==='power') return 'All Energy gains raised to '+definition.multiplier+' (generator rate per game second)'+(definition.id==='allChallenges'?' · Disturb stays maxed through all run resets':'');return "×"+definition.multiplier+" "+({clicks:"click Energy",generators:"generator production",energy:"all Energy"}[definition.reward]); },
     capture: function (player, notify) {
       const p=player||Game.player;
       Game.CONFIG.DISCOVERY_ACHIEVEMENTS.forEach(function (definition) {
@@ -183,6 +187,7 @@
           if (notify && Game.UI) Game.UI.notifyAchievement(definition.name,Game.Achievements.rewardText(definition));
         }
       });
+      Game.Progression.keepDisturbMaxed(p);
     },
     multiplier: function (kind) {
       return Game.CONFIG.DISCOVERY_ACHIEVEMENTS.reduce(function (product, definition) { return product.mul(definition.reward===kind && Game.player.achievements[definition.id] ? definition.multiplier : 1); },D(1));
