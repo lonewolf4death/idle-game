@@ -118,7 +118,8 @@
     introduction: 'Existence contains potential, but no meaningful structure has formed.',
     enqueue: function (message) { this.queue.push(message); this.next(); },
     next: function () {
-      if (this.active || !this.queue.length || byId('respec-dialog').open || byId('challenge-dialog').open || byId('save-dialog').open || byId('symmetry-dialog').open || Game.CondenseFX && Game.CondenseFX.active) return;
+      // Messages wait while offline time is being caught up, so the progress bar stays visible.
+      if (this.active || !this.queue.length || Game.Offline && Game.Offline.active || byId('respec-dialog').open || byId('challenge-dialog').open || byId('save-dialog').open || byId('symmetry-dialog').open || Game.CondenseFX && Game.CondenseFX.active) return;
       this.active = this.queue.shift();
       const dialog = byId('story-dialog');
       dialog.classList.remove('is-dismissing');

@@ -8,9 +8,12 @@
       const p = Game.player;
       return { energy: p.resources.energy, quanta: p.prestige.totalQuanta, condenses: p.prestige.times, bought: p.stats.generatorsBought, symmetry: p.symmetry ? p.symmetry.total : D(0), playtime: Game.Playtime.state().level };
     },
+    // Record the save's timestamp before startup code has a chance to save again.
+    noteLoad: function () { this.loadedSavedAt = Game.player.time.savedAt; },
     // Called once at startup, from the timestamp stored with the save.
     resumeFromSave: function () {
-      const savedAt = Game.player.time.savedAt;
+      const savedAt = this.loadedSavedAt !== undefined ? this.loadedSavedAt : Game.player.time.savedAt;
+      this.loadedSavedAt = undefined;
       if (!savedAt) return false;
       return this.begin((Date.now() - savedAt) / 1000, true);
     },
@@ -60,7 +63,8 @@
       if (Game.UI && Game.UI.showOffline) Game.UI.showOffline(null);
       Game.Save.save();
       // Short tab switches catch up silently; real absences get a summary.
-      if (this.away >= 600 && Game.Experience && Game.Experience.enqueue) Game.Experience.enqueue({ kind: "Welcome back", title: "While you were away", text: text });
+      if (this.away >= 600 && Game.Experience && Game.Experience.queue) Game.Experience.queue.unshift({ kind: "Welcome back", title: "While you were away", text: text });
+      if (Game.Experience && Game.Experience.next) Game.Experience.next();
       this.lastSummary = text;
     }
   };

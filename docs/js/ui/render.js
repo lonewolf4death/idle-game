@@ -384,7 +384,7 @@
         if (gen.id === "energyDisturbance" && Game.Progression.hasSkill("1-3-2")) ownershipText += " · Effective: " + Game.Format.number(Game.Energy.getProductionCount(gen.id), 2);
         if (gen.type === "resonance" && Game.Energy.getSharedResonance().gt(0)) ownershipText += " · +" + Game.Format.number(Game.Energy.getSharedResonance(),0) + " from purchased Gen 7";
         if (gen.type === "resonance" && Game.Progression.hasSkill("3-5-1")) ownershipText += " · QR ×" + Game.Format.number(Game.Energy.resonanceCountMultiplier(),3) + " · Effective: " + Game.Format.number(Game.Energy.getProductionCount(gen.id),2);
-        if (gen.id === "energyDisturbance" && Game.Progression.hasSkill("1-5-1")) ownershipText += " · Double in " + Game.Format.number(Game.Energy.replicationRemaining(),1) + "s · interval " + Game.Format.number(Game.Energy.replicationInterval(),0) + "s";
+        if (gen.id === "energyDisturbance" && Game.Progression.hasSkill("1-5-1")) ownershipText += (Game.Energy.replicationActive() ? " · Double in " + Game.Format.number(Game.Energy.replicationRemaining(),1) + "s" : " · Doubling starts once Gen 1 is owned") + " · interval " + Game.Format.number(Game.Energy.replicationInterval(),0) + "s";
         if (Game.Progression.generatorFocusMultiplier(gen.id).gt(1)) ownershipText += " · Wandering rhythm ×" + Game.Format.number(focus.multiplier, 2);
         setText(node.owned, ownershipText);
         node.scaling.hidden = !false;

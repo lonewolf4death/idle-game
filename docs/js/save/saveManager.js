@@ -158,7 +158,8 @@
     save: function () {
       try {
         Game.Progression.captureAchievements();
-        Game.player.time.savedAt = Date.now();
+        // Unprocessed catch-up time stays owed if the page closes mid-catch-up.
+        Game.player.time.savedAt = Date.now() - (Game.Offline && Game.Offline.active ? Game.Offline.pending * 1000 : 0);
         localStorage.setItem(Game.CONFIG.SAVE_KEY, encode());
         status('Saved. Autosave every 10 seconds.');
         return true;
