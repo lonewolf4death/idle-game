@@ -124,6 +124,14 @@
       if (![0,1].includes(toggle) || !Number.isInteger(state.level) || state.level>10) throw new Error('Invalid automation progress');
       if (state.elapsed>=(50-4*state.level)/10) state.elapsed=0;
     });
+    const symmetry=player.symmetry;
+    if (![symmetry.times, symmetry.shards, symmetry.total].every(function (value) { return value.eq(value.floor()); }) || symmetry.total.lt(symmetry.shards)) throw new Error('Invalid Broken Symmetries');
+    if (!Number.isInteger(symmetry.deeper) || symmetry.deeper>60 || ![0,1].includes(symmetry.atom) || ![0,1].includes(symmetry.seen) || !Object.values(symmetry.perks).every(function (value) { return value===0 || value===1; })) throw new Error('Invalid Symmetry progress');
+    Game.CONFIG.SYMMETRY.structures.forEach(function (structure) {
+      const state=player.structures[structure.id];
+      if (!state.purchased.eq(state.purchased.floor()) || !state.added.eq(state.added.floor())) throw new Error('Invalid structure count');
+    });
+    if (player.structureTimer.elapsed.gte(Game.CONFIG.SYMMETRY.structures[1].interval)) player.structureTimer.elapsed=Game.D(0);
     const challenge=player.challenges;
     if (!Number.isInteger(challenge.active) || challenge.active<0 || challenge.active>8) throw new Error('Invalid challenge run');
     if(![challenge.failed,challenge.qualified,challenge.resetArmed].every(function (v) { return v===0 || v===1; }) || ![challenge.purchases,challenge.resets,challenge.latestGenerator].every(Number.isInteger) || challenge.latestGenerator>7 || challenge.lastPurchase>challenge.elapsed+1e-6) throw new Error('Invalid challenge clocks');

@@ -118,7 +118,7 @@
     introduction: 'Existence contains potential, but no meaningful structure has formed.',
     enqueue: function (message) { this.queue.push(message); this.next(); },
     next: function () {
-      if (this.active || !this.queue.length || byId('respec-dialog').open || byId('challenge-dialog').open || byId('save-dialog').open || Game.CondenseFX && Game.CondenseFX.active) return;
+      if (this.active || !this.queue.length || byId('respec-dialog').open || byId('challenge-dialog').open || byId('save-dialog').open || byId('symmetry-dialog').open || Game.CondenseFX && Game.CondenseFX.active) return;
       this.active = this.queue.shift();
       const dialog = byId('story-dialog');
       dialog.classList.remove('is-dismissing');
@@ -214,8 +214,9 @@
       const clicked = Game.player.lore.clickSeen || Game.player.stats.manualClicks.gte(1), generated = Game.player.lore.generatorSeen || Game.player.stats.generatorsBought.gte(1);
       const coherent = Game.Coherence.discovered();
       const field = Game.FieldExcitation.discovered() || Game.player.lore.fieldFirstSeen || Game.player.lore.fieldSecondSeen;
-      const condensed = Game.player.prestige.times.gt(0);
-      const key = String(clicked) + String(generated) + String(coherent) + String(field) + String(condensed);
+      const condensed = Game.player.prestige.times.gt(0) || Game.player.symmetry.times.gt(0);
+      const broken = Game.player.symmetry.times.gt(0), atom = Game.player.symmetry.atom === 1;
+      const key = String(clicked) + String(generated) + String(coherent) + String(field) + String(condensed) + String(broken) + String(atom);
       if (this.loreKey === key) return;
       this.loreKey = key;
       const entries = [{title:'01 · Before structure',text:this.introduction}];
@@ -227,6 +228,8 @@
         entries.push({title:'06 · Fields',text:Game.CONFIG.FIELD_EXCITATION.lore[1]});
       }
       if (condensed) entries.push({title:'07 · Discrete states',text:Game.CONFIG.PRESTIGE.lore});
+      if (broken) entries.push({title:'08 · Broken symmetry',text:Game.CONFIG.SYMMETRY.lore});
+      if (atom) entries.push({title:'09 · The first atom',text:Game.CONFIG.SYMMETRY.atomLore});
       const container = byId('lore-entries'); container.innerHTML = '';
       entries.forEach(function (entry) {
         const card = document.createElement('article'); card.className = 'lore-entry';

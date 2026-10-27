@@ -736,10 +736,10 @@ summary.contribution-row { cursor:pointer; }
 #respec-skills { color:#bc999a; font-size:10px; }
 @media(prefers-reduced-motion:reduce) { .perk-purchase-ring,.perk-purchase-fleck { display:none; }.perk-awakened { animation:none;outline:1px solid #d6bd80; } }
 
-#respec-dialog,#save-dialog { width:min(520px,calc(100vw - 32px)); max-height:85dvh; overflow:auto; background:var(--surface); color:var(--text); border:1px solid #74617c; border-radius:3px; padding:24px; box-shadow:0 24px 100px #0009; }
-#respec-dialog::backdrop,#save-dialog::backdrop { background:#05090cc9; backdrop-filter:blur(4px); }
-#respec-dialog h2,#save-dialog h2 { font-weight:400; color:#d6bd80; margin:10px 0; font-size:20px; }
-#respec-dialog p,#save-dialog p { color:var(--muted); font-size:12px; line-height:1.8; }
+#respec-dialog,#save-dialog,#symmetry-dialog { width:min(520px,calc(100vw - 32px)); max-height:85dvh; overflow:auto; background:var(--surface); color:var(--text); border:1px solid #74617c; border-radius:3px; padding:24px; box-shadow:0 24px 100px #0009; }
+#respec-dialog::backdrop,#save-dialog::backdrop,#symmetry-dialog::backdrop { background:#05090cc9; backdrop-filter:blur(4px); }
+#respec-dialog h2,#save-dialog h2,#symmetry-dialog h2 { font-weight:400; color:#d6bd80; margin:10px 0; font-size:20px; }
+#respec-dialog p,#save-dialog p,#symmetry-dialog p { color:var(--muted); font-size:12px; line-height:1.8; }
 #respec-refund { font-size:13px; font-weight:400; color:#c8b5df; }
 .respec-choices { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:10px; margin-top:24px; }
 #confirm-respec { border-color:#977c72; color:#dec5bb; }
@@ -779,3 +779,25 @@ summary.contribution-row { cursor:pointer; }
 .offline-progress { position:fixed; top:16px; left:50%; transform:translateX(-50%); z-index:50; width:min(360px,calc(100vw - 32px)); padding:12px 16px; background:var(--surface); border:1px solid var(--border); box-shadow:0 12px 40px #0008; font-size:11px; }
 #offline-fill { width:0; height:100%; background:var(--fluct); }
 #offline-text { display:block; margin-top:6px; }
+
+/* Symmetry layer */
+:root { --symmetry: #a9c7e8; }
+#symmetry-confirm-reward { font-size:13px; font-weight:400; color:var(--symmetry); }
+.symmetry-view .condense-panel>strong { color:var(--symmetry); }
+.symmetry-panel button { margin-top:6px; }
+.symmetry-balance { display:flex; flex-wrap:wrap; align-items:baseline; gap:6px 14px; margin:0 0 28px; }
+.symmetry-balance strong { font-size:22px; font-weight:400; color:var(--symmetry); }
+.symmetry-atom { margin:0 0 32px; max-width:640px; }
+.symmetry-atom h3,.symmetry-subhead { color:var(--fluct); font-size:14px; font-weight:400; margin:0 0 10px; }
+#symmetry-atom-fill { width:0; height:100%; background:var(--symmetry); }
+.symmetry-perks { display:grid; gap:0; max-width:760px; }
+.symmetry-perk { display:flex; justify-content:space-between; align-items:center; gap:16px; padding:14px 0; border-top:1px solid var(--border); max-width:760px; }
+.symmetry-perk h3 { margin:0 0 4px; font-size:13px; font-weight:400; color:var(--text); }
+.symmetry-perk p { margin:0; color:var(--muted); font-size:12px; line-height:1.7; }
+.symmetry-perk button { flex:none; min-width:120px; }
+.symmetry-perk.owned h3 { color:var(--symmetry); }
+.symmetry-deeper { margin-top:18px; }
+.structure-card h3 .cosmic-icon { color:var(--symmetry); }
+.symmetry-placeholder.is-formed { border-style:solid; border-color:#5b7690; }
+.symmetry-placeholder.is-formed strong::after { content:' · formed'; }
+@media (max-width:640px) { .symmetry-perk { flex-direction:column; align-items:stretch; } .symmetry-perk button { width:100%; } }

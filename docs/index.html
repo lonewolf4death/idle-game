@@ -60,6 +60,7 @@
         <button id="lore-tab" role="tab" aria-selected="false" aria-controls="lore-view" tabindex="-1">Lore</button>
         <button id="challenges-tab" role="tab" aria-selected="false" aria-controls="challenges-view" tabindex="-1">Challenges</button>
         <button id="automation-tab" role="tab" aria-selected="false" aria-controls="automation-view" tabindex="-1">Automation</button>
+        <button id="symmetry-tab" role="tab" aria-selected="false" aria-controls="symmetry-view" tabindex="-1" hidden>Symmetry</button>
         <button id="settings-tab" role="tab" aria-selected="false" aria-controls="settings-view" tabindex="-1">Settings</button>
       </div>
       <div id="energy-view" role="tabpanel" aria-labelledby="energy-tab">
@@ -280,6 +281,19 @@
           <p class="settings-note">Auto-Condense waits until the available reward meets your Quanta target, then claims the full reward on its next attempt. The normal 1e50 Energy minimum still applies. Automatic Condenses skip the cinematic. New automation starts disabled.</p>
         </section>
       </section>
+      <section id="symmetry-view" class="achievements-view symmetry-view" role="tabpanel" aria-labelledby="symmetry-tab" tabindex="0" hidden>
+        <div class="achievements-heading"><span class="label">The mirror cracks</span><h2>Symmetry</h2><p>Trade your Quanta and constellation for Broken Symmetries (BS). Spend them on permanent perks and Mass, and gather enough Mass to form the first stable atom.</p></div>
+        <div class="condense-panel symmetry-panel">
+          <span class="label">Break Symmetry now to receive</span><strong id="symmetry-reward">+0 Broken Symmetries</strong>
+          <p id="symmetry-requirement" class="muted"></p>
+          <button id="symmetry-break" disabled>Break Symmetry</button>
+        </div>
+        <div class="symmetry-balance"><span class="label">Broken Symmetries</span><strong id="symmetry-shards">0</strong><span id="symmetry-summary" class="muted"></span></div>
+        <section class="symmetry-atom" aria-labelledby="symmetry-atom-title"><h3 id="symmetry-atom-title">The first atom</h3><div id="symmetry-atom-bar" class="milestone-track" role="progressbar" aria-label="Progress to the first stable atom" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="symmetry-atom-fill"></div></div><p id="symmetry-atom-text" class="muted"></p></section>
+        <h3 class="symmetry-subhead">Perks</h3>
+        <div id="symmetry-perks" class="symmetry-perks"></div>
+        <div class="symmetry-perk symmetry-deeper"><div><h3 id="symmetry-deeper-level">Deeper asymmetry</h3><p>Each level doubles Mass production. The cost doubles each level.</p></div><button id="symmetry-deeper">Buy</button></div>
+      </section>
       <section id="settings-view" class="achievements-view" role="tabpanel" aria-labelledby="settings-tab" tabindex="0" hidden>
         <div class="achievements-heading"><span class="label">Your experience</span><h2>Settings</h2></div>
         <div class="settings-save-actions" role="group" aria-label="Save data">
@@ -335,6 +349,7 @@
 
   <dialog id="challenge-dialog" aria-labelledby="challenge-confirm-title" aria-describedby="challenge-confirm-description"><span class="label">Alter the primordial field</span><h2 id="challenge-confirm-title"></h2><p id="challenge-confirm-description"></p><div class="respec-choices"><button id="challenge-cancel">Keep this run</button><button id="challenge-confirm">Restart run</button></div></dialog>
   <dialog id="respec-dialog" aria-labelledby="respec-title" aria-describedby="respec-description"><span class="label">Reform the constellation</span><h2 id="respec-title">Respec skills?</h2><strong id="respec-refund"></strong><p id="respec-description"></p><div class="respec-choices"><button id="cancel-respec">Keep my skills</button><button id="confirm-respec">Respec · restart run</button></div></dialog>
+  <dialog id="symmetry-dialog" aria-labelledby="symmetry-confirm-title" aria-describedby="symmetry-confirm-description"><span class="label">Break the balance</span><h2 id="symmetry-confirm-title">Break Symmetry?</h2><strong id="symmetry-confirm-reward"></strong><p id="symmetry-confirm-description"></p><div class="respec-choices"><button id="cancel-symmetry">Not yet</button><button id="confirm-symmetry">Break Symmetry</button></div></dialog>
   <dialog id="save-dialog" class="save-dialog" aria-labelledby="save-dialog-title" aria-describedby="save-dialog-note"><span class="label">Your progress</span><h2 id="save-dialog-title">Export save</h2><p id="save-dialog-note"></p><textarea id="save-text" rows="7" spellcheck="false" autocomplete="off" aria-labelledby="save-dialog-title"></textarea><p id="save-dialog-status" class="settings-note" role="status" aria-live="polite"></p><div class="respec-choices"><button id="save-copy">Copy</button><button id="save-download">Download file</button><button id="save-upload-button">Load file</button><input id="save-upload" type="file" accept=".txt,text/plain" hidden><button id="save-import-confirm">Import</button><button id="save-close">Close</button></div></dialog>
   <div id="offline-progress" class="offline-progress" role="status" aria-live="polite" hidden><span class="label">Catching up on time away</span><div class="milestone-track"><div id="offline-fill"></div></div><span id="offline-text" class="muted"></span></div>
   <dialog id="story-dialog" aria-labelledby="story-title" aria-describedby="story-text">
@@ -358,6 +373,7 @@
   <script src="js/core/playtime.js"></script>
   <script src="js/core/progression.js"></script>
   <script src="js/core/prestige.js"></script>
+  <script src="js/core/symmetry.js"></script>
   <script src="js/layers/energy/energy.js"></script>
   <script src="js/layers/energy/coherence.js"></script>
   <script src="js/layers/energy/fieldExcitation.js"></script>
@@ -379,6 +395,7 @@
   <script src="js/ui/treeCamera.js"></script>
   <script src="js/ui/treeMap.js"></script>
   <script src="js/ui/automation.js"></script>
+  <script src="js/ui/symmetry.js"></script>
   <script src="js/ui/render.js"></script>
   <script src="js/core/offline.js"></script>
   <script src="js/core/gameLoop.js"></script>

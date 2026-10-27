@@ -46,7 +46,24 @@
       { id:"tenCoherent", name:"A measured chorus", kind:"purchased", generator:"coherentEnergy", amount:"10", exact:true, reward:"generators", multiplier:"1.02", icon:"coherent", requirement:"Finish a purchase with exactly 10 purchased Gen 3 (Coherent Energy)." },
       { id:"thousandClicks", name:"A thousand echoes", kind:"clicks", amount:"1000", reward:"clicks", multiplier:"1.02", icon:"spark", requirement:"Generate 1,000 clicks in one run, including automatic impulses." },
       { id:"perfectDisturb", name:"Disturbance perfected", kind:"disturb", amount:"max", reward:"energy", multiplier:"1.01", icon:"growing", requirement:"Reach Disturb's maximum level." },
-      { id:"firstImpulse", name:"An impulse of its own", kind:"autoClicks", amount:"1", reward:"energy", multiplier:"1.01", icon:"time", requirement:"Trigger your first automatic impulse." }
+      { id:"firstImpulse", name:"An impulse of its own", kind:"autoClicks", amount:"1", reward:"energy", multiplier:"1.01", icon:"time", requirement:"Trigger your first automatic impulse." },
+      { id:"billionEnergy", name:"A billion sparks", kind:"energy", amount:"1e9", reward:"clicks", multiplier:"1.05", icon:"spark", requirement:"Hold 1e9 Energy at once." },
+      { id:"thirtyOrders", name:"Thirty orders deep", kind:"energy", amount:"1e30", reward:"generators", multiplier:"1.02", icon:"growing", requirement:"Hold 1e30 Energy at once." },
+      { id:"googolEnergy", name:"A googol of potential", kind:"energy", amount:"1e100", reward:"energy", multiplier:"1.03", icon:"growing", requirement:"Hold 1e100 Energy at once." },
+      { id:"thousandFlucts", name:"A thousand uncertainties", kind:"owned", generator:"quantumFluctuation", amount:"1000", reward:"generators", multiplier:"1.02", icon:"quantumFluctuation", requirement:"Own 1,000 purchased Gen 2 (Quantum Fluctuation) in one run." },
+      { id:"crowdedField", name:"A crowded field", kind:"owned", generator:"fieldExcitation", amount:"100", reward:"generators", multiplier:"1.02", icon:"fieldExcitation", requirement:"Own 100 purchased Gen 4 (Field Excitation) in one run." },
+      { id:"coupledUniverse", name:"A coupled universe", kind:"owned", generator:"fieldCoupling", amount:"50", reward:"generators", multiplier:"1.02", icon:"fieldCoupling", requirement:"Own 50 purchased Gen 7 (Field Coupling) in one run." },
+      { id:"fiveCondenses", name:"A habit of condensing", kind:"condenses", amount:"5", reward:"energy", multiplier:"1.02", icon:"condense", requirement:"Condense Energy 5 times." },
+      { id:"fiftyCondenses", name:"Familiar states", kind:"condenses", amount:"50", reward:"energy", multiplier:"1.03", icon:"condense", requirement:"Condense Energy 50 times." },
+      { id:"hundredQuanta", name:"A hundred quanta", kind:"quanta", amount:"100", reward:"energy", multiplier:"1.02", icon:"quanta", requirement:"Earn 100 lifetime Primordial Quanta." },
+      { id:"thousandQuanta", name:"A thousand quanta", kind:"quanta", amount:"1000", reward:"energy", multiplier:"1.03", icon:"quanta", requirement:"Earn 1,000 lifetime Primordial Quanta." },
+      { id:"halfConstellation", name:"Half a constellation", kind:"skills", amount:"23", reward:"generators", multiplier:"1.03", icon:"achievements", requirement:"Own 23 skills in the Condense skill tree." },
+      { id:"fullConstellation", name:"The full constellation", kind:"skills", amount:"all", reward:"energy", multiplier:"1.05", icon:"achievements", requirement:"Own every skill in the Condense skill tree." },
+      { id:"firstTrial", name:"Altered rules", kind:"challenges", amount:"1", reward:"energy", multiplier:"1.01", icon:"negative", requirement:"Complete any challenge level." },
+      { id:"fortyTrials", name:"Seasoned in strange physics", kind:"challenges", amount:"40", reward:"energy", multiplier:"1.03", icon:"negative", requirement:"Complete 40 challenge levels in total." },
+      { id:"allTrials", name:"Every rule bent", kind:"challenges", amount:"80", reward:"energy", multiplier:"1.05", icon:"negative", requirement:"Complete all 80 challenge levels." },
+      { id:"firstBreak", name:"The mirror cracks", kind:"symmetry", amount:"1", reward:"energy", multiplier:"1.05", icon:"symmetry", requirement:"Break Symmetry for the first time." },
+      { id:"firstAtom", name:"Something that holds", kind:"atom", amount:"1", reward:"energy", multiplier:"1.1", icon:"symmetry", requirement:"Form the first stable atom." }
     ],
     PROGRESSION: { prestigeEnergy: "1e50" },
     PRESTIGE: {
@@ -177,6 +194,33 @@
       { id: "fieldCoupling", name: "Field Coupling", type: "coupling", unlockEnergy: "1e30", baseCost: "1e30", costScaling: "2", scalingStepLevels: 5, scalingStepIncrease: "0.5", production: "0" }
     ]
   };
+  // Second layer. Breaking Symmetry resets Quanta, Condenses and the skill tree
+  // for Broken Symmetries, which buy permanent perks and open Gen 8–10.
+  Game.CONFIG.SYMMETRY = {
+    name: "Break Symmetry",
+    unlockEnergy: "1e100",
+    rewardExponentStep: 10,
+    atomMass: "1e30",
+    massEnergyPower: 0.2,
+    lore: "The field was perfectly balanced, and balance cannot build. Something tips. The mirror cracks, and what falls out of it has weight.",
+    atomLore: "Mass gathers, binds and holds. For the first time, something exists that does not fade back into the field: a stable atom. Existence has structure.",
+    structures: [
+      { id: "symmetryBreaking", name: "Symmetry Breaking", baseCost: "1e50", costScaling: "10", description: "Produces 1 Mass per game second. Mass strengthens all Energy." },
+      { id: "massiveParticles", name: "Massive Particles", baseCost: "1e80", costScaling: "1e3", interval: "10", perk: "particles", description: "Every 10 game seconds, each unit creates one added Gen 8 (Symmetry Breaking)." },
+      { id: "bindingForce", name: "Binding Force", baseCost: "1e120", costScaling: "1e10", massMultiplier: "2", perk: "binding", description: "Each unit doubles Mass production." }
+    ],
+    perks: [
+      { id: "automation", name: "Persistent automation", cost: "1", description: "Breaking Symmetry keeps your eight automation skills and their settings." },
+      { id: "headStart", name: "Head start", cost: "1", startingEnergy: "1e12", description: "Begin every Condense run with 1e12 Energy." },
+      { id: "particles", name: "Massive particles", cost: "2", description: "Unlock Gen 9 (Massive Particles), which creates Gen 8 units over time." },
+      { id: "quanta", name: "Asymmetric quanta", cost: "2", quantaMultiplier: "2", description: "Condensing grants ×2 Primordial Quanta." },
+      { id: "constellation", name: "Remembered constellation", cost: "3", description: "Breaking Symmetry keeps every skill-tree skill." },
+      { id: "swift", name: "Swift buyers", cost: "3", intervalMultiplier: 0.5, description: "Automation buyers attempt purchases twice as often." },
+      { id: "binding", name: "Binding force", cost: "5", description: "Unlock Gen 10 (Binding Force), which doubles Mass production per unit." },
+      { id: "memory", name: "Lasting memory", cost: "8", description: "Breaking Symmetry keeps half of your lifetime Condenses for Memory of condensation." }
+    ],
+    deeper: { name: "Deeper asymmetry", baseCost: "1", costScaling: "2", massMultiplier: "2", description: "Each level doubles Mass production. Cost doubles each level." }
+  };
   Game.CONFIG.AUTOMATION = {
     buyers: [
       {id:"energyDisturbance",skill:"1-6-1",name:"Gen 1 (Energy Disturbance)",title:"Disturbance lattice"},
@@ -200,7 +244,7 @@
     {name:"Fading momentum",unlockEnergy:"1e125",startExponent:15,exponentStep:6,description:"Energy production falls continuously to 85% of its previous strength each real second. Any successful generator or Disturb purchase resets this suppression."}
   ];
   Game.CONFIG.CHALLENGES[4].unlockEnergy="1e95";
-  Game.CONFIG.SYMMETRY={cost:"10000"};
+  Game.CONFIG.SYMMETRY.cost="10000";
   Game.CONFIG.CHALLENGES.forEach(function (rule,index) {
     Game.CONFIG.DISCOVERY_ACHIEVEMENTS.push({id:"challenge"+(index+1),name:rule.name+" · Challenge",kind:"challenge",track:index+1,amount:"1",reward:"none",icon:"condense",requirement:"Complete level one of "+rule.name+". Further milestones: levels 5 and 10."});
   });

@@ -9,6 +9,9 @@
 
     const collapsed = { upgrades: 0, generators: 0, clickPower: 0 };
     Game.CONFIG.GENERATORS.forEach(function (gen) { collapsed[gen.id] = 0; });
+    const structures = {}, perks = {};
+    Game.CONFIG.SYMMETRY.structures.forEach(function (structure) { structures[structure.id] = { purchased: D(0), added: D(0) };collapsed[structure.id] = 0; });
+    Game.CONFIG.SYMMETRY.perks.forEach(function (perk) { perks[perk.id] = 0; });
     const skills = {};
     Object.keys(Game.CONFIG.PRESTIGE.skills).forEach(function (id) { skills[id] = 0; });
     const achievements = { firstSparks:0, firstGenerator:0, growingEngine:0, coherentBeginning:0, condense:0 };
@@ -19,6 +22,9 @@
     });
     return {
       automation: {buyers:buyers},
+      symmetry: { times: D(0), shards: D(0), total: D(0), perks: perks, deeper: 0, mass: D(0), atom: 0, seen: 0 },
+      structures: structures,
+      structureTimer: { elapsed: D(0) },
       challenges: {active:0,bestEnergy:D(0),highestEnergy:D(0),rulesVersion:3,elapsed:0,purchases:0,failed:0,qualified:0,resetArmed:0,resetAt:0,resets:0,lastPurchase:0,latestGenerator:0},
       unlocks: { fluctOdds: 0, fieldExcitation: 0 },
       ui: { collapsed: collapsed, skillTree2D: 0 },

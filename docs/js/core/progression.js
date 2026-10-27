@@ -98,7 +98,7 @@
       return Boolean(Game.player.achievements.coherentBeginning || Game.player.generators.coherentEnergy.purchased.gte(1));
     },
     energyMultiplier: function () {
-      return Game.Playtime.state().multiplier.mul(this.condenseMultiplier()).mul(this.quantaMultiplier()).mul(this.energySkillMultiplier()).mul(this.condenseMemoryMultiplier()).mul(Game.Achievements.multiplier("energy"));
+      return Game.Playtime.state().multiplier.mul(this.condenseMultiplier()).mul(this.quantaMultiplier()).mul(this.energySkillMultiplier()).mul(this.condenseMemoryMultiplier()).mul(Game.Achievements.multiplier("energy")).mul(Game.Symmetry.energyMultiplier());
     },
     playtimeAchievementUnlocked: function () {
       return Game.Playtime.state().level > 0;
@@ -166,12 +166,27 @@
     }
   };
   Game.Achievements = {
+    amount: function (definition, p) {
+      switch (definition.kind) {
+        case "purchased": case "owned": return p.generators[definition.generator].purchased;
+        case "clicks": return p.stats.manualClicks;
+        case "autoClicks": return p.stats.autoClicks;
+        case "energy": return p.resources.energy;
+        case "condenses": return p.prestige.times;
+        case "quanta": return p.prestige.totalQuanta;
+        case "skills": return D(Object.keys(p.prestige.skills).filter(function (id) { return p.prestige.skills[id] === 1; }).length);
+        case "challenges": return D(Object.keys(p.automation.buyers).reduce(function (sum, id) { return sum + p.automation.buyers[id].level; }, 0));
+        case "symmetry": return p.symmetry ? p.symmetry.times : D(0);
+        case "atom": return D(p.symmetry && p.symmetry.atom ? 1 : 0);
+        default: return p.upgrades.clickPower;
+      }
+    },
     matches: function (definition, player) {
       const p=player||Game.player;
       if(definition.kind==='challenge') return p.automation.buyers[Game.CONFIG.AUTOMATION.buyers[definition.track-1].id].level>=1;
       if(definition.kind==='allChallenges') return Game.CONFIG.AUTOMATION.buyers.every(function (b) { return p.automation.buyers[b.id].level>=1; });
-      const amount=definition.kind==="purchased" ? p.generators[definition.generator].purchased : definition.kind==="clicks" ? p.stats.manualClicks : definition.kind==="autoClicks" ? p.stats.autoClicks : p.upgrades.clickPower;
-      const required=definition.amount==="max" ? Game.Modifiers.getClickUpgradeRules().maxLevel : definition.amount;
+      const amount=this.amount(definition,p);
+      const required=definition.amount==="max" ? Game.Modifiers.getClickUpgradeRules().maxLevel : definition.amount==="all" ? Object.keys(Game.CONFIG.PRESTIGE.skills).length : definition.amount;
       return definition.exact ? amount.eq(required) : amount.gte(required);
     },
     rewardText: function (definition) { if(definition.reward==='none') return 'Milestone only · no production reward';if(definition.reward==='power') return 'All Energy gains raised to '+definition.multiplier+' (generator rate per game second)';return "×"+definition.multiplier+" "+({clicks:"click Energy",generators:"generator production",energy:"all Energy"}[definition.reward]); },

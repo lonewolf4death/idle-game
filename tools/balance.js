@@ -1,13 +1,17 @@
-// Plays Cosmic Idle with a simple greedy bot and prints when each milestone
-// is reached. Usage: node tools/balance.js [hours] [clicksPerSecond] [seed]
+// Plays Cosmic Idle with a goal-driven bot and prints when milestones are reached.
+// It Condenses once the reward pays for the next skill, Breaks Symmetry once the
+// reward pays for the next perk, clicks for the first minutes of each run, then idles.
+// Usage: node tools/balance.js [hours] [seed] [scenario]
+//   scenario "tree" starts with the full skill tree, to measure the Symmetry layer.
 "use strict";
 const { createGame, mulberry32 } = require("./harness.js");
 
 const hours = Number(process.argv[2] || 72);
-const cps = Number(process.argv[3] || 4);
-const seed = Number(process.argv[4] || 1);
+const seed = Number(process.argv[3] || 1);
+const scenario = process.argv[4] || "fresh";
 const { Game } = createGame({ random: mulberry32(seed) });
 const D = Game.D;
+const STEP = 10, CLICK_SECONDS = 600, CLICKS_PER_SECOND = 4;
 
 const milestones = [];
 const seen = new Set();
@@ -17,68 +21,79 @@ function mark(key, label) {
   milestones.push([Game.player.time.realPlayed, label]);
 }
 function fmt(seconds) {
-  const h = Math.floor(seconds / 3600), m = Math.floor(seconds % 3600 / 60);
-  return (h ? h + "h " : "") + m + "m";
+  const d = Math.floor(seconds / 86400), h = Math.floor(seconds % 86400 / 3600), m = Math.floor(seconds % 3600 / 60);
+  return (d ? d + "d " : "") + (h ? h + "h " : "") + m + "m";
 }
+const skillIds = Object.keys(Game.CONFIG.PRESTIGE.skills);
+const ownedSkills = function () { return skillIds.filter(function (id) { return Game.Progression.hasSkill(id); }).length; };
 
 function buyEverything() {
   Game.Progression.buyClickUpgrade("max");
-  const gens = Game.CONFIG.GENERATORS.slice().reverse();
-  gens.forEach(function (gen) {
-    if (Game.player.resources.energy.gte(gen.unlockEnergy) || Game.player.generators[gen.id].purchased.gt(0)) Game.Energy.buyGenerator(gen.id, "max");
-  });
-  if (Game.Structure) Game.Structure.buyAll && Game.Structure.buyAll();
+  Game.Structure.buyAll();
+  Game.CONFIG.GENERATORS.slice().reverse().forEach(function (gen) { Game.Energy.buyGenerator(gen.id, "max"); });
 }
-
+function nextSkillCost() {
+  const options = skillIds.filter(function (id) {
+    const skill = Game.CONFIG.PRESTIGE.skills[id];
+    return !Game.Progression.hasSkill(id) && (!skill.requires || Game.Progression.hasSkill(skill.requires));
+  }).map(function (id) { return D(Game.CONFIG.PRESTIGE.skills[id].cost); }).sort(function (a, b) { return a.cmp(b); });
+  return options.length ? options[0] : null;
+}
 function buySkills() {
   let bought = true;
   while (bought) {
     bought = false;
-    const options = Object.keys(Game.CONFIG.PRESTIGE.skills).filter(function (id) { return Game.Prestige.canBuySkill(id); })
+    const options = skillIds.filter(function (id) { return Game.Prestige.canBuySkill(id); })
       .sort(function (a, b) { return D(Game.CONFIG.PRESTIGE.skills[a].cost).cmp(Game.CONFIG.PRESTIGE.skills[b].cost); });
-    if (options.length) { Game.Prestige.buySkill(options[0]); bought = true; }
+    if (options.length) bought = Game.Prestige.buySkill(options[0]);
   }
-  Game.CONFIG.AUTOMATION.buyers.forEach(function (buyer) { if (Game.Automation.unlocked(buyer.id)) Game.Automation.setEnabled(buyer.id, true); });
+  Game.Automation.setAll(true);
+}
+function nextPerkCost() {
+  const perks = Game.CONFIG.SYMMETRY.perks.filter(function (perk) { return !Game.Symmetry.has(perk.id); }).map(function (perk) { return D(perk.cost); });
+  return perks.concat([Game.Symmetry.deeperCost()]).sort(function (a, b) { return a.cmp(b); })[0];
 }
 
-function ownedSkills() { return Object.keys(Game.CONFIG.PRESTIGE.skills).filter(function (id) { return Game.Progression.hasSkill(id); }).length; }
-const totalSkills = Object.keys(Game.CONFIG.PRESTIGE.skills).length;
+if (scenario === "tree") {
+  skillIds.forEach(function (id) { Game.player.prestige.skills[id] = 1; });
+  Game.player.prestige.times = D(30);
+  Game.player.prestige.totalQuanta = D(813);
+  Game.Automation.setAll(true);
+}
 
-let bestReward = D(0);
-let step = 0, bestRate = 0, t0, tSim = 0n, tBuy = 0n;
 const end = hours * 3600;
+let lastReport = 0;
 while (Game.player.time.realPlayed < end) {
-  for (let i = 0; i < cps; i++) Game.Energy.generateManual();
-  t0 = process.hrtime.bigint(); Game.Loop.simulate(1); tSim += process.hrtime.bigint() - t0;
-  t0 = process.hrtime.bigint(); if (step % 2 === 0) buyEverything(); tBuy += process.hrtime.bigint() - t0;
+  if (Game.player.time.currentEnergyRunReal < CLICK_SECONDS) for (let i = 0; i < STEP * CLICKS_PER_SECOND; i++) Game.Energy.generateManual();
+  Game.Loop.simulateBatch(STEP);
+  buyEverything();
   const e = Game.player.resources.energy;
-  [1e2, 1e4, 1e7, 1e10, 1e15, 1e30].forEach(function (v) { if (e.gte(v)) mark("e" + v, "Energy " + v.toExponential(0)); });
-  const reward = Game.Prestige.reward();
-  // Condense once Quanta per hour for this run passes its peak. Use the best
-  // reward seen this run, since buying generators dips Energy below thresholds.
-  if (reward.gt(bestReward)) bestReward = reward;
-  const rate = bestReward.toNumber() / Math.max(1, Game.player.time.currentEnergyRunReal);
-  if (rate > bestRate) bestRate = rate;
-  if (reward.gte(1) && reward.gte(bestReward.mul(0.9).floor()) && rate < bestRate * 0.97) {
+  [1e10, 1e30, 1e50, 1e100, 1e200, 1e500, 1e1000].forEach(function (v) { if (e.gte(v)) mark("e" + v, "Energy " + D(v).toExponential(0)); });
+
+  const skillCost = nextSkillCost(), reward = Game.Prestige.reward();
+  if (skillCost && reward.gte(1) && Game.player.prestige.quanta.add(reward).gte(skillCost)) {
     const n = Game.player.prestige.times.toNumber() + 1;
-    if ([1, 2, 5, 10, 25, 50, 100].includes(n)) mark("c" + n, "Condense #" + n + " (+" + reward.toString() + " Quanta, run " + fmt(Game.player.time.currentEnergyRunReal) + ")");
+    mark("c" + n, "Condense #" + n + " (+" + reward.toString() + " Quanta after " + fmt(Game.player.time.currentEnergyRunReal) + ")");
     Game.Prestige.condense(true);
-    bestRate = 0;
-    bestReward = D(0);
     buySkills();
   }
   const owned = ownedSkills();
-  [10, 20, 30, totalSkills].forEach(function (n) { if (owned >= n) mark("s" + n, n + " skills owned"); });
-  if (Game.Symmetry) {
-    if (Game.Symmetry.canBreak && Game.Symmetry.canBreak()) { mark("sym" + Game.player.symmetry.times, "Symmetry break #" + (Number(Game.player.symmetry.times) + 1)); Game.Symmetry.breakSymmetry(true); buySkills(); }
-    if (Game.Symmetry.buyAffordable) Game.Symmetry.buyAffordable();
-    if (Game.Symmetry.ended && Game.Symmetry.ended()) mark("end", "Ending reached");
+  [10, 20, 30, skillIds.length].forEach(function (n) { if (owned >= n) mark("s" + n, n + " skills owned"); });
+
+  const shards = Game.Symmetry.reward();
+  if (Game.Symmetry.canBreak() && Game.player.symmetry.shards.add(shards).gte(nextPerkCost())) {
+    const n = Game.player.symmetry.times.toNumber() + 1;
+    mark("b" + n, "Break #" + n + " (+" + shards.toString() + " BS at " + e.toExponential(1) + ", cycle mass " + Game.player.symmetry.mass.toExponential(1) + ")");
+    Game.Symmetry.breakSymmetry(true);
+    Game.Symmetry.buyAffordable();
+    buySkills();
   }
-  step++;
+  if (Game.Symmetry.ended()) mark("atom", "First atom formed");
+  if (Game.player.time.realPlayed - lastReport >= 6 * 3600) {
+    lastReport = Game.player.time.realPlayed;
+    milestones.push([lastReport, "  status: E " + e.toExponential(1) + " · run " + fmt(Game.player.time.currentEnergyRunReal) + " · skills " + owned + " · Q " + Game.player.prestige.quanta.toString() + " · BS " + Game.player.symmetry.shards.toString() + " · mass " + Game.player.symmetry.mass.toExponential(1) + " · deeper " + Game.player.symmetry.deeper]);
+  }
 }
 
-function Decimal_max(a, b) { return D(a).gt(b) ? D(a) : D(b); }
-
-milestones.forEach(function (m) { console.log(fmt(m[0]).padStart(9), " ", m[1]); });
-console.log("Final: Energy", Game.player.resources.energy.toExponential(2), "| Quanta", Game.player.prestige.quanta.toString(), "| total", Game.player.prestige.totalQuanta.toString(), "| condenses", Game.player.prestige.times.toString(), "| skills", ownedSkills() + "/" + totalSkills);
-console.log("ms sim", Number(tSim/1000000n), "ms buy", Number(tBuy/1000000n));
+milestones.forEach(function (m) { console.log(fmt(m[0]).padStart(11), " ", m[1]); });
+console.log("Final: Energy", Game.player.resources.energy.toExponential(2), "| Quanta", Game.player.prestige.quanta.toString(), "| condenses", Game.player.prestige.times.toString(), "| skills", ownedSkills() + "/" + skillIds.length, "| breaks", Game.player.symmetry.times.toString(), "| perks", Object.values(Game.player.symmetry.perks).filter(Boolean).length, "| mass", Game.player.symmetry.mass.toExponential(2));

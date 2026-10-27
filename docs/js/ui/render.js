@@ -4,7 +4,7 @@
   function setText(node, value) { value = String(value);if (node.textContent !== value) node.textContent = value; }
 
   Game.UI = {
-    views: ["energy", "prestige", "achievements", "stats", "lore", "challenges", "automation", "settings"],
+    views: ["energy", "prestige", "achievements", "stats", "lore", "challenges", "automation", "symmetry", "settings"],
     generatorNodes: {},
     buyAmount: 1,
 
@@ -135,13 +135,14 @@
       Game.AchievementsUI.init();
       Game.PrestigeUI.init();
       Game.StatsUI.init();
+      Game.SymmetryUI.init();
       this.views.forEach(function (view) {
         const tab = byId(view + "-tab");
         tab.addEventListener("click", function () { Game.UI.selectView(view); });
         tab.addEventListener("keydown", function (event) {
           if (["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
             event.preventDefault();
-            const views = Game.UI.views;
+            const views = Game.UI.views.filter(function (name) { return !byId(name + "-tab").hidden; });
             const index = views.indexOf(view);
             const target = event.key === "Home" ? views[0] : event.key === "End" ? views[views.length - 1] : views[(index + (event.key === "ArrowRight" ? 1 : views.length - 1)) % views.length];
             Game.UI.selectView(target, true);
@@ -215,6 +216,7 @@
 
         list.appendChild(card);
       });
+      Game.SymmetryUI.buildStructureCards(list);
 
       Game.Tooltips.init();
       Game.FieldWaves.init();
@@ -247,6 +249,11 @@
         if (event.defaultPrevented || event.repeat || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey || !/^[0-9]$/.test(event.key)) return;
         if (byId("energy-view").hidden || document.querySelector("dialog[open]") || event.target.closest && event.target.closest("input,textarea,select,[contenteditable]:not([contenteditable=false])")) return;
         const index=event.key==="0"?9:Number(event.key)-1, gen=Game.CONFIG.GENERATORS[index];
+        const structure=Game.CONFIG.SYMMETRY.structures[index-Game.CONFIG.GENERATORS.length];
+        if (!gen && structure) {
+          if (!Game.Structure.unlocked(structure.id)) return;
+          event.preventDefault();Game.Structure.buy(structure.id,Game.UI.buyAmount);Game.UI.render();return;
+        }
         if (!gen || !(Game.UI.isUnlocked(gen) || Game.Energy.getOwned(gen.id).gt(0))) return;
         event.preventDefault();Game.Energy.buyGenerator(gen.id,Game.UI.buyAmount);Game.UI.render();
       });
@@ -352,6 +359,7 @@
       const p = Game.player;
       if (Game.PotentialBubble) Game.PotentialBubble.update();
       Game.AutomationUI.render();
+      Game.SymmetryUI.render();
       Game.FieldExcitation.checkUnlock();
       setText(byId("existence-state"), Game.Energy.getOwned("fieldExcitation").gt(0) ? "Excited" : "Dormant");
       setText(byId("existence-structure"), p.lore.fieldSecondSeen ? "Fields" : "None");

@@ -280,6 +280,7 @@
           Game.Coherence.advance(segment);
           Game.FieldExcitation.advance(segment);
           Game.FieldDynamics.advance(segment);
+          Game.Structure.advance(segment);
           if (this.replicationActive()) Game.player.disturbanceReplication.elapsed = Game.player.disturbanceReplication.elapsed.add(segment);
           if (hasFluctuation) state.elapsed = state.elapsed.add(segment);
           remaining = remaining.sub(segment);

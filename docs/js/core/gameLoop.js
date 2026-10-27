@@ -33,7 +33,8 @@
         }
       }
       const earned = Game.Playtime.state();
-      if (earned.level > before) {
+      // Offline catch-up reports playtime tiers once, in its summary.
+      if (earned.level > before && !this.coarse) {
         const crossed = earned.level - before;
         Game.UI.notifyAchievement("A moment in the void · Tier " + Game.Format.number(earned.level, 0),
           (crossed > 1 ? Game.Format.number(crossed, 0) + " time tiers reached · " : "") +
@@ -58,10 +59,13 @@
     },
     // Coarser stepping for offline catch-up; buyers act once per slice.
     simulateBatch: function (realDelta) {
-      this.coarse = true;
-      try { this.advanceGameTime(Game.Time.getGameDelta(realDelta)); } finally { this.coarse = false; }
+      // catchingUp also silences per-event sounds and effects.
+      const wasCatchingUp = this.catchingUp;
+      this.coarse = this.catchingUp = true;
+      try { this.advanceGameTime(Game.Time.getGameDelta(realDelta)); } finally { this.coarse = false;this.catchingUp = wasCatchingUp; }
       Game.Time.advance(realDelta, Game.D(0));
       Game.Automation.advanceBatch(realDelta);
+      Game.Achievements.capture(Game.player, true);
     },
     pump: function (now) {
       const elapsed = Math.max(0, (now - this.lastTime) / 1000);
@@ -80,6 +84,8 @@
           this.accumulator = Math.max(0, this.accumulator - step);
         }
       } finally { this.catchingUp = false; }
+      // Threshold achievements (Energy held, Condenses, skills) are checked once per pump.
+      Game.Achievements.capture(Game.player, true);
     },
     frame: function (now) {
       if (Game.Offline.active) Game.Offline.step(Game.CONFIG.OFFLINE.frameBudgetMs);

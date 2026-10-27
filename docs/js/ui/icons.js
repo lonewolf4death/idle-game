@@ -25,6 +25,7 @@
     lore: '<path d="M16 8C10 3 5 5 3 6v21c4-2 8-2 13 1 5-3 9-3 13-1V6c-4-2-8-2-13 2ZM16 8v20"/><path d="M7 11l5 1M7 17l5 1M20 12l5-1M20 18l5-1"/>',
     stats: '<path d="M4 3v25h25M8 22l6-8 6 3 8-12"/><circle cx="14" cy="14" r="2"/>',
     settings: '<path d="M13 3h6l.7 4.1 2.5 1.4 3.9-1.4 3 5.2-3.2 2.7v2.9l3.2 2.7-3 5.2-3.9-1.4-2.5 1.4L19 30h-6l-.7-4.2-2.5-1.4-3.9 1.4-3-5.2 3.2-2.7V15l-3.2-2.7 3-5.2 3.9 1.4 2.5-1.4Z"/><circle cx="16" cy="16.5" r="5"/>',
+    symmetry: '<path d="M16 2l14 14-14 14L2 16Z"/><path d="M16 2v28M9 9l14 14" opacity=".6"/>',
     achievements: '<path d="M16 3l4 8 9 1-6 7 1 10-8-5-8 5 1-10-6-7 9-1Z"/><circle cx="16" cy="16" r="4"/>'
   };
   const aliases = { "skill-1-1":"spark", "skill-1-2":"capture", "skill-1-3-1":"growing", "skill-1-3-2":"engine", "skill-2-1":"quantumFluctuation", "skill-2-2":"quickening", "skill-2-3-1":"quantumResonance", "skill-2-3-2":"energyResonance", "skill-2-3-3":"time", "skill-3-1":"fieldOscillation", "skill-3-2":"firstRhythm", "skill-3-3":"coherent", "skill-3-4-1":"fieldResonance", "skill-3-4-2":"fieldCoupling", "skill-4-1":"quanta", "skill-4-2":"condense", energy:"spark", prestige:"condense" };
@@ -37,7 +38,7 @@
     achievement: function (name) { return name.indexOf("A moment") === 0 ? "time" : ({"First sparks":"spark","First generator":"engine","A growing engine":"growing","A coherent beginning":"coherent","Against the current":"negative","First condensation":"condense"}[name] || "achievements"); },
     init: function () {
       Object.keys(achievementIds).forEach(function (id) { document.querySelector('#' + id + ' .achievement-emblem').innerHTML = Game.Icons.svg(achievementIds[id]); });
-      ["energy","prestige","achievements","stats","lore","challenges","automation","settings"].forEach(function (id) { document.getElementById(id + "-tab").insertAdjacentHTML("afterbegin", Game.Icons.svg(id==="automation"?"time":id)); });
+      ["energy","prestige","achievements","stats","lore","challenges","automation","symmetry","settings"].forEach(function (id) { document.getElementById(id + "-tab").insertAdjacentHTML("afterbegin", Game.Icons.svg(id==="automation"?"time":id)); });
       document.querySelector(".header-energy .label").insertAdjacentHTML("afterbegin", this.svg("spark"));
       document.querySelector(".header-quanta>span").insertAdjacentHTML("afterbegin", this.svg("quanta"));
       ["quantumResonance","energyResonance"].forEach(function (id) { document.querySelector('#resonance-overview [data-tip="' + id + '"]').insertAdjacentHTML("afterbegin", Game.Icons.svg(id)); });

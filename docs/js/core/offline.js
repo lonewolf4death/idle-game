@@ -6,7 +6,7 @@
     active: false, pending: 0, total: 0, away: 0, before: null,
     snapshot: function () {
       const p = Game.player;
-      return { energy: p.resources.energy, quanta: p.prestige.totalQuanta, condenses: p.prestige.times, bought: p.stats.generatorsBought, symmetry: p.symmetry ? p.symmetry.total : D(0) };
+      return { energy: p.resources.energy, quanta: p.prestige.totalQuanta, condenses: p.prestige.times, bought: p.stats.generatorsBought, symmetry: p.symmetry ? p.symmetry.total : D(0), playtime: Game.Playtime.state().level };
     },
     // Called once at startup, from the timestamp stored with the save.
     resumeFromSave: function () {
@@ -50,6 +50,7 @@
       else if (after.energy.gt(before.energy)) lines.push("Energy grew from " + F.number(before.energy) + " to " + F.number(after.energy) + ".");
       const bought = after.bought.sub(before.bought);
       if (bought.gt(0)) lines.push("Your buyers purchased " + F.number(bought, 0) + " generators.");
+      if (after.playtime > before.playtime) lines.push("Reached playtime tier " + after.playtime + " (all Energy ×" + F.number(Game.Playtime.state().multiplier, 4) + " in total).");
       if (after.symmetry.gt(before.symmetry)) lines.push("Gained " + F.number(after.symmetry.sub(before.symmetry), 0) + " Broken Symmetries.");
       return lines.join(" ");
     },

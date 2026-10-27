@@ -24,7 +24,6 @@ const CORE = [
   "layers/energy/coherence.js",
   "layers/energy/fieldExcitation.js",
   "layers/energy/fieldDynamics.js",
-  "layers/energy/structure.js",
   "core/productionStats.js",
   "save/saveManager.js",
   "core/offline.js",

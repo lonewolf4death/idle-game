@@ -4,7 +4,7 @@
     editingCondenseTarget:false,
     definition: function (id) { return Game.CONFIG.AUTOMATION.buyers.find(function (buyer) { return buyer.id === id; }); },
     unlocked: function (id) { const buyer=this.definition(id);return !!buyer && Game.Progression.hasSkill(buyer.skill); },
-    interval: function (id) { return (50 - 4 * Game.player.automation.buyers[id].level) / 10; },
+    interval: function (id) { return (50 - 4 * Game.player.automation.buyers[id].level) / 10 * Game.Symmetry.intervalMultiplier(); },
     active: function (id) { return !Game.Challenges.active() && !Game.Challenges.confirming && !(id==='condense' && this.editingCondenseTarget) && this.unlocked(id) && !!Game.player.settings.autoBuyers[id]; },
     parseCondenseTarget: function (input) {
       if (typeof input!=='string' && typeof input!=='number') return null;
@@ -179,7 +179,7 @@
       fresh.fluctuation.negativeStreakAchievement=old.fluctuation.negativeStreakAchievement;
       fresh.fluctuation.negativeStreakLevel=old.fluctuation.negativeStreakLevel;
       fresh.fluctuation.positiveChanceMastery=old.fluctuation.positiveChanceMastery;
-      Game.Automation.preserve(old,fresh);fresh.settings=old.settings;fresh.ui=old.ui;
+      Game.Automation.preserve(old,fresh);Game.Symmetry.preserve(old,fresh);fresh.settings=old.settings;fresh.ui=old.ui;
       fresh.challenges.active=index;
       if(index===5) {
         const rule=this.definition(5);
@@ -189,6 +189,7 @@
       if(!index) {
         if(fresh.prestige.skills['3-2']) fresh.generators.fieldOscillation.added=Game.D(Game.CONFIG.PRESTIGE.skills['3-2'].startingOscillations);
         if(fresh.prestige.skills['3-4-2']) fresh.generators.fieldCoupling.added=Game.D(Game.CONFIG.PRESTIGE.skills['3-4-2'].startingCouplings);
+        Game.Symmetry.startRun(fresh);
       }
       Game.player=fresh;
       if(Game.Loop && !automatic) { Game.Loop.accumulator=0;Game.Loop.lastTime=performance.now(); }
