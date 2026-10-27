@@ -4,7 +4,7 @@
     canUnlockSymmetry: function () { return !Game.Challenges.active() && !Game.player.prestige.symmetry && Game.player.prestige.quanta.gte(Game.CONFIG.SYMMETRY.cost); },
     unlockSymmetry: function () {
       if(!this.canUnlockSymmetry()) return false;
-      Game.player.prestige.quanta=Game.player.prestige.quanta.sub(Game.CONFIG.SYMMETRY.cost);Game.player.prestige.symmetry=1;
+      Game.player.prestige.quanta=Game.player.prestige.quanta.sub(Game.CONFIG.SYMMETRY.cost);Game.player.prestige.symmetry=1;Game.Symmetry.observe();
       Game.Save.save();if(Game.Audio) Game.Audio.play('perk');if(Game.UI) Game.UI.render();return true;
     },
     canBuySkill: function (id) {

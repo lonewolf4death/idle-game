@@ -131,7 +131,7 @@
       Game.TreeMap.syncMode();
       const sym=byId('unlock-symmetry'),symOwned=Game.player.prestige.symmetry;
       sym.disabled=!Game.Prestige.canUnlockSymmetry();setText(sym,symOwned?'Unlocked · 10,000 Quanta':'Unlock · 10,000 Quanta');
-      setText(byId('symmetry-state'),symOwned?'Unlocked · future mechanics unformed':'Disconnected · future tree');
+      setText(byId('symmetry-state'),symOwned?'Unlocked · see the Symmetry tab':'Disconnected · opens Breaking Symmetry');
       const p = Game.player, reward = Game.Prestige.reward(), ready = reward.gt(0), experienced = p.prestige.times.gt(0);
       setText(byId("quanta-balance"), number(p.prestige.quanta));
       byId("quanta-header").hidden = !(experienced || p.prestige.quanta.gt(0) || reveal);

@@ -76,7 +76,7 @@
       set(byId("symmetry-summary"), "Broken " + F.number(s.times, 0) + (s.times.eq(1) ? " time" : " times") + " · " + F.number(s.total, 0) + " Broken Symmetries earned in total");
       const massBonus = Game.Symmetry.massRewardMultiplier();
       set(byId("symmetry-reward"), "+" + F.number(reward, 0) + " Broken " + (reward.eq(1) ? "Symmetry" : "Symmetries") + (massBonus > 1 ? " (Mass ×" + F.number(massBonus, 1) + ")" : ""));
-      set(byId("symmetry-requirement"), Game.Challenges.active() ? "Unavailable during challenges." : !Game.Symmetry.gateOpen() ? "Requires every skill in the Condense tree, then " + F.number(Game.D(Game.CONFIG.SYMMETRY.unlockEnergy)) + " held Energy." : reward.gt(0) ? "Next Broken Symmetry at " + F.number(Game.Symmetry.nextRewardEnergy()) + " Energy." : "Requires " + F.number(Game.D(Game.CONFIG.SYMMETRY.unlockEnergy)) + " held Energy.");
+      set(byId("symmetry-requirement"), Game.Challenges.active() ? "Unavailable during challenges." : !Game.Symmetry.gateOpen() ? "Unlock Symmetry for " + F.number(Game.D(Game.CONFIG.SYMMETRY.cost)) + " Quanta on the skill tree, then reach " + F.number(Game.D(Game.CONFIG.SYMMETRY.unlockEnergy)) + " held Energy." : reward.gt(0) ? "Next Broken Symmetry at " + F.number(Game.Symmetry.nextRewardEnergy()) + " Energy." : "Requires " + F.number(Game.D(Game.CONFIG.SYMMETRY.unlockEnergy)) + " held Energy.");
       byId("symmetry-break").disabled = reward.lte(0);
       Game.CONFIG.SYMMETRY.perks.forEach(function (perk) {
         const row = Game.SymmetryUI.perkRows[perk.id], owned = Game.Symmetry.has(perk.id);

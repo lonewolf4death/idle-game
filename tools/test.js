@@ -91,6 +91,19 @@ test("offline progress simulates time away", function () {
   assert.match(b.Game.Offline.lastSummary, /away for 1h 0m/);
 });
 
+test("offline progress inside a challenge runs its real-time clock", function () {
+  const a = createGame();
+  a.Game.player.prestige.skills["1-6-1"] = 1;
+  a.Game.player.challenges.highestEnergy = a.Game.D("1e60");
+  assert.ok(a.Game.Challenges.enter(1));
+  a.Game.Save.save();
+  const b = reload(a.storage, a.clock.wall + 120 * 1000);
+  assert.ok(b.Game.Offline.resumeFromSave());
+  b.Game.Offline.runAll();
+  assert.ok(b.Game.player.challenges.elapsed >= 30, "the deadline clock advanced");
+  assert.strictEqual(b.Game.player.challenges.failed, 1, "Brief window's deadline passed while away");
+});
+
 test("offline progress is capped and can be disabled", function () {
   const a = createGame();
   playFor(a.Game, 120, 4);
@@ -148,12 +161,18 @@ test("threshold achievements unlock from held Energy and counts", function () {
 
 function fullTree(G) {
   Object.keys(G.CONFIG.PRESTIGE.skills).forEach(function (id) { G.player.prestige.skills[id] = 1; });
+  G.player.prestige.symmetry = 1;
 }
 
-test("first Break needs the full tree and 1e100 Energy", function () {
+test("first Break needs the 10,000-Quanta unlock and 1e100 Energy", function () {
   const { Game: G } = createGame();
   G.player.resources.energy = G.D("1e450");
-  assert.ok(G.Symmetry.reward().eq(0), "no reward without the full tree");
+  assert.ok(G.Symmetry.reward().eq(0), "no reward before the unlock");
+  G.player.prestige.quanta = G.D(9999);
+  assert.ok(!G.Prestige.unlockSymmetry(), "the unlock costs 10,000 Quanta");
+  G.player.prestige.quanta = G.D(10000);
+  assert.ok(G.Prestige.unlockSymmetry());
+  assert.ok(G.player.prestige.quanta.eq(0) && G.Symmetry.discovered(), "the unlock reveals the Symmetry tab");
   fullTree(G);
   assert.strictEqual(G.Symmetry.reward().toString(), "3", "one more each time the exponent doubles");
   assert.ok(G.Symmetry.breakSymmetry(true));
@@ -162,6 +181,7 @@ test("first Break needs the full tree and 1e100 Energy", function () {
   assert.ok(G.Progression.hasSkill("1-1") && G.Progression.hasSkill("4-5-2"), "the skill tree stays");
   assert.ok(G.player.prestige.times.eq(0), "Condense count resets");
   assert.strictEqual(G.player.achievements.firstBreak, 1);
+  assert.strictEqual(G.player.prestige.symmetry, 1, "the unlock survives the Break");
   G.player.resources.energy = G.D("1e100");
   assert.strictEqual(G.Symmetry.reward().toString(), "1", "later Breaks need only Energy");
 });

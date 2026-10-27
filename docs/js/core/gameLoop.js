@@ -62,6 +62,13 @@
       // catchingUp also silences per-event sounds and effects.
       const wasCatchingUp = this.catchingUp;
       this.coarse = this.catchingUp = true;
+      // Challenge deadlines, collapses and suppression run on real-time clocks, so
+      // a challenge run keeps the exact real-time segmentation.
+      if (Game.Challenges.active()) {
+        try { this.simulate(realDelta); } finally { this.coarse = false;this.catchingUp = wasCatchingUp; }
+        Game.Achievements.capture(Game.player, true);
+        return;
+      }
       try { this.advanceGameTime(Game.Time.getGameDelta(realDelta)); } finally { this.coarse = false;this.catchingUp = wasCatchingUp; }
       Game.Time.advance(realDelta, Game.D(0));
       Game.Automation.advanceBatch(realDelta);

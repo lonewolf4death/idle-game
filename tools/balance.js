@@ -2,7 +2,7 @@
 // It Condenses once the reward pays for the next skill, Breaks Symmetry once the
 // reward pays for the next perk, clicks for the first minutes of each run, then idles.
 // Usage: node tools/balance.js [hours] [seed] [scenario]
-//   scenario "tree" starts with the full skill tree, to measure the Symmetry layer.
+//   scenario "tree" starts with the full skill tree and Symmetry unlocked, to measure the Symmetry layer.
 "use strict";
 const { createGame, mulberry32 } = require("./harness.js");
 
@@ -70,6 +70,7 @@ if (scenario === "tree") {
   skillIds.forEach(function (id) { Game.player.prestige.skills[id] = 1; });
   Game.player.prestige.times = D(30);
   Game.player.prestige.totalQuanta = D(813);
+  Game.player.prestige.symmetry = 1;
   Game.Automation.setAll(true);
   Game.Automation.setEnabled("condense", false);
 }
@@ -88,7 +89,9 @@ while (Game.player.time.realPlayed < end) {
   // or as soon as the reward completes the tree.
   const remaining = skillIds.filter(function (id) { return !Game.Progression.hasSkill(id); }).reduce(function (sum, id) { return sum.add(Game.CONFIG.PRESTIGE.skills[id].cost); }, D(0));
   const longRun = Game.player.time.currentEnergyRunReal >= RUN_HOURS * 3600;
-  if (skillCost && reward.gte(1) && Game.player.prestige.quanta.add(reward).gte(skillCost) && (longRun || Game.player.prestige.quanta.add(reward).gte(remaining))) {
+  // With the tree done, keep Condensing long runs to save up for the Symmetry unlock.
+  const saving = !skillCost && !Game.player.prestige.symmetry && reward.gte(1) && longRun;
+  if (saving || skillCost && reward.gte(1) && Game.player.prestige.quanta.add(reward).gte(skillCost) && (longRun || Game.player.prestige.quanta.add(reward).gte(remaining))) {
     const n = Game.player.prestige.times.toNumber() + 1;
     mark("c" + n, "Condense #" + n + " (+" + reward.toString() + " Quanta at " + e.toExponential(1) + " after " + fmt(Game.player.time.currentEnergyRunReal) + ")");
     const before = skillIds.filter(function (id) { return Game.Progression.hasSkill(id); });
@@ -96,6 +99,8 @@ while (Game.player.time.realPlayed < end) {
     buySkills();
     const bought = skillIds.filter(function (id) { return Game.Progression.hasSkill(id) && !before.includes(id); });
     if (bought.length) log("    bought " + bought.join(" "));
+    if (!skillCost || !nextSkillCost()) log("    Quanta " + Game.player.prestige.quanta.toString() + " / " + Game.CONFIG.SYMMETRY.cost);
+    if (Game.Prestige.unlockSymmetry()) mark("unlock", "Symmetry unlocked");
   }
   const owned = ownedSkills();
   [10, 20, 30, skillIds.length].forEach(function (n) { if (owned >= n) mark("s" + n, n + " skills owned"); });

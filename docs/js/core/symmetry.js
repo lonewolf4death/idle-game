@@ -6,16 +6,15 @@
     has: function (perk) { return Game.player.symmetry.perks[perk] === 1; },
     perk: function (id) { return rules().perks.find(function (perk) { return perk.id === id; }); },
     discovered: function () { const s = Game.player.symmetry;return s.times.gt(0) || s.seen === 1; },
-    // Reveal the layer the first time a normal run holds enough Energy.
+    // Reveal the layer once Symmetry is unlocked on the skill tree.
     observe: function () {
       const s = Game.player.symmetry;
-      if (s.seen || Game.Challenges.active() || !this.gateOpen() || Game.player.resources.energy.lt(rules().unlockEnergy)) return;
+      if (s.seen || Game.Challenges.active() || !this.gateOpen()) return;
       s.seen = 1;
-      if (Game.Experience && Game.Experience.enqueue) Game.Experience.enqueue({ kind: "Symmetry", title: "A crack in the mirror", text: "The field has grown so dense that its perfect balance strains. The Symmetry tab is open: Break Symmetry to trade Quanta and your constellation for something with weight." });
+      if (Game.Experience && Game.Experience.enqueue) Game.Experience.enqueue({ kind: "Symmetry", title: "A crack in the mirror", text: "The field has grown so dense that its perfect balance strains. The Symmetry tab is open: at " + Game.Format.number(D(rules().unlockEnergy)) + " Energy, Break Symmetry to trade your run and Quanta for something with weight." });
     },
-    // The first Break needs the whole Condense tree; later Breaks only need Energy.
-    treeComplete: function () { return Object.keys(Game.CONFIG.PRESTIGE.skills).every(function (id) { return Game.Progression.hasSkill(id); }); },
-    gateOpen: function () { return Game.player.symmetry.times.gt(0) || this.treeComplete(); },
+    // The 10,000-Quanta unlock on the skill tree opens Breaking; it survives every reset.
+    gateOpen: function () { return Game.player.symmetry.times.gt(0) || Game.player.prestige.symmetry === 1; },
     // One Broken Symmetry at 1e100, then one more each time the exponent doubles.
     baseReward: function () {
       if (Game.Challenges.active() || !this.gateOpen()) return 0;
@@ -59,7 +58,7 @@
       Game.Automation.preserve(old, fresh);
       fresh.settings = old.settings;fresh.ui = old.ui;
       // The constellation survives; Quanta and the Condense count do not.
-      fresh.prestige.skills = old.prestige.skills;
+      fresh.prestige.skills = old.prestige.skills;fresh.prestige.symmetry = old.prestige.symmetry;
       if (old.symmetry.perks.memory === 1) fresh.prestige.times = old.prestige.times;
       fresh.symmetry = old.symmetry;
       fresh.symmetry.times = fresh.symmetry.times.add(1);
