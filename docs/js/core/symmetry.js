@@ -17,7 +17,7 @@
     generationMultiplier:function () {
       return D(this.reached(.1)?2:1).mul(this.has('unifiedField2')?2:1).mul(this.has('quantumCoupling')?D(1+Game.player.prestige.quanta.add(1).log10()/4):1);
     },
-    unitProduction:function () { return D(Game.CONFIG.SYMMETRY.production).mul(this.generationMultiplier()).mul(Game.Progression.generatorMultiplier()); },
+    unitProduction:function () { return D(Game.CONFIG.SYMMETRY.production).mul(this.generationMultiplier()); },
     perSecond:function () { return this.unlocked() && !this.reached(1)?this.alignmentOwned().mul(this.unitProduction()):D(0); },
     nextMilestone:function () { return Game.CONFIG.SYMMETRY.milestones.find(function (m) { return Game.player.symmetry.amount.add(1e-12).lt(m.at); }); },
     nextEventIn:function () { const rate=this.perSecond(),next=this.nextMilestone();return rate.gt(0)&&next?Decimal.max(0,D(next.at).sub(Game.player.symmetry.amount)).div(rate):D(Infinity); },

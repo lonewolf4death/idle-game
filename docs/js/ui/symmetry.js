@@ -14,7 +14,7 @@
       el('layer-symmetry').addEventListener('click',function () { Game.SymmetryUI.select(1); });
       el('buy-field-alignment').addEventListener('click',function () { Game.Loop.pump(performance.now());Game.Symmetry.buy(Game.UI.buyAmount);Game.UI.render(); });
       Game.CONFIG.SYMMETRY.milestones.forEach(function (m) {
-        const row=document.createElement('li');row.innerHTML='<strong>'+Math.round(m.at*100)+'% · '+m.type+'</strong><span>'+m.reward+'</span>';el('symmetry-milestones').appendChild(row);Game.SymmetryUI.milestones.push(row);
+        const row=document.createElement('li');row.hidden=true;row.innerHTML='<strong>'+Math.round(m.at*100)+'% · '+m.type+'</strong><span>'+m.reward+'</span>';el('symmetry-milestones').appendChild(row);Game.SymmetryUI.milestones.push(row);
       });
       Object.keys(Game.CONFIG.SYMMETRY.upgrades).forEach(function (id) {
         const rule=Game.CONFIG.SYMMETRY.upgrades[id],card=document.createElement('article');card.className='unified-upgrade';card.dataset.unified=id;
@@ -54,13 +54,14 @@
         card.hidden=!!rule.perfect && !(S.discovered(1)||reveal);card.classList.toggle('is-owned',owned);
         const button=card.querySelector('[data-buy-unified]');button.disabled=!S.canBuyUpgrade(id);text(button,owned?'Purchased':Game.Challenges.active()?'Unavailable during challenges':!S.discovered(rule.perfect?1:.5)?'Requires '+(rule.perfect?'Perfect Symmetry':'50% Symmetry'):'Buy · '+rule.cost+' Energy');
       });
-      this.milestones.forEach(function (row,index) { const m=Game.CONFIG.SYMMETRY.milestones[index];row.classList.toggle('is-active',S.reached(m.at));row.classList.toggle('is-discovered',S.discovered(m.at)); });
+      this.milestones.forEach(function (row,index) { const m=Game.CONFIG.SYMMETRY.milestones[index];row.hidden=!(S.discovered(m.at)||reveal);row.classList.toggle('is-active',S.reached(m.at));row.classList.toggle('is-discovered',S.discovered(m.at)); });
+      el('symmetry-milestones').parentElement.hidden=!this.milestones.some(function (row) { return !row.hidden; });
       el('symmetry-breaking').hidden=!(S.discovered(.99)||reveal);el('perfect-alignment-tree').hidden=!(S.discovered(.9)||reveal);
       text(el('symmetry-reset-note'),'Condense resets Symmetry and Field Alignment. Purchased Unified Interaction upgrades remain. Discovered features stay revealed.');
       if(!Game.Challenges.active() && open) {
         text(el('milestone-title'),'Symmetry');text(el('milestone-value'),pct+' · '+S.type());
         el('milestone-fill').style.width=percent+'%';el('milestone-bar').setAttribute('aria-valuenow',String(percent));el('milestone-bar').setAttribute('aria-label','Symmetry progress to Perfect Symmetry');el('milestone-bar').setAttribute('aria-valuetext',pct+' · '+S.type());
-        const next=S.nextMilestone();text(el('milestone-caption'),next?'Next: '+Math.round(next.at*100)+'% · '+next.type+' · Energy ×'+number(S.multiplier(),5):'Perfect Symmetry · Energy ×'+number(S.multiplier(),5));
+        const next=S.nextMilestone(),known=next&&(S.discovered(next.at)||reveal);text(el('milestone-caption'),(known?'Next: '+Math.round(next.at*100)+'% · '+next.type+' · ':!next?'Perfect Symmetry · ':'')+'Energy ×'+number(S.multiplier(),5));
         el('milestone-bar').classList.add('symmetry-progress');
       } else el('milestone-bar').classList.remove('symmetry-progress');
       S.showLore();
