@@ -55,6 +55,7 @@
     },
     preserve: function (old,fresh) {
       fresh.challenges.highestEnergy=Decimal.max(old.challenges.highestEnergy,old.resources.energy);
+      Game.Symmetry.preserve(old,fresh);
       // Challenge mastery survives both Condense and respec; timers start fresh.
       Game.CONFIG.AUTOMATION.buyers.forEach(function (buyer) {
         const state=old.automation.buyers[buyer.id];

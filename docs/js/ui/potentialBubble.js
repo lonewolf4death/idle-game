@@ -47,7 +47,7 @@
       this.node.style.opacity=String(age>end?Math.max(0,1-(age-end)/.5):1);
       this.node.classList.toggle("is-ready",ready);
       this.node.querySelector(".bubble-hint").textContent=ready?"Collect potential":age>end?"Dissipating":"Potential forming";
-      this.node.setAttribute("aria-label",ready?"Collect potential now. Gain one of every available generator.":"Potential bubble. Wait for the green ring.");
+      this.node.setAttribute("aria-label",ready?"Collect potential now. Gain one of every available Primordial generator.":"Potential bubble. Wait for the green ring.");
     },
     collect: function (now) {
       if (!this.active || !this.eligible()) return false;
@@ -56,7 +56,7 @@
         Game.CONFIG.GENERATORS.forEach(function (gen) { if (Game.Energy.generatorEnabled(gen)) Game.Energy.addGenerators(gen.id,1); });
         Game.Audio.play("bubbleCollect");
       }
-      this.notice.textContent=success?"Potential captured · +1 to every available generator":"Potential slipped away";
+      this.notice.textContent=success?"Potential captured · +1 to every available Primordial generator":"Potential slipped away";
       this.notice.hidden=false;this.resultUntil=performance.now()+1800;
       this.active=null;this.node.hidden=true;Game.UI.render();return success;
     }

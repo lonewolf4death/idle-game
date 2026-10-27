@@ -182,7 +182,7 @@
       text("stats-click-total-label", advancesTime ? "Direct Energy per click" : "Energy per click");
       show("stats-click-time-step", advancesTime || Game.Progression.hasSkill("1-4-1") || reveal);
       let clickNote = advancesTime ? "1-2-1 · Each manual click also advances all generators by 0.33 game seconds. Timed Energy and resources are produced through their normal cycles, replacing Captured instant's Energy-only payout." : "1-2-1 · Locked: manual clicks do not advance generator time.";
-      if (Game.Progression.hasSkill("1-4-1")) clickNote += " 1-4-1 · Additional per click: +" + number(s.clicks.echo.energy) + " Energy, +" + number(s.clicks.echo.quantumResonance) + " Quantum Resonance, +" + number(s.clicks.echo.energyResonance) + " Energy Resonance, +" + number(s.clicks.echo.baseGrowth) + " Gen 1 base growth. Fractional Resonance is retained.";
+      if (Game.Progression.hasSkill("1-4-1")) clickNote += " 1-4-1 · Additional per click: +" + number(s.clicks.echo.energy) + " Energy, +" + number(s.clicks.echo.quantumResonance) + " Quantum Resonance, +" + number(s.clicks.echo.energyResonance) + " Energy Resonance, +" + number(s.clicks.echo.baseGrowth) + " Gen 1 base growth"+(Game.Symmetry.unlocked()?", +"+number(s.clicks.echo.symmetry.mul(100))+"% Symmetry":"")+". Fractional Resonance is retained.";
       text("stats-click-time-step", Game.Challenges.clicksAllowed()?clickNote:"Hands off challenge · clicks and their Energy, resource and time rewards are disabled.");
       text("stats-generator-total", number(s.generators.perRealSecond));
       this.renderContributions(s, "generators", reveal);

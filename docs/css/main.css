@@ -706,6 +706,52 @@ summary.contribution-row { cursor:pointer; }
 .challenge-instructions { color:var(--muted); font-size:12px; line-height:1.85; }
 .challenge-instructions b { color:var(--text); font-weight:400; }
 .challenge-rules { font-size:13px; color:var(--text); line-height:1.9; padding:16px 0; border-block:1px solid var(--border); }
+
+/* Symmetry shares the existing field and event-driven visuals. */
+.generator-layer-switch { display:flex; gap:5px; margin:10px 0 7px; }
+.generator-layer-switch button { padding:5px 10px; font-size:11px; color:var(--muted); }
+.generator-layer-switch button[aria-pressed=true] { color:#d4bfeb; border-color:#9778b2; background:#a78ac218; }
+.symmetry-overview { display:flex; flex-direction:column; gap:8px; padding:8px 0 22px; color:#91d7ce; }
+.symmetry-overview>strong { font-size:27px; font-weight:400; color:#c4a5e0; }
+.symmetry-generator h3 { color:#c3a7e1; }.alignment-symbol { color:#87d8cf; font-size:22px; }
+.unified-upgrade { padding:14px 0; border-bottom:1px solid var(--border); }
+.unified-upgrade h3 { color:#a5dfd2; font-size:13px; font-weight:400; }.unified-upgrade p { font-size:11px; line-height:1.8; }
+.unified-cost { color:var(--energy); }.unified-upgrade.is-owned { opacity:.75; }.unified-upgrade.is-owned h3::after { content:' · Purchased'; font-size:10px; }
+.symmetry-milestones summary { cursor:pointer; color:#c4a5e0; padding:12px 0; }
+.symmetry-milestones ol { padding:0; list-style:none; }.symmetry-milestones li { display:flex; flex-direction:column; gap:7px; padding:13px 0; border-bottom:1px solid var(--border); color:var(--muted); font-size:11px; line-height:1.7; }
+.symmetry-milestones strong { font-weight:400; }.symmetry-milestones .is-discovered strong { color:#a1bcb2; }.symmetry-milestones .is-active strong { color:#a5dfd2; }
+.symmetry-future { border:1px dashed #726181; padding:14px; margin:16px 0; }.symmetry-future h3 { color:#c9addf; font-weight:400; }
+.symmetry-counter { display:grid; grid-template-columns:auto auto; gap:5px 15px; margin-top:12px; padding-top:10px; border-top:1px solid #a68cbe33; }
+.symmetry-counter>span { font-size:11px; color:#a7a7ce; }.symmetry-counter strong { font-size:18px; font-weight:400; background:linear-gradient(100deg,#c4a2e4,#83d9d3,#e8cd91); background-clip:text; -webkit-text-fill-color:transparent; }
+.symmetry-counter small { grid-column:1/-1; font-size:10px; color:#aacfc7; letter-spacing:.05em; line-height:1.6; }
+.symmetry-mandala { position:absolute; width:min(80%,520px); height:90%; left:50%; top:50%; transform:translate(-50%,-50%); pointer-events:none; opacity:calc(var(--symmetry-strength,0) * .46); filter:drop-shadow(0 0 8px #ac9cd333); }
+.field-caption { z-index:3; }.symmetry-progress>#milestone-fill { background:linear-gradient(90deg,#9270b8,#69c1be 65%,#decb91); }
+.perfect-alignment-tree { display:flex; flex-wrap:wrap; align-items:center; gap:22px; padding:18px 22px; border:1px solid #a68cbe70; background:linear-gradient(100deg,#a68cbe0a,#69c1be08); }
+.perfect-alignment-tree h3 { color:#d3b7e7; margin:5px 0; font-size:16px; font-weight:400; }.perfect-alignment-tree p { font-size:11px; color:var(--muted); }.perfect-perk-stub { font-size:38px; color:#a68cbe77; }
+@media(max-width:760px) {
+  .generator-layer-switch { margin:5px 0; }.generator-layer-switch button { font-size:10px; padding:4px 7px; }
+  .has-symmetry .field-caption { max-width:90%; }.symmetry-counter { margin-top:7px; padding-top:7px; }
+  .symmetry-counter strong { font-size:16px; }.symmetry-layer .control-panel { max-height:38vh; }
+  .perfect-alignment-tree { padding:12px; gap:12px; }
+  .has-symmetry .header-energy,.has-symmetry .subtitle { display:none; }
+  .has-symmetry .topbar { min-height:64px; padding:8px 12px; }
+  .has-symmetry .topbar { grid-template-columns:minmax(100px,1fr) minmax(170px,1.2fr); }
+  .has-symmetry .game-layout:has(#energy-view:not([hidden])) { grid-template-rows:minmax(0,1.9fr) minmax(100px,.75fr); }
+  .has-symmetry .energy-field { min-height:245px; flex-basis:245px; }
+  .has-symmetry .field-caption,.has-symmetry .energy-field.has-resonance .field-caption { padding:10px 16px 22px; gap:4px; }
+  .has-symmetry .field-footnote { bottom:6px; font-size:9px; }
+  .has-symmetry .resonance-overview { padding:5px 12px; }
+  .has-symmetry .resonance-overview>div { display:flex; gap:8px; align-items:baseline; }
+  .has-symmetry .resonance-overview .muted { display:none; }
+  .has-symmetry .resonance-overview strong { font-size:14px; }
+}
+.symmetry-counter .info-term { pointer-events:auto; color:inherit; font-size:11px; padding:0; border:0; }
+.symmetry-echo-container { position:absolute; inset:0; transform:scaleX(-1); pointer-events:none; }
+@media(max-width:400px) {
+  .has-symmetry .energy-field { min-height:215px; flex-basis:215px; }
+  .has-symmetry #center-energy { font-size:25px; }
+  .has-symmetry .existence-state p { margin:3px 0; }
+}
 .challenge-goal { padding:16px; border:1px solid #736181; background:#a68cbe0b; margin:20px 0; }
 .challenge-goal>* { display:block; }.challenge-goal strong { color:var(--energy); font-size:19px; font-weight:400; margin-top:5px; }
 .challenge-goal p { color:var(--muted); font-size:11px; margin-bottom:0; }

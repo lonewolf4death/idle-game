@@ -31,7 +31,7 @@
       const config = this.rules();
       return Game.Progression.productionInterval(D(config.quantumInterval).add(Game.player.stats.totalQuantumResonance.div(config.quantumSlowdownEvery).floor().mul(config.quantumSlowdownSeconds)));
     },
-    outputPerCycle: function () { return (Game.Challenges.produces("coherentEnergy")?Game.Energy.getOwned("coherentEnergy"):D(0)).mul(Game.Progression.generatorMultiplier()).mul(Game.Progression.generatorFocusMultiplier("coherentEnergy")); },
+    outputPerCycle: function () { return (Game.Challenges.produces("coherentEnergy")?Game.Energy.getOwned("coherentEnergy"):D(0)).mul(Game.Progression.generatorMultiplier()).mul(Game.Progression.generatorFocusMultiplier("coherentEnergy")).mul(Game.Symmetry.crossMultiplier("coherentEnergy")); },
     energyPerSecond: function () { return this.outputPerCycle().mul(D(1).div(this.energyInterval()).add(Game.Progression.hasSkill("2-4-1") ? D(1).div(this.quantumInterval()) : 0)); },
     grantOutput: function (kind, amount) {
       if(!Game.Challenges.produces("coherentEnergy")) return D(0);

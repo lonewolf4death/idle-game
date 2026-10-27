@@ -110,7 +110,7 @@
         if (!Game.Prestige.canRespec()) return;
         const dialog=byId("respec-dialog");
         setText(byId("respec-refund"), "Refund "+number(Game.Prestige.respecRefund())+" Primordial Quanta");
-        setText(byId("respec-description"), "Clear all purchased skills and restart this run. Energy, generators, Disturb, Resonance, field growth and run timers reset. Keep achievements, lore, total playtime, lifetime Condenses and earned Quanta. This grants no Condense reward.");
+        setText(byId("respec-description"), "Clear all purchased skills and restart this run. Energy, generators, Disturb, Resonance, field growth, Symmetry, Field Alignment and run timers reset. Keep Unified Interaction upgrades, discovered features, achievements, lore, total playtime, lifetime Condenses and earned Quanta. This grants no Condense reward.");
         setText(byId("confirm-respec"), "Respec · restart run");
         dialog.classList.remove("is-dismissing");byId("confirm-respec").disabled=false;byId("cancel-respec").disabled=false;dialog.showModal();byId("cancel-respec").focus();
       });
@@ -131,7 +131,7 @@
       Game.TreeMap.syncMode();
       const sym=byId('unlock-symmetry'),symOwned=Game.player.prestige.symmetry;
       sym.disabled=!Game.Prestige.canUnlockSymmetry();setText(sym,symOwned?'Unlocked · 10,000 Quanta':'Unlock · 10,000 Quanta');
-      setText(byId('symmetry-state'),symOwned?'Unlocked · future mechanics unformed':'Disconnected · future tree');
+      setText(byId('symmetry-state'),symOwned?'Unlocked · switch beneath the game title':'Disconnected · future layer');
       const p = Game.player, reward = Game.Prestige.reward(), ready = reward.gt(0), experienced = p.prestige.times.gt(0);
       setText(byId("quanta-balance"), number(p.prestige.quanta));
       byId("quanta-header").hidden = !(experienced || p.prestige.quanta.gt(0) || reveal);
@@ -139,7 +139,7 @@
       setText(byId("quanta-bonus"), "×" + Game.Format.number(quantaBonus.multiplier, 5) + " all Energy" + (quantaBonus.suppressed ? " · disabled in this challenge" : quantaBonus.active ? " · soft-capped" : "") + (Game.Progression.hasSkill("4-4-2") ? " · basis " + Game.Format.number(quantaBonus.basis, 1) + " Quanta" : ""));
       setText(byId("condense-earned"), number(p.prestige.totalQuanta) + " earned · " + number(p.prestige.times) + " condensations" + (Game.Progression.hasSkill("4-3-1") ? " · " + number(Game.Progression.effectiveCondenses()) + " effective" : ""));
       setText(byId("condense-reward"), "+" + number(reward) + " Primordial Quanta");
-      setText(byId("condense-next"), "Next reward: " + number(reward.add(1)) + " at " + number(Game.Prestige.nextRewardEnergy()) + " held Energy");
+      setText(byId("condense-next"), "Next reward: " + number(reward.add(Game.Symmetry.quantaMultiplier())) + " at " + number(Game.Prestige.nextRewardEnergy()) + " held Energy");
       setText(byId("condense-requirement"), Game.Challenges.active() ? "Condense is unavailable during a challenge. Complete its Energy goal or exit the challenge first." : ready ? "Ready to condense. Your current run will reset." : "Requires " + number(Game.CONFIG.PROGRESSION.prestigeEnergy) + " held Energy.");
       byId("condense-button").disabled = !ready;
       setText(byId("condense-button"), "Condense Energy · +" + number(reward) + " Quanta");

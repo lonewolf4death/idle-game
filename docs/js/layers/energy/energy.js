@@ -4,17 +4,17 @@
   Game.Energy = {
     baseManualGain: function () {
       if (!Game.Challenges.clicksAllowed()) return D(0);
-      return this.energyRate(Game.Progression.clickBaseGain().mul(Game.Progression.clickMultiplier()).mul(Game.Progression.clickSkillMultiplier()).mul(this.fluctMultiplier()).mul(Game.Progression.energyMultiplier()).mul(Game.FieldDynamics.multiplier()));
+      return Game.LateEnergy.payout(this.preProductionRate(Game.Progression.clickBaseGain().mul(Game.Progression.clickMultiplier()).mul(Game.Progression.clickSkillMultiplier()).mul(this.fluctMultiplier()).mul(Game.Progression.energyMultiplier()).mul(Game.FieldDynamics.multiplier())),.05);
     },
     capturedProductionGain: function () {
-      return Game.Challenges.clicksAllowed() && Game.Progression.hasSkill("1-2") && !Game.Progression.hasSkill("1-2-1") ? this.getProductionPerSecond().mul(Game.Time.getGameSpeed()).mul(Game.CONFIG.PRESTIGE.skills["1-2"].productionSeconds) : D(0);
+      return Game.Challenges.clicksAllowed() && Game.Progression.hasSkill("1-2") && !Game.Progression.hasSkill("1-2-1") ? this.productionPayout(D(Game.CONFIG.PRESTIGE.skills["1-2"].productionSeconds).mul(Game.Time.getGameSpeed())) : D(0);
     },
     manualGain: function () { return this.baseManualGain().add(this.capturedProductionGain()).add(Game.Progression.hasSkill("1-4-1") ? this.clickOutputBonus().energy : 0); },
     clickOutputBonus: function () {
       const seconds = D(Game.Challenges.clicksAllowed() && Game.Progression.hasSkill("1-4-1") ? Game.CONFIG.PRESTIGE.skills["1-4-1"].outputSeconds : 0);
       // Capture every rate before granting resources, so this click cannot feed itself.
       const coherent = Game.Coherence.outputPerCycle();
-      return { energy: this.getProductionPerSecond().mul(seconds), quantumResonance: coherent.div(Game.Coherence.quantumInterval()).mul(seconds), energyResonance: Game.Coherence.energyPerSecond().mul(seconds), baseGrowth: Game.FieldExcitation.growthPerSecond().mul(seconds) };
+      return { energy: this.productionPayout(seconds), symmetry:Game.Symmetry.perSecond().mul(seconds), quantumResonance: coherent.div(Game.Coherence.quantumInterval()).mul(seconds), energyResonance: Game.Coherence.energyPerSecond().mul(seconds), baseGrowth: Game.FieldExcitation.growthPerSecond().mul(seconds) };
     },
     burstInterval: function (gen) {
       const reduction = gen.id === "energyDisturbance" && Game.Progression.hasSkill("1-4-2") ? Game.player.generators[gen.id].purchased.mul(Game.CONFIG.PRESTIGE.skills["1-4-2"].secondsPerPurchased) : D(0);
@@ -35,7 +35,7 @@
     getCoupledFields: function () {
       if(!Game.Challenges.produces("fieldCoupling")) return D(0);
       const state = Game.player.generators.fieldCoupling;
-      return state ? state.purchased.add(state.added).mul(Game.player.upgrades.clickPower).mul(Game.CONFIG.FIELD_DYNAMICS.fieldsPerDisturb).mul(Game.Progression.generatorFocusMultiplier("fieldCoupling")) : D(0);
+      return state ? state.purchased.add(state.added).mul(Game.player.upgrades.clickPower).mul(Game.CONFIG.FIELD_DYNAMICS.fieldsPerDisturb).mul(Game.Progression.generatorFocusMultiplier("fieldCoupling")).mul(Game.Symmetry.crossMultiplier("fieldCoupling")) : D(0);
     },
     getProductionCount: function (id) {
       const owned = Game.Challenges.produces(id) ? this.getOwned(id) : D(0);
@@ -70,7 +70,7 @@
     },
     fluctMagnitude: function () {
       const rules = Game.Modifiers.getFluctuationRules();
-      return D(rules.base).mul(this.fluctGrowth().pow(this.getOwned("quantumFluctuation"))).mul(Game.Progression.generatorFocusMultiplier("quantumFluctuation"));
+      return D(rules.base).mul(this.fluctGrowth().pow(this.getOwned("quantumFluctuation"))).mul(Game.Progression.generatorFocusMultiplier("quantumFluctuation")).mul(Game.Symmetry.crossMultiplier("quantumFluctuation"));
     },
     fluctMultiplier: function () {
       if (!Game.Challenges.produces("quantumFluctuation") || this.getOwned("quantumFluctuation").lte(0)) return D(1);
@@ -98,7 +98,7 @@
       const beforeCredit = this.syncGeneratorTimers(gen, state);
       state.added = state.added.add(value);
       const afterCredit = this.syncGeneratorTimers(gen, state);
-      this.addEnergyCredit(beforeCredit.add(afterCredit).mul(this.getCountMultiplier(id)).mul(Game.Progression.generatorFocusMultiplier(id)).mul(Game.Progression.generatorMultiplier()).mul(this.fluctMultiplier()).mul(Game.Progression.energyMultiplier()).mul(Game.FieldDynamics.multiplier()));
+      this.addEnergyCredit(beforeCredit.add(afterCredit).mul(this.getCountMultiplier(id)).mul(Game.Progression.generatorFocusMultiplier(id)).mul(Game.Symmetry.crossMultiplier(id)).mul(Game.Progression.generatorMultiplier()).mul(this.fluctMultiplier()).mul(Game.Progression.energyMultiplier()).mul(Game.FieldDynamics.multiplier()));
       if (id === "coherentEnergy" && value.gt(0) && Game.UI) Game.Coherence.showLore();
       return true;
     },
@@ -129,13 +129,19 @@
       return cost;
     },
 
-    energyRate: function (raw, offset) { return D(raw).pow(Game.Challenges.gainPower()).mul(Game.Challenges.energyFactor(offset)); },
+    preProductionRate: function (raw, offset) { return D(raw).pow(Game.Challenges.gainPower()).mul(Game.Challenges.energyFactor(offset)); },
+    energyRate: function (raw, offset) { return Game.LateEnergy.compressedRate(this.preProductionRate(raw,offset)).mul(Game.Symmetry.energyMultiplier()); },
+    productionPayout: function (seconds) {
+      if(D(seconds).lte(0)) return D(0);
+      const raw=this.preProductionRate(this.rawGeneratorProduction(this.getGenerator('energyDisturbance')));
+      return Game.LateEnergy.preview(raw,seconds).gain;
+    },
     getGeneratorProduction: function (generator, oscillation) { return this.energyRate(this.rawGeneratorProduction(generator,oscillation)); },
     rawGeneratorProduction: function (generator, oscillation) {
       if (generator.type) return D(0);
       const owned = this.getProductionCount(generator.id);
       const rate = this.getBaseRate(generator);
-      return rate.mul(owned).mul(Game.Progression.generatorFocusMultiplier(generator.id)).mul(Game.Progression.generatorMultiplier()).mul(this.fluctMultiplier()).mul(Game.Progression.energyMultiplier()).mul(oscillation === undefined ? Game.FieldDynamics.multiplier() : oscillation);
+      return rate.mul(owned).mul(Game.Progression.generatorFocusMultiplier(generator.id)).mul(Game.Symmetry.crossMultiplier(generator.id)).mul(Game.Progression.generatorMultiplier()).mul(this.fluctMultiplier()).mul(Game.Progression.energyMultiplier()).mul(oscillation === undefined ? Game.FieldDynamics.multiplier() : oscillation);
     },
 
     getProductionPerSecond: function () {
@@ -161,6 +167,7 @@
       const gain = this.baseManualGain().add(this.capturedProductionGain()).add(bonus.energy);
       this.addEnergy(gain);
       if (Game.Progression.hasSkill("1-4-1")) {
+        Game.Symmetry.add(bonus.symmetry);
         Game.Coherence.grantOutput("quantumResonance", bonus.quantumResonance);
         Game.Coherence.grantOutput("energyResonance", bonus.energyResonance);
         Game.player.fieldExcitation.baseRateBonus = Game.player.fieldExcitation.baseRateBonus.add(bonus.baseGrowth);
@@ -216,7 +223,7 @@
       Game.Achievements.capture(Game.player,true);
       Game.Challenges.afterPurchase(id);
       const transitionCredit = this.syncGeneratorTimers(gen, state);
-      this.addEnergyCredit(oldCredit.add(transitionCredit).mul(this.getCountMultiplier(id)).mul(Game.Progression.generatorFocusMultiplier(id)).mul(Game.Progression.generatorMultiplier()).mul(this.fluctMultiplier()).mul(Game.Progression.energyMultiplier()).mul(Game.FieldDynamics.multiplier()));
+      this.addEnergyCredit(oldCredit.add(transitionCredit).mul(this.getCountMultiplier(id)).mul(Game.Progression.generatorFocusMultiplier(id)).mul(Game.Symmetry.crossMultiplier(id)).mul(Game.Progression.generatorMultiplier()).mul(this.fluctMultiplier()).mul(Game.Progression.energyMultiplier()).mul(Game.FieldDynamics.multiplier()));
       if (Game.UI) {
         if (!hadFirstAchievement && Game.Progression.firstGeneratorAchievementUnlocked()) Game.UI.notifyAchievement("First generator", "×1.05 Energy per click");
         if (!hadGrowingAchievement && Game.Progression.growingEngineAchievementUnlocked()) Game.UI.notifyAchievement("A growing engine", "×1.1 generator production");
@@ -248,12 +255,13 @@
     addEnergyCredit: function (gain) {
       if(!Game.Challenges.produces('energyDisturbance')) return;
       const raw=this.rawGeneratorProduction(this.getGenerator('energyDisturbance'));
-      this.addEnergy(raw.gt(0)?gain.mul(this.energyRate(raw).div(raw)):D(0));
+      if(raw.gt(0) && gain.gt(0)) Game.LateEnergy.grant(this.preProductionRate(raw),gain.div(raw));
     },
     addEnergy: function (gain) {
       if (gain.lte(0)) return;
       Game.player.resources.energy = Game.player.resources.energy.add(gain);
       Game.player.stats.totalEnergy = Game.player.stats.totalEnergy.add(gain);
+      Game.player.lateEnergy.highest=Decimal.max(Game.player.lateEnergy.highest,Game.player.resources.energy);
       Game.Challenges.observe();
     },
     tick: function (gameDelta) {
@@ -268,9 +276,10 @@
         const untilRoll = hasFluctuation ? Decimal.max(0, interval.sub(state.elapsed)) : D(Infinity);
         const gen = this.getGenerator("energyDisturbance"), timers = Game.player.generators.energyDisturbance;
         const untilBurst = Game.Challenges.produces(gen.id) && this.getOwned(gen.id).gt(0) && this.getOwned(gen.id).lt(gen.smoothAt) ? this.burstInterval(gen).sub(timers.burstTimers.reduce(function (latest, timer) { return Decimal.max(latest, timer); }, timers.burstElapsed)) : D(Infinity);
-        const segment = Decimal.min(this.replicationRemaining(), Decimal.min(Game.Progression.generatorFocus().remaining, Decimal.min(remaining, Decimal.min(untilBurst, Decimal.min(Game.FieldDynamics.nextEventIn(), Decimal.min(untilRoll, Decimal.min(Game.Coherence.nextEventIn(), Game.FieldExcitation.nextEventIn())))))));
+        const segment = Decimal.min(Game.Symmetry.nextEventIn(),Decimal.min(this.replicationRemaining(), Decimal.min(Game.Progression.generatorFocus().remaining, Decimal.min(remaining, Decimal.min(untilBurst, Decimal.min(Game.FieldDynamics.nextEventIn(), Decimal.min(untilRoll, Decimal.min(Game.Coherence.nextEventIn(), Game.FieldExcitation.nextEventIn()))))))));
         if (segment.gt(0)) {
           this.tickProduction(segment);
+          Game.Symmetry.advance(segment);
           Game.Challenges.advanceClock(segment.toNumber()*(Game.Challenges.realRate||0));
           Game.Coherence.advance(segment);
           Game.FieldExcitation.advance(segment);
@@ -300,10 +309,10 @@
         if (!Game.Challenges.produces(gen.id) || Game.Energy.getOwned(gen.id).lte(0)) return;
         if (gen.type) return;
         if (!gen.burstInterval) { gain = gain.add(Game.Energy.rawGeneratorProduction(gen, D(1)).pow(power).mul(factor).mul(oscillation).mul(gameDelta)); return; }
-        const multiplier = Game.D(1).mul(Game.Progression.generatorMultiplier()).mul(Game.Energy.fluctMultiplier()).mul(Game.Progression.energyMultiplier()).mul(Game.Energy.getCountMultiplier(gen.id)).mul(Game.Progression.generatorFocusMultiplier(gen.id));
+        const multiplier = Game.D(1).mul(Game.Progression.generatorMultiplier()).mul(Game.Energy.fluctMultiplier()).mul(Game.Progression.energyMultiplier()).mul(Game.Energy.getCountMultiplier(gen.id)).mul(Game.Progression.generatorFocusMultiplier(gen.id)).mul(Game.Symmetry.crossMultiplier(gen.id));
         const credit=Game.Energy.syncGeneratorTimers(gen,state).mul(multiplier).mul(Game.FieldDynamics.multiplier());
         const raw=Game.Energy.rawGeneratorProduction(gen);
-        gain=gain.add(raw.gt(0)?credit.mul(Game.Energy.energyRate(raw).div(raw)):0);
+        gain=gain.add(raw.gt(0)?credit.mul(Game.Energy.preProductionRate(raw).div(raw)):0);
         if (Game.Energy.getOwned(gen.id).gte(gen.smoothAt)) {
           gain = gain.add(Game.Energy.rawGeneratorProduction(gen, D(1)).pow(power).mul(factor).mul(oscillation).mul(gameDelta));
           if (Game.UI) Game.UI.streamGeneratorSparks(gen, Game.Energy.getOwned(gen.id), gameDelta);
@@ -318,10 +327,18 @@
           return Decimal.max(0, elapsed.sub(cycles.mul(interval)));
         });
         if (bursts.lte(0)) return;
-        gain = gain.add(Game.Energy.energyRate(Game.Energy.rawGeneratorProduction(gen,Game.FieldDynamics.multiplierAt(gameDelta)),gameDelta.toNumber()*(Game.Challenges.realRate||0)).mul(interval).mul(bursts).div(Game.Energy.getOwned(gen.id)));
+        gain = gain.add(Game.Energy.preProductionRate(Game.Energy.rawGeneratorProduction(gen,Game.FieldDynamics.multiplierAt(gameDelta)),gameDelta.toNumber()*(Game.Challenges.realRate||0)).mul(interval).mul(bursts).div(Game.Energy.getOwned(gen.id)));
         if (Game.UI) Game.UI.flashGeneratorBurst(Decimal.min(120, bursts.mul(gen.sparksPerBurst)).toNumber());
       });
-      this.addEnergy(gain);
+      if(gameDelta.gt(0)) {
+        const late=Decimal.max(Game.player.lateEnergy.highest,Game.player.resources.energy).gte('1e1000');
+        const gen=Game.CONFIG.GENERATORS[0],smooth=this.getOwned(gen.id).gte(gen.smoothAt);
+        const raw=late && smooth?this.preProductionRate(this.rawGeneratorProduction(gen)):gain.div(gameDelta);
+        const rising=Game.FieldDynamics.active() && !Game.FieldDynamics.held() && !Game.FieldDynamics.peakPaused() && Game.player.fieldDynamics.elapsed.lt(Game.FieldDynamics.rules().rise);
+        const slope=late && smooth ? (rising?Game.FieldDynamics.peak().log10()*power/Number(Game.FieldDynamics.rules().rise):0)+Game.Challenges.energySlope()*(Game.Challenges.realRate||0) : 0;
+        Game.LateEnergy.grantProduction(raw,gameDelta,slope);
+      }
+      else this.addEnergy(gain);
     },
 
     resetLayer: function () {

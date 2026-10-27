@@ -134,6 +134,12 @@
 
 
     }
+    const symmetry=player.symmetry;
+    if(symmetry.pulseElapsed.gte(8) || symmetry.amount.gt(1) || symmetry.best.gt(1) || symmetry.best.lt(symmetry.amount) || !symmetry.alignment.eq(symmetry.alignment.floor()) || !symmetry.alignmentAdded.eq(symmetry.alignmentAdded.floor()) || !Object.values(symmetry.upgrades).every(function (v) { return v===0 || v===1; })) throw new Error('Invalid Symmetry progress');
+    if(Object.keys(symmetry.upgrades).some(function(id){return symmetry.upgrades[id] && symmetry.best.lt(Game.CONFIG.SYMMETRY.upgrades[id].perfect?1:.5);})) throw new Error('Invalid Unified Interaction unlock');
+    if(![0,1].includes(player.ui.generatorLayer)) throw new Error('Invalid generator layer');
+    if(!player.prestige.symmetry && (symmetry.amount.gt(0) || symmetry.best.gt(0) || symmetry.alignment.gt(0) || symmetry.alignmentAdded.gt(0) || Object.values(symmetry.upgrades).some(Boolean))) throw new Error('Locked Symmetry progress');
+    player.lateEnergy.highest=Decimal.max(player.lateEnergy.highest,player.resources.energy);
     Game.Progression.captureAchievements(player);
     Game.player = player;
   }
@@ -141,6 +147,7 @@
   Game.Save = {
     save: function () {
       try {
+        Game.player.lateEnergy.highest=Decimal.max(Game.player.lateEnergy.highest,Game.player.resources.energy);
         Game.Progression.captureAchievements();
         localStorage.setItem(Game.CONFIG.SAVE_KEY, encode());
         status('Saved. Autosave every 10 seconds.');

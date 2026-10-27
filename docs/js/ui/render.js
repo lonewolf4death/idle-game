@@ -79,6 +79,7 @@
       Game.Audio.play(kind);
       if (!byId("energy-view").hidden && !document.hidden) this.flashEnergy({ generator: true, dynamics: kind });
     },
+    symmetryFeedback: function () { if(!document.hidden && !byId('energy-view').hidden && Game.player.settings.visuals) this.flashEnergy({generator:true,dynamics:'alignment'}); },
     streamFieldWaves: function (gameDelta) {
       Game.FieldWaves.stream(gameDelta);
     },
@@ -126,7 +127,12 @@
       // Bound the effect count while allowing quick clicks to overlap.
       if (effects.children.length >= 160) effects.firstElementChild.remove();
       effects.appendChild(spark);
-      setTimeout(function () { spark.remove(); }, (event.resonance || event.dynamics) ? 2200 : event.fluctuation ? 1600 : 700);
+      const lifetime=(event.resonance || event.dynamics)?2200:event.fluctuation?1600:700,intensity=Game.Symmetry.intensity();
+      if(intensity>.001) {
+        const mirror=spark.cloneNode(true),holder=document.createElement('span');mirror.classList.add('symmetry-echo');holder.className='symmetry-echo-container';holder.style.opacity=String(intensity);holder.appendChild(mirror);
+        if(effects.children.length>=160) effects.firstElementChild.remove();effects.appendChild(holder);setTimeout(function () { holder.remove(); },lifetime);
+      }
+      setTimeout(function () { spark.remove(); },lifetime);
     },
 
     init: function () {
@@ -216,6 +222,7 @@
         list.appendChild(card);
       });
 
+      Game.SymmetryUI.init();
       Game.Tooltips.init();
       Game.FieldWaves.init();
       document.querySelectorAll("[data-category-toggle]").forEach(function (button) {
@@ -246,7 +253,11 @@
       document.addEventListener("keydown", function (event) {
         if (event.defaultPrevented || event.repeat || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey || !/^[0-9]$/.test(event.key)) return;
         if (byId("energy-view").hidden || document.querySelector("dialog[open]") || event.target.closest && event.target.closest("input,textarea,select,[contenteditable]:not([contenteditable=false])")) return;
-        const index=event.key==="0"?9:Number(event.key)-1, gen=Game.CONFIG.GENERATORS[index];
+        const index=event.key==="0"?9:Number(event.key)-1;
+        if(Game.player.ui.generatorLayer===1) {
+          if(index===0 && Game.Symmetry.unlocked()) { event.preventDefault();Game.Loop.pump(performance.now());Game.Symmetry.buy(Game.UI.buyAmount);Game.UI.render(); }return;
+        }
+        const gen=Game.CONFIG.GENERATORS[index];
         if (!gen || !(Game.UI.isUnlocked(gen) || Game.Energy.getOwned(gen.id).gt(0))) return;
         event.preventDefault();Game.Energy.buyGenerator(gen.id,Game.UI.buyAmount);Game.UI.render();
       });
@@ -447,6 +458,7 @@
       setText(byId("game-time-display"), Game.Format.duration(p.time.gamePlayed));
       if (!byId("stats-view").hidden) Game.StatsUI.render(false);
       Game.AutomationUI.renderBanner();
+      Game.SymmetryUI.render(false);
     }
   };
 })(window.CosmicIdle);

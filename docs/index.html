@@ -11,6 +11,7 @@
     <header class="topbar">
       <div>
         <h1>Cosmic Idle</h1>
+        <div id="generator-layer-switch" class="generator-layer-switch" role="group" aria-label="Generator layer" hidden><button id="layer-primordial" aria-pressed="true">Primordial</button><button id="layer-symmetry" aria-pressed="false">Symmetry</button></div>
         <p class="subtitle">Existence before structure.</p>
       </div>
     <section class="status-grid header-energy">
@@ -33,6 +34,7 @@
       <div><button data-buy-amount="1" aria-pressed="true">1</button><button data-buy-amount="5" aria-pressed="false">5</button><button data-buy-amount="10" aria-pressed="false">10</button><button data-buy-amount="100" aria-pressed="false">100</button><button data-buy-amount="max" aria-pressed="false">Max</button></div>
       <p>Buy up to the selected amount.</p>
     </div>
+    <div id="primordial-controls">
     <section class="panel" data-category="upgrades">
       <h2><button class="category-toggle" data-category-toggle="upgrades" aria-expanded="true">Click upgrades</button></h2>
       <p id="upgrade-empty" class="muted">Create Energy to discover your first upgrade.</p>
@@ -44,11 +46,23 @@
       </details>
     </section>
     <section id="generators-panel" class="panel" data-category="generators" hidden>
-      <h2><button class="category-toggle" data-category-toggle="generators" aria-expanded="true">Generators</button></h2>
+      <h2><button class="category-toggle" data-category-toggle="generators" aria-expanded="true">Primordial generators</button></h2>
       <p id="generator-empty" class="muted">Create Energy to discover generators.</p>
       <div id="generator-list" class="card-list"></div>
     </section>
 
+    </div>
+    <div id="symmetry-controls" hidden>
+      <section class="symmetry-overview"><span class="label">The emerging laws</span><strong id="symmetry-total">0.000%</strong><span id="symmetry-energy-bonus">×1 Energy</span><span id="symmetry-production">0% / game second</span></section>
+      <p id="symmetry-locked-note" class="muted">Unlock Symmetry in the Condense tree for 10,000 Quanta.</p>
+      <section class="panel symmetry-generator-panel"><h2>Symmetry generators</h2>
+        <article class="generator-card symmetry-generator"><h3><span class="alignment-symbol" aria-hidden="true">◈</span> SGen1 · Field Alignment</h3><p>Bring the fields into alignment. Each level produces 0.01% Symmetry per game second, up to 100%.</p><div class="generator-meta"><strong id="field-alignment-owned">Purchased: 0</strong><span id="field-alignment-output"></span><span id="field-alignment-scaling" class="muted" hidden></span><button id="buy-field-alignment">Buy 1 — 1e1000 Energy</button></div></article>
+      </section>
+      <section id="unified-interaction" class="panel" hidden><h2>Unified Interaction</h2><p class="muted">Permanent Energy purchases · retained through Condense.</p><div id="unified-upgrades"></div></section>
+      <details class="symmetry-milestones"><summary>Symmetry milestones</summary><ol id="symmetry-milestones"></ol></details>
+      <section id="symmetry-breaking" class="symmetry-future" hidden><span class="label">99% discovery</span><h3>Symmetry Breaking</h3><p>Unlocked. This next mechanic is still unformed.</p></section>
+      <p id="symmetry-reset-note" class="muted"></p>
+    </div>
     </aside>
     <section class="view-area" aria-label="Game views">
       <section id="active-challenge-banner" class="active-challenge-banner" aria-label="Active challenge" hidden><div><strong id="active-challenge-name"></strong><p id="active-challenge-progress"></p></div><div><button id="active-challenge-view">View rules</button><button id="active-challenge-complete">Complete challenge</button><button id="active-challenge-exit">Exit challenge</button></div></section>
@@ -69,7 +83,8 @@
         </section>
     <div id="energy-field" class="energy-field" role="button" tabindex="0" aria-label="Generate Energy. Click anywhere in this field, or press Enter or Space.">
       <svg class="potential-contours" viewBox="0 0 700 500" preserveAspectRatio="none" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="0.6"><path d="M-40 290 C140 130 210 410 370 240 S570 170 740 235"/><path d="M-40 302 C140 142 210 422 370 252 S570 182 740 247"/><path d="M-40 314 C140 154 210 434 370 264 S570 194 740 259"/><path d="M-40 326 C140 166 210 446 370 276 S570 206 740 271"/><path d="M-40 338 C140 178 210 458 370 288 S570 218 740 283"/></g></svg>
-      <div class="field-caption"><span class="label">PRIMORDIAL ENERGY</span><strong id="center-energy">0.00</strong><div class="existence-state"><p><span>State:</span><b id="existence-state">Dormant</b></p><p><span>Structure:</span><b id="existence-structure">None</b></p><p><span>Time:</span><b>Undefined</b></p></div></div>
+      <div class="field-caption"><span class="label">PRIMORDIAL ENERGY</span><strong id="center-energy">0.00</strong><div class="existence-state"><p><span>State:</span><b id="existence-state">Dormant</b></p><p><span>Structure:</span><b id="existence-structure">None</b></p><p><span>Time:</span><b>Undefined</b></p><div id="symmetry-counter" class="symmetry-counter" hidden><span><button class="info-term" data-tip="symmetry">Symmetry</button></span><strong id="symmetry-amount">0.000%</strong><small id="symmetry-type">Indistinguishable laws</small></div></div></div>
+      <svg class="symmetry-mandala" viewBox="0 0 500 500" aria-hidden="true"><defs><linearGradient id="symmetry-colors" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#b093e4"/><stop offset=".5" stop-color="#72d9d4"/><stop offset="1" stop-color="#ead39b"/></linearGradient></defs><g fill="none" stroke="url(#symmetry-colors)" stroke-width=".7"><circle cx="250" cy="250" r="186"/><circle cx="250" cy="250" r="134"/><path d="M250 64L411 157V343L250 436L89 343V157Z M250 116L366 317H134Z M250 384L134 183H366Z M64 250H436M250 64V436"/><ellipse cx="250" cy="250" rx="186" ry="70"/><ellipse cx="250" cy="250" rx="186" ry="70" transform="rotate(60 250 250)"/><ellipse cx="250" cy="250" rx="186" ry="70" transform="rotate(120 250 250)"/></g></svg>
       <canvas id="field-waves" aria-hidden="true"></canvas>
       <div id="energy-effects" class="energy-effects" aria-hidden="true"></div>
       <span class="field-footnote" aria-hidden="true">Click anywhere to stir the potential.</span>
@@ -111,11 +126,12 @@
             <div class="tree-camera-controls" role="group" aria-label="Skill tree camera"><button id="tree-zoom-out" aria-label="Zoom out">−</button><span id="tree-zoom-level" aria-live="off">100%</span><button id="tree-zoom-in" aria-label="Zoom in">+</button><button id="tree-fit">Fit constellation</button></div>
             <div class="tree-legend"><span><i class="available"></i>Available</span><span><i class="owned"></i>Owned</span><span><i class="locked"></i>Requires parent</span></div>
           </div>
-          <div id="skill-map" class="skill-map" role="region" tabindex="0" aria-label="2D skill map. Scroll to explore. Click a node to inspect its effect and cost." hidden><div id="skill-map-world"><svg id="skill-map-links" viewBox="0 0 1350 925" aria-hidden="true"></svg><div class="map-branch-title" style="left:180px">01 · Impulse</div><div class="map-branch-title" style="left:510px">02 · Probability</div><div class="map-branch-title" style="left:840px">03 · Rhythm</div><div class="map-branch-title" style="left:1170px">04 · Continuum</div><div id="symmetry-placeholder" class="symmetry-placeholder" role="note"><span class="symmetry-mark">◇</span><strong>Symmetry</strong><span id="symmetry-state">Disconnected · future tree</span><button id="unlock-symmetry">Unlock · 10,000 Quanta</button><small>Future mechanics unformed</small></div></div></div>
+          <div id="skill-map" class="skill-map" role="region" tabindex="0" aria-label="2D skill map. Scroll to explore. Click a node to inspect its effect and cost." hidden><div id="skill-map-world"><svg id="skill-map-links" viewBox="0 0 1350 925" aria-hidden="true"></svg><div class="map-branch-title" style="left:180px">01 · Impulse</div><div class="map-branch-title" style="left:510px">02 · Probability</div><div class="map-branch-title" style="left:840px">03 · Rhythm</div><div class="map-branch-title" style="left:1170px">04 · Continuum</div><div id="symmetry-placeholder" class="symmetry-placeholder" role="note"><span class="symmetry-mark">◇</span><strong>Symmetry</strong><span id="symmetry-state">Disconnected · future tree</span><button id="unlock-symmetry">Unlock · 10,000 Quanta</button><small>Discover the laws of the fields</small></div></div></div>
         </section>
+        <section id="perfect-alignment-tree" class="perfect-alignment-tree" hidden><div><span class="label">90% discovery · persistent reveal</span><h3>Perfect Alignment</h3><p>This part of the perk tree is unlocked. Its perks are awaiting formation.</p></div><span class="perfect-perk-stub" aria-label="Future Perfect Alignment perk">◇</span><span class="perfect-perk-stub" aria-label="Future Perfect Alignment perk">◇</span></section>
         <section class="condense-panel" aria-label="Condensation preview">
           <div class="condense-summary"><span class="label">Condense now to receive</span><strong id="condense-reward">+0 Primordial Quanta</strong><p id="condense-requirement">Requires 1e50 held Energy.</p><p id="condense-next" class="muted"></p></div>
-          <div class="condense-actions"><button id="condense-button" disabled>Condense Energy · +0 Quanta</button><details class="condense-reset-info"><summary>What resets?</summary><div><p>Resets Energy, purchased and added generators, Disturb, Resonance resources, accumulated Field Excitation, and all run timers and bonuses. Starting skills apply to the fresh run.</p><p class="condense-keeps">Keeps achievements and rewards, lore, total playtime, Primordial Quanta, skills, and settings.</p></div></details></div>
+          <div class="condense-actions"><button id="condense-button" disabled>Condense Energy · +0 Quanta</button><details class="condense-reset-info"><summary>What resets?</summary><div><p>Resets Energy, purchased and added Primordial generators, Disturb, Resonance, field growth, Symmetry, Field Alignment and run timers. Starting skills apply to the fresh run.</p><p class="condense-keeps">Keeps achievements, lore, total playtime, Primordial Quanta, skills, Symmetry access and discoveries, purchased Unified Interaction upgrades, and settings.</p></div></details></div>
         </section>
       </section>
       <section id="stats-view" class="achievements-view stats-view" role="tabpanel" aria-labelledby="stats-tab" tabindex="0" hidden>
@@ -307,7 +323,7 @@
           <label><span>Visual feedback</span><select id="setting-visuals"><option value="0">None — sound only</option><option value="1">Faint abstract glow</option><option value="2">Classic sparks</option></select></label>
           <label><span>Automatically dismiss lore and notifications after 6 seconds</span><input id="setting-autoDismiss" type="checkbox"></label>
         </div>
-        <p class="settings-note">Popups wait for a click by default. Generator hotkeys: 1–9 buy Gen 1–9; 0 buys Gen 10, when available. Uses the selected buy amount in the Energy tab. Sounds begin after your first interaction. Settings are saved with your progress.</p><div class="sound-previews"><button id="preview-sound">Preview click</button><button id="preview-auto-sound">Preview automatic impulse</button><button id="preview-perk-sound">Preview skill purchase</button></div><p id="music-stage" class="settings-note"></p><p id="audio-status" class="settings-note" role="status"></p>
+        <p class="settings-note">Popups wait for a click by default. Generator hotkeys: 1–9 and 0 buy generators in the selected Primordial or Symmetry layer, when available. Uses the selected buy amount in the Energy tab. Sounds begin after your first interaction. Settings are saved with your progress.</p><div class="sound-previews"><button id="preview-sound">Preview click</button><button id="preview-auto-sound">Preview automatic impulse</button><button id="preview-perk-sound">Preview skill purchase</button></div><p id="music-stage" class="settings-note"></p><p id="audio-status" class="settings-note" role="status"></p>
       </section>
     </section>
     </div>
@@ -346,6 +362,7 @@
   <script src="js/numbers/decimal.js"></script>
   <script src="js/core/state.js"></script>
   <script src="js/core/automation.js"></script>
+  <script src="js/core/symmetry.js"></script>
   <script src="js/time/gameTime.js"></script>
   <script src="js/core/modifiers.js"></script>
   <script src="js/core/playtime.js"></script>
@@ -372,6 +389,7 @@
   <script src="js/ui/treeCamera.js"></script>
   <script src="js/ui/treeMap.js"></script>
   <script src="js/ui/automation.js"></script>
+  <script src="js/ui/symmetry.js"></script>
   <script src="js/ui/render.js"></script>
   <script src="js/core/gameLoop.js"></script>
   <script src="js/main.js"></script>

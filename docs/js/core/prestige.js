@@ -4,7 +4,7 @@
     canUnlockSymmetry: function () { return !Game.Challenges.active() && !Game.player.prestige.symmetry && Game.player.prestige.quanta.gte(Game.CONFIG.SYMMETRY.cost); },
     unlockSymmetry: function () {
       if(!this.canUnlockSymmetry()) return false;
-      Game.player.prestige.quanta=Game.player.prestige.quanta.sub(Game.CONFIG.SYMMETRY.cost);Game.player.prestige.symmetry=1;
+      Game.player.prestige.quanta=Game.player.prestige.quanta.sub(Game.CONFIG.SYMMETRY.cost);Game.player.prestige.symmetry=1;Game.Symmetry.showLore();
       Game.Save.save();if(Game.Audio) Game.Audio.play('perk');if(Game.UI) Game.UI.render();return true;
     },
     canBuySkill: function (id) {
@@ -82,10 +82,10 @@
       const energy = Game.player.resources.energy, minimum = D(Game.CONFIG.PROGRESSION.prestigeEnergy);
       if (energy.lt(minimum)) return D(0);
       // Decimal's normalized exponent is floor(log10(E)), including exact powers of ten.
-      return D(energy.exponent - minimum.exponent + 1);
+      return D(energy.exponent - minimum.exponent + 1).mul(Game.Symmetry.quantaMultiplier());
     },
     nextRewardEnergy: function () {
-      return D(10).pow(D(Game.CONFIG.PROGRESSION.prestigeEnergy).exponent + this.reward().toNumber());
+      return D(10).pow(D(Game.CONFIG.PROGRESSION.prestigeEnergy).exponent + this.reward().div(Game.Symmetry.quantaMultiplier()).toNumber());
     },
     quantaRate: function (quanta, realSeconds, unitSeconds) {
       if (D(quanta).eq(0)) return D(0);

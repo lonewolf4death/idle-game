@@ -38,6 +38,7 @@
           children: this.withShares(resonance, enabled), childBasis: "resonance-growth"
         }
       ];
+      entries.push({id:"fluct-symmetry-coupling",label:"75% Symmetry · cross-generator coupling",factor:enabled?Game.Symmetry.crossMultiplier("quantumFluctuation"):D(1)});
       entries.push({ id: "fluct-focus", label: "3-3 · Wandering rhythm", factor: enabled ? s.fluct.focus : D(1) });
       // These factors build M. A negative roll transforms the combined M using
       // the softened penalty; the individual strength sources are not penalties.
@@ -108,10 +109,22 @@
           { id: "echo-energy", label: "1-4-1 · 1% of per-second Energy", factor: amount.echo.energy, output: amount.echo.energy, share: amount.echo.energy.div(amount.total).toNumber() }
         ]
       });
-      const product=entries.reduce(function (value,entry) { return value.mul(entry.factor); },D(1));
-      if((Game.Challenges.gainPower()!==1 || !Game.Challenges.energyFactor().eq(1))) {
-        entries.push({id:'energy-transformation',label:'Energy gains · power '+Game.Challenges.gainPower().toFixed(3)+(Game.Challenges.active()?' · '+Game.Challenges.definition().name:''),factor:product.gt(0)?output.div(product):D(1),color:'quanta'});
+      if(generator) entries.push({id:'symmetry-coupling',label:'75% Symmetry · cross-generator coupling',factor:Game.Symmetry.crossMultiplier('energyDisturbance'),color:'field'});
+      let product=entries.reduce(function (value,entry) { return value.mul(entry.factor); },D(1));
+      const raw=generator?Game.Energy.rawGeneratorProduction(Game.CONFIG.GENERATORS[0]):amount.baseTotal.mul(amount.bonus);
+      const transformed=Game.Energy.preProductionRate(raw),powerFactor=raw.gt(0)?transformed.div(raw):D(1);
+      if(Game.Challenges.gainPower()!==1 || !Game.Challenges.energyFactor().eq(1)) {
+        entries.push({id:'energy-transformation',label:'Energy gains · power '+Game.Challenges.gainPower().toFixed(3)+(Game.Challenges.active()?' · '+Game.Challenges.definition().name:''),factor:powerFactor,color:'quanta'});product=product.mul(powerFactor);
       }
+      const symmetryBonus=Game.Symmetry.energyMultiplier();
+      if(Game.Symmetry.unlocked()) {
+        entries.push({id:'symmetry-energy',label:'Symmetry and Unified Interaction',factor:symmetryBonus,color:'field',children:this.withShares([
+          {id:'symmetry-formula',label:'Symmetry strength'+(Game.Symmetry.has('perfectInteraction')?' · Perfect Interaction':''),tip:'symmetry',factor:Game.Symmetry.multiplier()},
+          {id:'unified-field',label:'Unified Field I',factor:D(Game.Symmetry.has('unifiedField1')?3:1)},
+          {id:'alignment-levels',label:'Field Resonance · Field Alignment levels',factor:Game.Symmetry.alignmentEnergy()}
+        ],active),childBasis:'growth'});product=product.mul(symmetryBonus);
+      }
+      if(Game.player.lateEnergy.highest.gte('1e1000')) entries.push({id:'late-resistance',label:'Late Energy resistance · 1e1000+',tip:'lateEnergy',factor:product.gt(0)?output.div(product):D(1),color:'slowdown'});
       return { kind: kind, output: output, active: active, entries: this.withShares(entries, active, "base") };
     },
 
@@ -129,7 +142,7 @@
       const oscillation = Game.FieldDynamics.multiplier();
       const clickBonus = Game.Challenges.clicksAllowed() ? Game.Progression.clickMultiplier().mul(Game.Progression.clickSkillMultiplier()).mul(fluct).mul(Game.Progression.energyMultiplier()).mul(oscillation) : D(0);
       const focus = Game.Progression.generatorFocusMultiplier(disturbance.id), countMultiplier = Game.Energy.getCountMultiplier(disturbance.id);
-      const generatorBonus = generatorAchievements.mul(fluct).mul(Game.Progression.energyMultiplier()).mul(oscillation).mul(focus).mul(countMultiplier);
+      const generatorBonus = Game.Symmetry.crossMultiplier("energyDisturbance").mul(generatorAchievements).mul(fluct).mul(Game.Progression.energyMultiplier()).mul(oscillation).mul(focus).mul(countMultiplier);
       const generatorRate = Game.Energy.getProductionPerSecond();
       return {
         dynamics: {

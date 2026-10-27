@@ -62,7 +62,7 @@
       skills: {
         "1-4-2": { name: "Quickening disturbance", cost: "15", requires: "1-3-2", secondsPerPurchased: "0.025", description: "Each purchased Gen 1 (Energy Disturbance) shortens its production cycle by 0.025 game seconds, including past purchases. Minimum cycle: 1 second. Added units benefit without shortening the cycle further. Combines with Shorter intervals; keeps current cycle progress." },
         "1-5-1": { name: "Self-replicating potential", cost: "100", requires: "1-4-2", firstInterval: "60", intervalGrowth: "30", description: "Double Gen 1's purchased + added count after 60 game seconds, then after 90, 120, 150 seconds, and so on. Copies are added units and do not raise costs or purchased counts. Begins timing when Gen 1 is owned; starts fresh each run. Gathering potential applies after the doubling." },
-        "1-5-2": { name: "Fleeting potential", cost: "25", requires: "1-4-1", spawnSeconds: 10, growSeconds: 2, graceSeconds: 0.25, description: "Every 10 seconds spent viewing the Energy field, a small potential bubble forms. Click it during its green-ring window to gain 1 added unit of every available generator. The window lasts 0.25 real seconds, unaffected by game speed. Added units do not count as purchases. Missed bubbles fade without a penalty." },
+        "1-5-2": { name: "Fleeting potential", cost: "25", requires: "1-4-1", spawnSeconds: 10, growSeconds: 2, graceSeconds: 0.25, description: "Every 10 seconds spent viewing the Energy field, a small potential bubble forms. Click it during its green-ring window to gain 1 added unit of every available Primordial generator. The window lasts 0.25 real seconds, unaffected by game speed. Added units do not count as purchases. Missed bubbles fade without a penalty." },
         "2-4-1": { name: "Resonant echoes", cost: "15", requires: "2-3-1", description: "Every Quantum Resonance production cycle also grants the same amount of Energy Resonance as the whole Quantum Resonance produced. The normal Energy Resonance cycle continues separately. Each Energy Resonance adds one Gen 1. Click-granted Quantum Resonance does not trigger an extra cycle." },
         "2-4-2": { name: "Excitation cascade", cost: "25", requires: "2-3-2", fieldSeconds: "15", description: "Each Quantum Resonance production cycle advances Gen 4 (Field Excitation)'s current cycle by 15 game seconds. Any excess carries into following cycles, including immediate payouts. Requires an owned Gen 4; does not advance other clocks or trigger from click-granted Resonance." },
         "3-2-3": { name: "Compressed rhythm", cost: "25", requires: "3-2-2", cycle: "45", description: "Shorten Gen 5 (Field Oscillation)'s total cycle to 45 game seconds. Its peak duration stays unchanged, shortening only the rise. Keeps the current rise or peak progress when unlocked. Combines with held and positive-only peaks." },
@@ -195,12 +195,30 @@
     {name:"Slow awakening",unlockEnergy:"1e75",startExponent:25,exponentStep:10,wallOrders:100,wallStep:15,description:"Energy production begins heavily suppressed. Suppression weakens by one order of magnitude per real second, eventually disappearing."},
     {name:"Unstable origin",unlockEnergy:"1e85",startExponent:25,exponentStep:10,resetSeconds:60,resetStep:3,description:"After the first Gen 2 purchase, Energy, generators, Disturb, Resonance and field growth reset periodically. The reset timer continues after each collapse."},
     {name:"Costly potential",startExponent:30,exponentStep:4,purchasePriceMultiplier:"1e6",maxPurchaseQuantity:"1000",startingEnergy:"1.1e10",startingOscillations:"1",description:"Generator and Disturb purchase prices are multiplied by ×1e6.",devDescription:"Starts with 1.1e10 Energy and one added Gen 5. Quantity = 1 + floor(999 × (current Oscillation multiplier − 1) / (peak multiplier − 1)), bounded from 1 to 1000. A paused negative-Fluct peak gives quantity 1. Snapshot before purchase; bonus generators are added units, so only paid purchases raise generator costs. Disturb grants extra levels up to its normal cap."},
-    {name:"Single voice",unlockEnergy:"1e105",startExponent:12,exponentStep:6,description:"Only the most recently purchased generator has an active effect. All other generator effects and production clocks are paused. Existing resources and accumulated field growth remain."},
+    {name:"Single voice",unlockEnergy:"1e105",startExponent:12,exponentStep:6,description:"Only the most recently purchased Primordial generator has an active effect. All other Primordial generator effects and production clocks are paused. Existing resources and accumulated field growth remain."},
     {name:"Silent fluctuations",unlockEnergy:"1e115",startExponent:18,exponentStep:8,blocked:["quantumFluctuation"],description:"Gen 2 (Quantum Fluctuation) is unavailable and Fluct has no effect."},
     {name:"Fading momentum",unlockEnergy:"1e125",startExponent:15,exponentStep:6,description:"Energy production falls continuously to 85% of its previous strength each real second. Any successful generator or Disturb purchase resets this suppression."}
   ];
   Game.CONFIG.CHALLENGES[4].unlockEnergy="1e95";
-  Game.CONFIG.SYMMETRY={cost:"10000"};
+  Game.CONFIG.SYMMETRY={cost:"10000",baseCost:"1e1000",costScaling:"1e10",production:"0.0001",alignmentEnergyBase:"1.05",
+    lore:"The laws of physics are still indistinguishable from one another.",
+    milestones:[
+      {at:.1,type:'Aligned fields',reward:'Field Alignment produces Symmetry twice as quickly.'},
+      {at:.25,type:'Quantized symmetry',reward:'Condense grants twice as many Primordial Quanta while Symmetry is at least 25%.'},
+      {at:.5,type:'Unified interaction',reward:'Unified Interaction upgrades are available. These Energy purchases survive Condense.'},
+      {at:.75,type:'Coupled fields',reward:'Each Primordial generator strengthens the other generators using their owned counts.'},
+      {at:.9,type:'Near-perfect alignment',reward:'The Perfect Alignment section of the perk tree has been revealed.'},
+      {at:.99,type:'Symmetry breaking',reward:'Symmetry Breaking is discovered. Its future mechanics are still unformed.'},
+      {at:1,type:'Perfect Symmetry',reward:'Perfect Symmetry reached. Symmetry generation stops at 100%. Perfect Interaction is available.'}
+    ],
+    upgrades:{
+      unifiedField1:{name:'Unified Field I',cost:'1e1030',description:'Multiply all Energy by ×3. Applies after late Energy resistance.'},
+      unifiedField2:{name:'Unified Field II',cost:'1e1050',description:'Multiply Symmetry generation by ×2.'},
+      quantumCoupling:{name:'Quantum Coupling',cost:'1e1080',description:'Unspent Primordial Quanta strengthen Symmetry generation with diminishing returns. Hover the name for details.'},
+      fieldResonance:{name:'Field Resonance',cost:'1e1100',description:'Every owned SGen1 (Field Alignment) multiplies Energy by ×1.05. Applies after late Energy resistance.'},
+      perfectInteraction:{name:'Perfect Interaction',cost:'1e1200',perfect:true,description:'Raise the Symmetry Energy multiplier to the power of 1.15. Unlocked by reaching Perfect Symmetry once.'}
+    }
+  };
   Game.CONFIG.CHALLENGES.forEach(function (rule,index) {
     Game.CONFIG.DISCOVERY_ACHIEVEMENTS.push({id:"challenge"+(index+1),name:rule.name+" · Challenge",kind:"challenge",track:index+1,amount:"1",reward:"none",icon:"condense",requirement:"Complete level one of "+rule.name+". Further milestones: levels 5 and 10."});
   });

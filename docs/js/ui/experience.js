@@ -50,11 +50,12 @@
       const semitone = scale[(step * movement + offset + (kind === 'fluctuation' ? 2 : kind === 'quantumResonance' ? 1 : kind === 'energyResonance' ? 3 : 0)) % scale.length];
       const register = kind === 'fieldOscillation' ? .625 : kind === 'fieldResonance' ? .9375 : kind === 'fieldCoupling' ? .75 : kind === 'fieldExcitation' ? .5 : kind === 'generator' ? .5 : kind === 'fluctuation' ? 2 : kind === 'quantumResonance' ? 1.5 : kind === 'energyResonance' ? .75 : 1;
       const base = Game.CONFIG.MUSIC.rootHz * register * (stage >= 5 && kind !== "fieldExcitation" ? .75 : 1) * (stage ? Math.pow(2, semitone / 12) : 1 + (step % 3) * .023);
-      return { base: base, ratio: stage >= 2 ? 1.5 : stage ? 2 : 1.503, end: stage ? 1 : .78, stage: stage };
+      const symmetry=Game.Symmetry.intensity(),phrase=[0,4,7,12,12,7,4,0],aligned=Game.CONFIG.MUSIC.rootHz*register*Math.pow(2,phrase[step%phrase.length]/12);
+      return { base:Math.exp(Math.log(base)*(1-symmetry)+Math.log(aligned)*symmetry),ratio:(stage>=2?1.5:stage?2:1.503)*(1-symmetry)+2*symmetry,end:(stage?1:.78)*(1-symmetry)+symmetry,stage:stage,symmetry:symmetry };
     },
     play: function (kind) {
       const settings = Game.player.settings;
-      const dynamics = ["fieldOscillation", "fieldResonance", "fieldCoupling"].includes(kind);
+      const dynamics = ["fieldOscillation", "fieldResonance", "fieldCoupling", "alignment"].includes(kind);
       if (dynamics && !settings.fieldSound) return;
       const enabled = kind === 'bubbleCollect' || kind === 'bubbleForm' ? settings.bubbleSound : kind === 'perk' ? settings.perkSound : kind === 'autoClick' ? settings.autoClickSound : kind === 'click' ? settings.clickSound : kind === 'fluctuation' ? settings.fluctuationSound : (kind === 'quantumResonance' || kind === 'energyResonance') ? settings.coherentSound : (kind === 'fieldExcitation' || dynamics) ? settings.fieldSound : settings.generatorSound;
       if (!settings.sound || !settings.volume || !enabled || this.shouldMute() || (Game.Loop && Game.Loop.catchingUp)) return;
@@ -83,12 +84,12 @@
       envelope.gain.exponentialRampToValueAtTime(bubble ? .18 : forming ? .025 : impulse ? .26 : perk ? .14 : strongClick ? .24 : dynamics ? .045 : field ? .075 : coherent ? .09 : config.peakGain, now + attack);
       envelope.gain.exponentialRampToValueAtTime(.0001, now + release);
       const pan = this.context.createStereoPanner();
-      pan.pan.value = kind === 'generator' ? -.18 : kind === 'fluctuation' ? .22 : 0;
+      pan.pan.value = (kind === 'generator' ? -.18 : kind === 'fluctuation' ? .22 : 0)*(1-tone.symmetry);
       filter.connect(envelope); envelope.connect(pan); pan.connect(this.master);
       envelope.connect(this.delay);
       this.voices++;
       const audio = this;
-      const ratios = bubble ? [1,1.25,1.5,2] : forming ? [1,2] : impulse ? [.5, 1, 1.5, 2, 3] : perk ? [1, 1.25, 1.5, 2] : strongClick ? [.5, 1, 2, 3] : kind === "fieldOscillation" ? [.5, 1, 1.5] : kind === "fieldResonance" ? [1, 1.25, 1.5] : kind === "fieldCoupling" ? [.5, 1.5, 2] : field ? [.5, 1, 1.5, 2] : coherent ? (kind === "quantumResonance" ? [1, 1.25, 1.5] : [1, 1.5, 2]) : tone.stage >= 2 ? [1, 1.5, 2] : [1, tone.ratio];
+      const ratios = bubble ? [1,1.25,1.5,2] : forming ? [1,2] : impulse ? [.5, 1, 1.5, 2, 3] : perk ? [1, 1.25, 1.5, 2] : strongClick ? [.5, 1, 2, 3] : kind === "alignment" ? [1,1.5,2,3] : kind === "fieldOscillation" ? [.5, 1, 1.5] : kind === "fieldResonance" ? [1, 1.25, 1.5] : kind === "fieldCoupling" ? [.5, 1.5, 2] : field ? [.5, 1, 1.5, 2] : coherent ? (kind === "quantumResonance" ? [1, 1.25, 1.5] : [1, 1.5, 2]) : tone.stage >= 2 ? [1, 1.5, 2] : [1, tone.ratio];
       let ended = 0;
       ratios.forEach(function (ratio, index) {
         const osc = audio.context.createOscillator();
@@ -158,7 +159,8 @@
       if (message.coherence) Game.player.lore.coherenceSeen = 1;
       if (message.fieldLesson) Game.player.lore[message.fieldLesson === 1 ? 'fieldFirstSeen' : 'fieldSecondSeen'] = 1;
       if (message.condense) Game.player.lore.condenseSeen = 1;
-      if (message.introduction || message.coherence || message.fieldLesson || message.condense) Game.Save.save();
+      if (message.symmetry) Game.player.lore.symmetrySeen=1;
+      if (message.introduction || message.coherence || message.fieldLesson || message.condense || message.symmetry) Game.Save.save();
       if (this.previousFocus && this.previousFocus.isConnected) this.previousFocus.focus();
       this.next();
     },
@@ -169,7 +171,7 @@
       if (Game.PotentialBubble) Game.PotentialBubble.clear();
       if (Game.PerkFX) Game.PerkFX.clear();
       byId('energy-effects').replaceChildren();
-      this.queue = []; this.active = null; this.coherenceQueued = false; this.fieldQueued = false; this.dismissing = false; clearTimeout(this.timer); clearTimeout(this.dismissTimer); byId('story-dialog').close(); byId('story-dialog').classList.remove('is-dismissing'); byId('story-dismiss').removeAttribute('aria-disabled');
+      this.queue = []; this.active = null; this.coherenceQueued = false; this.fieldQueued = false;this.symmetryQueued=false; this.dismissing = false; clearTimeout(this.timer); clearTimeout(this.dismissTimer); byId('story-dialog').close(); byId('story-dialog').classList.remove('is-dismissing'); byId('story-dismiss').removeAttribute('aria-disabled');
       if (Game.UI.syncCollapseState) Game.UI.syncCollapseState();
       const settings = Game.player.settings;
       ['sound', 'muteUnfocused', 'clickSound', 'autoClickSound', 'bubbleSound', 'perkSound', 'perkVisuals', 'generatorSound', 'fluctuationSound', 'coherentSound', 'fieldSound', 'condenseSound', 'condenseVisuals', 'autoDismiss'].forEach(function (key) { byId('setting-' + key).checked = !!settings[key]; });
@@ -184,7 +186,7 @@
       if (Game.Coherence.discovered() && !Game.player.lore.coherenceSeen) Game.Coherence.showLore();
       Game.FieldExcitation.checkUnlock();
       if (Game.player.prestige.times.gt(0) && !Game.player.lore.condenseSeen) this.enqueue({kind:'Lore · 07', title:'Discrete states', text:Game.CONFIG.PRESTIGE.lore, condense:true});
-      this.next();
+      Game.Symmetry.showLore();this.next();
     },
     init: function () {
       ["focus", "blur"].forEach(function (event) { window.addEventListener(event, function () { Game.Audio.updateVolume(); }); });
@@ -215,7 +217,7 @@
       const coherent = Game.Coherence.discovered();
       const field = Game.FieldExcitation.discovered() || Game.player.lore.fieldFirstSeen || Game.player.lore.fieldSecondSeen;
       const condensed = Game.player.prestige.times.gt(0);
-      const key = String(clicked) + String(generated) + String(coherent) + String(field) + String(condensed);
+      const key = String(clicked) + String(generated) + String(coherent) + String(field) + String(condensed)+String(Game.Symmetry.unlocked());
       if (this.loreKey === key) return;
       this.loreKey = key;
       const entries = [{title:'01 · Before structure',text:this.introduction}];
@@ -227,6 +229,7 @@
         entries.push({title:'06 · Fields',text:Game.CONFIG.FIELD_EXCITATION.lore[1]});
       }
       if (condensed) entries.push({title:'07 · Discrete states',text:Game.CONFIG.PRESTIGE.lore});
+      if(Game.Symmetry.unlocked()) entries.push({title:'08 · Indistinguishable laws',text:Game.CONFIG.SYMMETRY.lore});
       const container = byId('lore-entries'); container.innerHTML = '';
       entries.forEach(function (entry) {
         const card = document.createElement('article'); card.className = 'lore-entry';

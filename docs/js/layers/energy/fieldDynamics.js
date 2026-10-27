@@ -23,8 +23,8 @@
       }
       return true;
     },
-    resonance: function () { return D(this.rules().resonancePerUnit).pow(Game.Energy.getProductionCount("fieldResonance")).mul(Game.Challenges.produces("fieldResonance") && Game.Energy.getOwned("fieldResonance").gt(0) ? Game.Progression.generatorFocusMultiplier("fieldResonance") : 1); },
-    basePeak: function () { return D(this.rules().peakPerOscillation).pow(Game.Energy.getOwned("fieldOscillation")).mul(Game.Progression.generatorFocusMultiplier("fieldOscillation")); },
+    resonance: function () { return D(this.rules().resonancePerUnit).pow(Game.Energy.getProductionCount("fieldResonance")).mul(Game.Challenges.produces("fieldResonance") && Game.Energy.getOwned("fieldResonance").gt(0) ? Game.Progression.generatorFocusMultiplier("fieldResonance").mul(Game.Symmetry.crossMultiplier("fieldResonance")) : 1); },
+    basePeak: function () { return D(this.rules().peakPerOscillation).pow(Game.Energy.getOwned("fieldOscillation")).mul(Game.Progression.generatorFocusMultiplier("fieldOscillation")).mul(Game.Symmetry.crossMultiplier("fieldOscillation")); },
     peak: function () { return this.active() ? this.basePeak().mul(this.resonance()) : D(1); },
     progress: function (offset) { return Math.min(1, Game.player.fieldDynamics.elapsed.add(this.held() ? 0 : offset || 0).div(this.rules().rise).toNumber()); },
     multiplierAt: function (offset) { return this.peakPaused() ? D(1) : this.peak().pow(this.progress(offset)); },

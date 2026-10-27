@@ -82,9 +82,9 @@
       this.waves.forEach(function (wave) {
         const progress = Math.min(1, Math.max(0, (now - wave.started) / (config.waveDuration * 1000)));
         const t = waves.reducedMotion.matches ? .36 : progress;
-        const phase = t * Math.PI * 6 + wave.phase;
+        const symmetry=Game.Symmetry.intensity(),phase=(t * Math.PI * 6 + wave.phase)*(1-symmetry);
         const alpha = Math.pow(Math.sin(Math.PI * progress), 1.25) * config.waveIntensity * density;
-        const width = span * wave.scale, left = wave.x * w - width / 2, center = wave.y * h;
+        const width = span * (wave.scale*(1-symmetry)+symmetry), left = (wave.x*(1-symmetry)+.5*symmetry) * w - width / 2, center = (wave.y*(1-symmetry)+.5*symmetry) * h;
         const gradient = ctx.createLinearGradient(left, 0, left + width, 0);
         gradient.addColorStop(0, "transparent"); gradient.addColorStop(.2, waves.color);
         gradient.addColorStop(.8, waves.color); gradient.addColorStop(1, "transparent");
@@ -94,7 +94,8 @@
           ctx.beginPath();
           for (let x = 0; x <= width; x += 4) {
             const u = x / width;
-            const y = center + (band - 1.5) * 5 + Math.sin(u * Math.PI * 3 + phase * .22 + band * .075) * 15 + Math.sin(u * Math.PI * 7 - phase * .28) * 5 * Math.sin(u * Math.PI);
+            const asymmetric=Math.sin(u*Math.PI*3+phase*.22+band*.075)*15+Math.sin(u*Math.PI*7-phase*.28)*5*Math.sin(u*Math.PI),symmetric=Math.cos((u-.5)*Math.PI*4)*15+Math.cos((u-.5)*Math.PI*8)*5;
+            const y=center+(band-1.5)*5+asymmetric*(1-symmetry)+symmetric*symmetry;
             if (!x) ctx.moveTo(left + x, y); else ctx.lineTo(left + x, y);
           }
           ctx.stroke();
