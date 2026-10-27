@@ -67,7 +67,8 @@
       fresh.fluctuation.negativeStreakLevel = old.fluctuation.negativeStreakLevel;
       fresh.fluctuation.positiveChanceMastery = old.fluctuation.positiveChanceMastery;
       fresh.prestige.quanta = old.prestige.quanta.add(refund);
-      fresh.prestige.totalQuanta = old.prestige.totalQuanta;fresh.prestige.times = old.prestige.times;
+      // After a Break the tree is kept but lifetime Quanta restart, so the refund can exceed it.
+      fresh.prestige.totalQuanta = Decimal.max(old.prestige.totalQuanta, fresh.prestige.quanta);fresh.prestige.times = old.prestige.times;
       fresh.prestige.history = old.prestige.history;fresh.prestige.symmetry=old.prestige.symmetry;
       Game.Automation.preserve(old,fresh);Game.Symmetry.preserve(old,fresh);
       fresh.settings = old.settings;fresh.ui = old.ui;

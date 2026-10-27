@@ -21,7 +21,11 @@
       const rules = Game.CONFIG.OFFLINE;
       if (!(seconds >= rules.minSeconds)) return false;
       if (!Game.player.settings.offlineProgress) return false;
-      if (this.active) { this.pending = Math.min(rules.maxSeconds, this.pending + seconds);this.away += seconds;return true; }
+      if (this.active) {
+        const added = Math.max(0, Math.min(rules.maxSeconds - this.pending, seconds));
+        this.pending += added;this.total += added;this.away += seconds;
+        return true;
+      }
       this.away = seconds;
       this.total = this.pending = Math.min(rules.maxSeconds, seconds);
       this.closed = !!closed;
@@ -35,12 +39,19 @@
       if (!this.active) return;
       const start = performance.now();
       do {
+        // Reduce pending first so a save made inside the slice does not owe it twice.
         const slice = Math.min(this.pending, 10);
-        Game.Loop.simulateBatch(slice);
         this.pending = Math.max(0, this.pending - slice);
+        Game.Loop.simulateBatch(slice);
       } while (this.pending > 1e-9 && performance.now() - start < budgetMs);
       if (this.pending <= 1e-9) this.finish();
       else if (Game.UI && Game.UI.showOffline) Game.UI.showOffline(this.progress());
+    },
+    // Replacing the save (import, backup restore, hard reset) drops any time still owed.
+    cancel: function () {
+      if (!this.active) return;
+      this.active = false;this.pending = 0;this.total = 0;
+      if (Game.UI && Game.UI.showOffline) Game.UI.showOffline(null);
     },
     runAll: function () { while (this.active) this.step(Infinity); },
     progress: function () { return this.total > 0 ? 1 - this.pending / this.total : 1; },

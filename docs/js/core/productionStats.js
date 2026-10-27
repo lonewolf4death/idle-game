@@ -91,6 +91,7 @@
       entries.push({ id: "quanta", label: Game.Progression.hasSkill("4-4-2") ? "Quanta · higher of unspent or half lifetime" : "Unspent Primordial Quanta", factor: s.prestige.multiplier, color: "quanta" });
       entries.push({ id: "continuum", label: "4-2 · Boundless potential", factor: s.prestige.energyMultiplier, color: "quanta" });
       entries.push({ id: "condense-memory", label: "0-0 · Memory of condensation", factor: s.prestige.condenseMemory, color: "quanta" });
+      if (Game.Symmetry.discovered()) entries.push({ id: "mass", label: "Mass · Symmetry", factor: Game.Symmetry.energyMultiplier(), color: "quanta" });
       if (!generator) entries.push({ id: "skills", label: "1-1 · Focused disturbance", factor: s.prestige.clickMultiplier, color: "quanta" });
       if (!generator && !Game.Challenges.clicksAllowed()) entries.push({id:"challenge",label:"Hands off · clicks disabled",factor:D(0),color:"slowdown"});
       const strength = this.fluctBreakdown(s);

@@ -190,6 +190,7 @@
       const raw = readStore(BACKUP_KEY);
       if (!raw || !confirm('Return to the save from the start of this session? Progress since then will be lost.')) return false;
       try { restore(raw); } catch (error) { alert('The backup could not be read. Your game has not changed.'); return false; }
+      if (Game.Offline) Game.Offline.cancel();
       if (Game.Experience) Game.Experience.syncPlayer();
       this.save();if (Game.UI) Game.UI.render();status('Backup restored.');return true;
     },
@@ -204,6 +205,7 @@
       try {
         restore(atob(text));
       } catch (error) { return false; }
+      if (Game.Offline) Game.Offline.cancel();
       writeStore(BACKUP_KEY, previous);
       if (Game.Experience) Game.Experience.syncPlayer();
       const saved = this.save();
@@ -219,6 +221,7 @@
     hardReset: function () {
       if (!confirm('Erase all progress, including Primordial Quanta, achievements, lore, and playtime? This replaces your current save.')) return;
       writeStore(BACKUP_KEY, encode());
+      if (Game.Offline) Game.Offline.cancel();
       Game.resetPlayer();
       if (Game.Experience) Game.Experience.syncPlayer();
       this.save();

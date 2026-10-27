@@ -216,4 +216,28 @@ test("Gen 8–10 and Mass are disabled inside challenges", function () {
   assert.ok(G.player.symmetry.mass.eq(1e6), "Mass survives a challenge");
 });
 
+test("respec after a Break keeps the save valid", function () {
+  const { Game: G } = createGame();
+  fullTree(G);
+  G.player.resources.energy = G.D("1e100");
+  G.Symmetry.breakSymmetry(true);
+  assert.ok(G.Prestige.respec());
+  assert.ok(G.player.prestige.totalQuanta.gte(G.player.prestige.quanta));
+  assert.ok(G.Save.load(), "save still loads");
+});
+
+test("importing during catch-up cancels the old save's owed time", function () {
+  const a = createGame();
+  a.Game.Save.save();
+  const fresh = a.Game.Save.exportText();
+  assert.ok(a.Game.Offline.begin(3600, true));
+  a.Game.Offline.step(0);
+  assert.ok(a.Game.Save.importText(fresh));
+  assert.strictEqual(a.Game.Offline.active, false);
+  assert.ok(a.Game.Offline.begin(100, false));
+  a.Game.Offline.step(0);
+  a.Game.Offline.begin(5000, false);
+  assert.ok(a.Game.Offline.progress() >= 0 && a.Game.Offline.progress() <= 1, "progress stays within 0–1");
+});
+
 module.exports = { playFor: playFor, reload: reload };
