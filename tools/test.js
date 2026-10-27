@@ -142,10 +142,10 @@ function fullTree(G) {
 
 test("first Break needs the full tree and 1e100 Energy", function () {
   const { Game: G } = createGame();
-  G.player.resources.energy = G.D("1e125");
+  G.player.resources.energy = G.D("1e450");
   assert.ok(G.Symmetry.reward().eq(0), "no reward without the full tree");
   fullTree(G);
-  assert.strictEqual(G.Symmetry.reward().toString(), "3");
+  assert.strictEqual(G.Symmetry.reward().toString(), "3", "one more each time the exponent doubles");
   assert.ok(G.Symmetry.breakSymmetry(true));
   assert.strictEqual(G.player.symmetry.shards.toString(), "3");
   assert.strictEqual(G.player.prestige.quanta.toString(), "0");
@@ -179,14 +179,18 @@ test("Mass grows from Gen 8–10 and forms the atom", function () {
   G.Symmetry.breakSymmetry(true);
   G.player.symmetry.perks.particles = 1;
   G.player.symmetry.perks.binding = 1;
-  G.player.resources.energy = G.D("1e140");
+  G.player.resources.energy = G.D("1e1500");
   assert.ok(G.Structure.buy("symmetryBreaking", 3));
   assert.ok(G.Structure.buy("massiveParticles", 1));
   assert.ok(G.Structure.buy("bindingForce", 1));
   G.Loop.simulate(10);
   assert.ok(G.player.structures.symmetryBreaking.added.gte(1), "Gen 9 creates Gen 8");
-  assert.ok(G.player.symmetry.mass.gt(50));
+  assert.ok(G.player.symmetry.mass.gt(250), "Gen 10 multiplies Mass by 10");
   assert.ok(G.Symmetry.energyMultiplier().gt(1));
+  G.player.resources.energy = G.D("1e100");
+  assert.strictEqual(G.Symmetry.reward().toString(), "1");
+  G.player.symmetry.mass = G.D(1e10);
+  assert.strictEqual(G.Symmetry.reward().toString(), "2", "Mass adds 10% per order of magnitude");
   G.player.symmetry.mass = G.D(G.CONFIG.SYMMETRY.atomMass);
   G.Loop.simulate(1);
   assert.strictEqual(G.player.symmetry.atom, 1);

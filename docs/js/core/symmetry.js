@@ -17,14 +17,24 @@
     // The first Break needs the whole Condense tree; later Breaks only need Energy.
     treeComplete: function () { return Object.keys(Game.CONFIG.PRESTIGE.skills).every(function (id) { return Game.Progression.hasSkill(id); }); },
     gateOpen: function () { return Game.player.symmetry.times.gt(0) || this.treeComplete(); },
+    // One Broken Symmetry at 1e100, then one more each time the exponent doubles.
+    baseReward: function () {
+      if (Game.Challenges.active() || !this.gateOpen()) return 0;
+      const exponent = Game.player.resources.energy.exponent, minimum = D(rules().unlockEnergy).exponent;
+      if (Game.player.resources.energy.lt(rules().unlockEnergy)) return 0;
+      return Math.floor(Math.log2(exponent / minimum) + 1e-9) + 1;
+    },
+    // Each order of magnitude of Mass adds 10% to the reward.
+    massRewardMultiplier: function () {
+      const mass = Game.player.symmetry.mass;
+      return 1 + (mass.gt(0) ? Math.floor(mass.add(1).log10()) : 0) * rules().massRewardStep;
+    },
     reward: function () {
-      if (Game.Challenges.active() || !this.gateOpen()) return D(0);
-      const energy = Game.player.resources.energy, minimum = D(rules().unlockEnergy);
-      if (energy.lt(minimum)) return D(0);
-      return D(Math.floor((energy.exponent - minimum.exponent) / rules().rewardExponentStep) + 1);
+      const base = this.baseReward();
+      return D(base ? Math.floor(base * this.massRewardMultiplier() + 1e-9) : 0);
     },
     nextRewardEnergy: function () {
-      return D(10).pow(D(rules().unlockEnergy).exponent + this.reward().toNumber() * rules().rewardExponentStep);
+      return D(10).pow(D(rules().unlockEnergy).exponent * Math.pow(2, this.baseReward()));
     },
     canBreak: function () { return this.reward().gt(0); },
     // Applied to every fresh normal run: Condense, respec, challenge exit and Break.
@@ -88,7 +98,7 @@
       if (Game.UI) Game.UI.render();
       return true;
     },
-    deeperCost: function () { const d = rules().deeper;return D(d.baseCost).mul(D(d.costScaling).pow(Game.player.symmetry.deeper)); },
+    deeperCost: function () { const d = rules().deeper;return D(d.baseCost).add(D(d.costStep).mul(Game.player.symmetry.deeper)); },
     buyDeeper: function () {
       const s = Game.player.symmetry, cost = this.deeperCost();
       if (s.shards.lt(cost) || s.deeper >= 60) return false;

@@ -11,7 +11,10 @@ const seed = Number(process.argv[3] || 1);
 const scenario = process.argv[4] || "fresh";
 const { Game } = createGame({ random: mulberry32(seed) });
 const D = Game.D;
-const STEP = 10, CLICK_SECONDS = 600, CLICKS_PER_SECOND = 4;
+const STEP = 10, CLICK_SECONDS = 600, CLICKS_PER_SECOND = 4, REPORT_HOURS = Number(process.env.REPORT_HOURS || 6);
+// NOBREAK=1 measures the Energy curve without ever Breaking Symmetry.
+const allowBreak = process.env.NOBREAK !== "1";
+const RUN_HOURS = Number(process.env.RUN_HOURS || 6);
 
 const milestones = [];
 const seen = new Set();
@@ -19,11 +22,13 @@ function mark(key, label) {
   if (seen.has(key)) return;
   seen.add(key);
   milestones.push([Game.player.time.realPlayed, label]);
+  console.log(fmt(Game.player.time.realPlayed).padStart(11), " ", label);
 }
 function fmt(seconds) {
   const d = Math.floor(seconds / 86400), h = Math.floor(seconds % 86400 / 3600), m = Math.floor(seconds % 3600 / 60);
   return (d ? d + "d " : "") + (h ? h + "h " : "") + m + "m";
 }
+function log(text) { console.log(fmt(Game.player.time.realPlayed).padStart(11), " ", text); }
 const skillIds = Object.keys(Game.CONFIG.PRESTIGE.skills);
 const ownedSkills = function () { return skillIds.filter(function (id) { return Game.Progression.hasSkill(id); }).length; };
 
@@ -48,6 +53,8 @@ function buySkills() {
     if (options.length) bought = Game.Prestige.buySkill(options[0]);
   }
   Game.Automation.setAll(true);
+  // The bot chooses when to Condense itself.
+  Game.Automation.setEnabled("condense", false);
 }
 function nextPerkCost() {
   const perks = Game.CONFIG.SYMMETRY.perks.filter(function (perk) { return !Game.Symmetry.has(perk.id); }).map(function (perk) { return D(perk.cost); });
@@ -59,6 +66,7 @@ if (scenario === "tree") {
   Game.player.prestige.times = D(30);
   Game.player.prestige.totalQuanta = D(813);
   Game.Automation.setAll(true);
+  Game.Automation.setEnabled("condense", false);
 }
 
 const end = hours * 3600;
@@ -71,7 +79,11 @@ while (Game.player.time.realPlayed < end) {
   [1e10, 1e30, 1e50, 1e100, 1e200, 1e500, 1e1000].forEach(function (v) { if (e.gte(v)) mark("e" + v, "Energy " + D(v).toExponential(0)); });
 
   const skillCost = nextSkillCost(), reward = Game.Prestige.reward();
-  if (skillCost && reward.gte(1) && Game.player.prestige.quanta.add(reward).gte(skillCost)) {
+  // Condense after a long run (Energy growth accelerates, so long runs pay far more),
+  // or as soon as the reward completes the tree.
+  const remaining = skillIds.filter(function (id) { return !Game.Progression.hasSkill(id); }).reduce(function (sum, id) { return sum.add(Game.CONFIG.PRESTIGE.skills[id].cost); }, D(0));
+  const longRun = Game.player.time.currentEnergyRunReal >= RUN_HOURS * 3600;
+  if (skillCost && reward.gte(1) && Game.player.prestige.quanta.add(reward).gte(skillCost) && (longRun || Game.player.prestige.quanta.add(reward).gte(remaining))) {
     const n = Game.player.prestige.times.toNumber() + 1;
     mark("c" + n, "Condense #" + n + " (+" + reward.toString() + " Quanta after " + fmt(Game.player.time.currentEnergyRunReal) + ")");
     Game.Prestige.condense(true);
@@ -81,7 +93,7 @@ while (Game.player.time.realPlayed < end) {
   [10, 20, 30, skillIds.length].forEach(function (n) { if (owned >= n) mark("s" + n, n + " skills owned"); });
 
   const shards = Game.Symmetry.reward();
-  if (Game.Symmetry.canBreak() && Game.player.symmetry.shards.add(shards).gte(nextPerkCost())) {
+  if (allowBreak && Game.Symmetry.canBreak() && Game.player.symmetry.shards.add(shards).gte(nextPerkCost())) {
     const n = Game.player.symmetry.times.toNumber() + 1;
     mark("b" + n, "Break #" + n + " (+" + shards.toString() + " BS at " + e.toExponential(1) + ", cycle mass " + Game.player.symmetry.mass.toExponential(1) + ")");
     Game.Symmetry.breakSymmetry(true);
@@ -89,11 +101,10 @@ while (Game.player.time.realPlayed < end) {
     buySkills();
   }
   if (Game.Symmetry.ended()) mark("atom", "First atom formed");
-  if (Game.player.time.realPlayed - lastReport >= 6 * 3600) {
+  if (Game.player.time.realPlayed - lastReport >= REPORT_HOURS * 3600) {
     lastReport = Game.player.time.realPlayed;
-    milestones.push([lastReport, "  status: E " + e.toExponential(1) + " · run " + fmt(Game.player.time.currentEnergyRunReal) + " · skills " + owned + " · Q " + Game.player.prestige.quanta.toString() + " · BS " + Game.player.symmetry.shards.toString() + " · mass " + Game.player.symmetry.mass.toExponential(1) + " · deeper " + Game.player.symmetry.deeper]);
+    log("  status: E " + e.toExponential(1) + " · run " + fmt(Game.player.time.currentEnergyRunReal) + " · skills " + owned + " · Q " + Game.player.prestige.quanta.toString() + " · BS " + Game.player.symmetry.shards.toString() + " · mass " + Game.player.symmetry.mass.toExponential(1) + " · deeper " + Game.player.symmetry.deeper);
   }
 }
 
-milestones.forEach(function (m) { console.log(fmt(m[0]).padStart(11), " ", m[1]); });
 console.log("Final: Energy", Game.player.resources.energy.toExponential(2), "| Quanta", Game.player.prestige.quanta.toString(), "| condenses", Game.player.prestige.times.toString(), "| skills", ownedSkills() + "/" + skillIds.length, "| breaks", Game.player.symmetry.times.toString(), "| perks", Object.values(Game.player.symmetry.perks).filter(Boolean).length, "| mass", Game.player.symmetry.mass.toExponential(2));

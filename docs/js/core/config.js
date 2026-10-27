@@ -198,16 +198,20 @@
   // for Broken Symmetries, which buy permanent perks and open Gen 8–10.
   Game.CONFIG.SYMMETRY = {
     name: "Break Symmetry",
+    // Late runs reach thousands of orders of magnitude, so rewards and costs
+    // scale with Energy's exponent: one more Broken Symmetry each time the
+    // exponent doubles past 100, and each Gen 8–10 unit costs a fixed number
+    // of extra orders of magnitude.
     unlockEnergy: "1e100",
-    rewardExponentStep: 10,
-    atomMass: "1e30",
+    atomMass: "1e25",
     massEnergyPower: 0.2,
+    massRewardStep: 0.1,
     lore: "The field was perfectly balanced, and balance cannot build. Something tips. The mirror cracks, and what falls out of it has weight.",
     atomLore: "Mass gathers, binds and holds. For the first time, something exists that does not fade back into the field: a stable atom. Existence has structure.",
     structures: [
-      { id: "symmetryBreaking", name: "Symmetry Breaking", baseCost: "1e50", costScaling: "10", description: "Produces 1 Mass per game second. Mass strengthens all Energy." },
-      { id: "massiveParticles", name: "Massive Particles", baseCost: "1e80", costScaling: "1e3", interval: "10", perk: "particles", description: "Every 10 game seconds, each unit creates one added Gen 8 (Symmetry Breaking)." },
-      { id: "bindingForce", name: "Binding Force", baseCost: "1e120", costScaling: "1e10", massMultiplier: "2", perk: "binding", description: "Each unit doubles Mass production." }
+      { id: "symmetryBreaking", name: "Symmetry Breaking", baseCost: "1e100", costScaling: "1e50", description: "Produces 1 Mass per game second. Mass strengthens all Energy and adds Broken Symmetries." },
+      { id: "massiveParticles", name: "Massive Particles", baseCost: "1e300", costScaling: "1e150", interval: "10", perk: "particles", description: "Every 10 game seconds, each unit creates one added Gen 8 (Symmetry Breaking)." },
+      { id: "bindingForce", name: "Binding Force", baseCost: "1e600", costScaling: "1e400", massMultiplier: "10", perk: "binding", description: "Each unit multiplies Mass production by ×10." }
     ],
     perks: [
       { id: "automation", name: "Persistent automation", cost: "1", description: "Breaking Symmetry keeps your eight automation skills and their settings." },
@@ -216,10 +220,10 @@
       { id: "quanta", name: "Asymmetric quanta", cost: "2", quantaMultiplier: "2", description: "Condensing grants ×2 Primordial Quanta." },
       { id: "constellation", name: "Remembered constellation", cost: "3", description: "Breaking Symmetry keeps every skill-tree skill." },
       { id: "swift", name: "Swift buyers", cost: "3", intervalMultiplier: 0.5, description: "Automation buyers attempt purchases twice as often." },
-      { id: "binding", name: "Binding force", cost: "5", description: "Unlock Gen 10 (Binding Force), which doubles Mass production per unit." },
+      { id: "binding", name: "Binding force", cost: "5", description: "Unlock Gen 10 (Binding Force), which multiplies Mass production by ×10 per unit." },
       { id: "memory", name: "Lasting memory", cost: "8", description: "Breaking Symmetry keeps half of your lifetime Condenses for Memory of condensation." }
     ],
-    deeper: { name: "Deeper asymmetry", baseCost: "1", costScaling: "2", massMultiplier: "2", description: "Each level doubles Mass production. Cost doubles each level." }
+    deeper: { name: "Deeper asymmetry", baseCost: "1", costStep: "1", massMultiplier: "2", description: "Each level doubles Mass production. Each level costs 1 Broken Symmetry more than the last." }
   };
   Game.CONFIG.AUTOMATION = {
     buyers: [
