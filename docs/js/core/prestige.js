@@ -4,7 +4,7 @@
     canUnlockSymmetry: function () { return !Game.Challenges.active() && !Game.player.prestige.symmetry && Game.player.prestige.quanta.gte(Game.CONFIG.SYMMETRY.cost); },
     unlockSymmetry: function () {
       if(!this.canUnlockSymmetry()) return false;
-      Game.player.prestige.quanta=Game.player.prestige.quanta.sub(Game.CONFIG.SYMMETRY.cost);Game.player.prestige.symmetry=1;
+      Game.player.prestige.quanta=Game.player.prestige.quanta.sub(Game.CONFIG.SYMMETRY.cost);Game.player.prestige.symmetry=1;Game.Symmetry.observe();
       Game.Save.save();if(Game.Audio) Game.Audio.play('perk');if(Game.UI) Game.UI.render();return true;
     },
     canBuySkill: function (id) {
@@ -67,10 +67,12 @@
       fresh.fluctuation.negativeStreakLevel = old.fluctuation.negativeStreakLevel;
       fresh.fluctuation.positiveChanceMastery = old.fluctuation.positiveChanceMastery;
       fresh.prestige.quanta = old.prestige.quanta.add(refund);
-      fresh.prestige.totalQuanta = old.prestige.totalQuanta;fresh.prestige.times = old.prestige.times;
+      // After a Break the tree is kept but lifetime Quanta restart, so the refund can exceed it.
+      fresh.prestige.totalQuanta = Decimal.max(old.prestige.totalQuanta, fresh.prestige.quanta);fresh.prestige.times = old.prestige.times;
       fresh.prestige.history = old.prestige.history;fresh.prestige.symmetry=old.prestige.symmetry;
-      Game.Automation.preserve(old,fresh);
+      Game.Automation.preserve(old,fresh);Game.Symmetry.preserve(old,fresh);
       fresh.settings = old.settings;fresh.ui = old.ui;
+      Game.Symmetry.startRun(fresh);
       Game.player = fresh;
       if (Game.Loop) { Game.Loop.accumulator = 0;Game.Loop.lastTime = performance.now(); }
       if (Game.UI) Game.UI.generatorSparkBudget = 0;
@@ -79,13 +81,24 @@
     },
     reward: function () {
       if (Game.Challenges.active()) return D(0);
-      const energy = Game.player.resources.energy, minimum = D(Game.CONFIG.PROGRESSION.prestigeEnergy);
-      if (energy.lt(minimum)) return D(0);
-      // Decimal's normalized exponent is floor(log10(E)), including exact powers of ten.
-      return D(energy.exponent - minimum.exponent + 1);
+      const energy = Game.player.resources.energy;
+      if (energy.lt(Game.CONFIG.PROGRESSION.prestigeEnergy)) return D(0);
+      return D(this.baseReward(energy.exponent)).mul(Game.Symmetry.quantaMultiplier());
     },
+    // Decimal's normalized exponent is floor(log10(E)), including exact powers of ten.
+    baseReward: function (exponent) {
+      const rules = Game.CONFIG.PROGRESSION, minimum = D(rules.prestigeEnergy).exponent, full = D(rules.fullRateEnergy).exponent;
+      const atFull = 1 + Math.floor((full - minimum) / rules.earlyStep);
+      if (exponent < minimum) return 0;
+      if (exponent < full) return 1 + Math.floor((exponent - minimum) / rules.earlyStep);
+      return atFull + exponent - full;
+    },
+    // Smallest power of ten whose base reward beats the current one.
     nextRewardEnergy: function () {
-      return D(10).pow(D(Game.CONFIG.PROGRESSION.prestigeEnergy).exponent + this.reward().toNumber());
+      const rules = Game.CONFIG.PROGRESSION, minimum = D(rules.prestigeEnergy).exponent, full = D(rules.fullRateEnergy).exponent;
+      const atFull = this.baseReward(full), current = this.baseReward(Game.player.resources.energy.exponent);
+      if (current === 0) return D(10).pow(minimum);
+      return D(10).pow(current < atFull ? minimum + current * rules.earlyStep : full + current - atFull + 1);
     },
     quantaRate: function (quanta, realSeconds, unitSeconds) {
       if (D(quanta).eq(0)) return D(0);
@@ -119,9 +132,10 @@
       fresh.prestige.history = [{ condense:fresh.prestige.times, quanta:reward, realSeconds:old.time.currentEnergyRunReal, partial:old.time.currentEnergyRunPartial }].concat(old.prestige.history).slice(0,10);
       if (fresh.prestige.skills["3-2"]) fresh.generators.fieldOscillation.added = D(Game.CONFIG.PRESTIGE.skills["3-2"].startingOscillations);
       if (fresh.prestige.skills["3-4-2"]) fresh.generators.fieldCoupling.added = D(Game.CONFIG.PRESTIGE.skills["3-4-2"].startingCouplings);
-      Game.Automation.preserve(old,fresh);
+      Game.Automation.preserve(old,fresh);Game.Symmetry.preserve(old,fresh);
       fresh.settings = old.settings;
       fresh.ui = old.ui;
+      Game.Symmetry.startRun(fresh);
       Game.player = fresh;
       if (Game.Loop && !automated) { Game.Loop.accumulator = 0; Game.Loop.lastTime = performance.now(); }
       if (Game.UI) Game.UI.generatorSparkBudget = 0;

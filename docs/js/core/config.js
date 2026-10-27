@@ -4,7 +4,7 @@
     SAVE_KEY: "cosmicIdleEnergyV2",
     SIMULATION_TPS: 20,
     AUTOSAVE_MS: 10000,
-    MAX_REAL_DELTA: 0.25,
+    OFFLINE: { maxSeconds: 86400, minSeconds: 30, frameBudgetMs: 40 },
 
     ENERGY: {
       manualGain: "1"
@@ -14,7 +14,7 @@
       name: "Disturb",
       unlockEnergy: "5",
       baseCost: "5",
-      gainPerLevel: "1",
+      gainPerLevel: "2",
       maxLevel: 1000,
       scalingStepLevels: 25,
       initialScaling: "1.15",
@@ -46,9 +46,28 @@
       { id:"tenCoherent", name:"A measured chorus", kind:"purchased", generator:"coherentEnergy", amount:"10", exact:true, reward:"generators", multiplier:"1.02", icon:"coherent", requirement:"Finish a purchase with exactly 10 purchased Gen 3 (Coherent Energy)." },
       { id:"thousandClicks", name:"A thousand echoes", kind:"clicks", amount:"1000", reward:"clicks", multiplier:"1.02", icon:"spark", requirement:"Generate 1,000 clicks in one run, including automatic impulses." },
       { id:"perfectDisturb", name:"Disturbance perfected", kind:"disturb", amount:"max", reward:"energy", multiplier:"1.01", icon:"growing", requirement:"Reach Disturb's maximum level." },
-      { id:"firstImpulse", name:"An impulse of its own", kind:"autoClicks", amount:"1", reward:"energy", multiplier:"1.01", icon:"time", requirement:"Trigger your first automatic impulse." }
+      { id:"firstImpulse", name:"An impulse of its own", kind:"autoClicks", amount:"1", reward:"energy", multiplier:"1.01", icon:"time", requirement:"Trigger your first automatic impulse." },
+      { id:"billionEnergy", name:"A billion sparks", kind:"energy", amount:"1e9", reward:"clicks", multiplier:"1.05", icon:"spark", requirement:"Hold 1e9 Energy at once." },
+      { id:"thirtyOrders", name:"Thirty orders deep", kind:"energy", amount:"1e30", reward:"generators", multiplier:"1.02", icon:"growing", requirement:"Hold 1e30 Energy at once." },
+      { id:"googolEnergy", name:"A googol of potential", kind:"energy", amount:"1e100", reward:"energy", multiplier:"1.03", icon:"growing", requirement:"Hold 1e100 Energy at once." },
+      { id:"thousandFlucts", name:"A thousand uncertainties", kind:"owned", generator:"quantumFluctuation", amount:"1000", reward:"generators", multiplier:"1.02", icon:"quantumFluctuation", requirement:"Own 1,000 purchased Gen 2 (Quantum Fluctuation) in one run." },
+      { id:"crowdedField", name:"A crowded field", kind:"owned", generator:"fieldExcitation", amount:"100", reward:"generators", multiplier:"1.02", icon:"fieldExcitation", requirement:"Own 100 purchased Gen 4 (Field Excitation) in one run." },
+      { id:"coupledUniverse", name:"A coupled universe", kind:"owned", generator:"fieldCoupling", amount:"50", reward:"generators", multiplier:"1.02", icon:"fieldCoupling", requirement:"Own 50 purchased Gen 7 (Field Coupling) in one run." },
+      { id:"fiveCondenses", name:"A habit of condensing", kind:"condenses", amount:"5", reward:"energy", multiplier:"1.02", icon:"condense", requirement:"Condense Energy 5 times." },
+      { id:"fiftyCondenses", name:"Familiar states", kind:"condenses", amount:"50", reward:"energy", multiplier:"1.03", icon:"condense", requirement:"Condense Energy 50 times." },
+      { id:"hundredQuanta", name:"A hundred quanta", kind:"quanta", amount:"100", reward:"energy", multiplier:"1.02", icon:"quanta", requirement:"Earn 100 lifetime Primordial Quanta." },
+      { id:"thousandQuanta", name:"A thousand quanta", kind:"quanta", amount:"1000", reward:"energy", multiplier:"1.03", icon:"quanta", requirement:"Earn 1,000 lifetime Primordial Quanta." },
+      { id:"halfConstellation", name:"Half a constellation", kind:"skills", amount:"23", reward:"generators", multiplier:"1.03", icon:"achievements", requirement:"Own 23 skills in the Condense skill tree." },
+      { id:"fullConstellation", name:"The full constellation", kind:"skills", amount:"all", reward:"energy", multiplier:"1.05", icon:"achievements", requirement:"Own every skill in the Condense skill tree." },
+      { id:"firstTrial", name:"Altered rules", kind:"challenges", amount:"1", reward:"energy", multiplier:"1.01", icon:"negative", requirement:"Complete any challenge level." },
+      { id:"fortyTrials", name:"Seasoned in strange physics", kind:"challenges", amount:"40", reward:"energy", multiplier:"1.03", icon:"negative", requirement:"Complete 40 challenge levels in total." },
+      { id:"allTrials", name:"Every rule bent", kind:"challenges", amount:"80", reward:"energy", multiplier:"1.05", icon:"negative", requirement:"Complete all 80 challenge levels." },
+      { id:"firstBreak", name:"The mirror cracks", kind:"symmetry", amount:"1", reward:"energy", multiplier:"1.05", icon:"symmetry", requirement:"Break Symmetry for the first time." },
+      { id:"firstAtom", name:"Something that holds", kind:"atom", amount:"1", reward:"energy", multiplier:"1.1", icon:"symmetry", requirement:"Form the first stable atom." }
     ],
-    PROGRESSION: { prestigeEnergy: "1e50" },
+    // First Condense at 1e10 for 1 Quanta; +1 per ×1e10 up to 1e50 (5 Quanta),
+    // then +1 per order of magnitude, so late runs pay as before.
+    PROGRESSION: { prestigeEnergy: "1e10", earlyStep: 10, fullRateEnergy: "1e50" },
     PRESTIGE: {
       name: "Condense Energy", quantaEnergyBase: "1.03", quantaSoftcapMultiplier: "1e25", achievementMultiplier: "1.05",
       lore: "Persistent excitations emerge from the primordial field. For the first time, energy can exist in discrete states.",
@@ -66,7 +85,7 @@
         "2-4-1": { name: "Resonant echoes", cost: "15", requires: "2-3-1", description: "Every Quantum Resonance production cycle also grants the same amount of Energy Resonance as the whole Quantum Resonance produced. The normal Energy Resonance cycle continues separately. Each Energy Resonance adds one Gen 1. Click-granted Quantum Resonance does not trigger an extra cycle." },
         "2-4-2": { name: "Excitation cascade", cost: "25", requires: "2-3-2", fieldSeconds: "15", description: "Each Quantum Resonance production cycle advances Gen 4 (Field Excitation)'s current cycle by 15 game seconds. Any excess carries into following cycles, including immediate payouts. Requires an owned Gen 4; does not advance other clocks or trigger from click-granted Resonance." },
         "3-2-3": { name: "Compressed rhythm", cost: "25", requires: "3-2-2", cycle: "45", description: "Shorten Gen 5 (Field Oscillation)'s total cycle to 45 game seconds. Its peak duration stays unchanged, shortening only the rise. Keeps the current rise or peak progress when unlocked. Combines with held and positive-only peaks." },
-        "3-5-1": { name: "Logarithmic harmony", cost: "50", requires: "3-4-1", description: "Multiply Gen 6 (Field Resonance)'s effective count by log₂ of held Quantum Resonance, with a minimum multiplier of ×1. Uses the actual resource amount, before Fluct soft caps. Also strengthens units supplied by Shared harmonics; does not raise purchase costs." },
+        "3-5-1": { name: "Logarithmic harmony", cost: "50", requires: "3-4-1", description: "Multiply Gen 6 (Field Resonance)'s effective count by log₁₀ of held Quantum Resonance, with a minimum multiplier of ×1. Uses the actual resource amount, before Fluct soft caps. Also strengthens units supplied by Shared harmonics; does not raise purchase costs." },
         "3-5-2": { name: "Shared harmonics", cost: "50", requires: "3-4-2", description: "Every purchased Gen 7 (Field Coupling) also contributes one effective Gen 6 (Field Resonance). Includes past and future purchases. Added Gen 7 units do not contribute. Gen 6 costs and purchase achievements remain based on its own purchases." },
         "4-4-1": { name: "Deferred resistance", cost: "50", requires: "4-3-2", softcapStart: "150", description: "Quantum Resonance's first Fluct soft cap starts at 150 held Resonance instead of 100. All later thresholds shift with it, keeping the current ×3 or ×3.3 spacing. Production slowdown milestones are unchanged." },
         "4-4-2": { name: "Lasting potential", cost: "25", requires: "4-3-1", description: "The Quanta Energy bonus uses whichever is higher: current unspent Quanta or half of all lifetime Quanta earned. These amounts are compared, not added. Fractional halves count toward the bonus, following the same Quanta soft cap. Applies immediately, including past Quanta." },
@@ -128,21 +147,21 @@
       {
         id: "energyDisturbance",
         name: "Energy Disturbance",
-        unlockEnergy: "100",
-        baseCost: "100",
+        unlockEnergy: "50",
+        baseCost: "50",
         costScaling: "1.10",
         burstInterval: "30",
         smoothAt: 25,
         sparksPerBurst: 5,
-        burstProduction: "30",
+        burstProduction: "60",
         production: "1"
       },
       {
         id: "quantumFluctuation",
         name: "Quantum Fluctuation",
         type: "fluctuation",
-        unlockEnergy: "250",
-        baseCost: "250",
+        unlockEnergy: "150",
+        baseCost: "150",
         costScaling: "1.025",
         scalingStepLevels: 10,
         scalingStepIncrease: "0.00125",
@@ -154,8 +173,8 @@
         id: "coherentEnergy",
         name: "Coherent Energy",
         type: "coherent",
-        unlockEnergy: "1e4",
-        baseCost: "1e4",
+        unlockEnergy: "1e3",
+        baseCost: "1e3",
         costScaling: "1.35",
         scalingStepLevels: 5,
         scalingStepIncrease: "0.15",
@@ -165,17 +184,49 @@
         id: "fieldExcitation",
         name: "Field Excitation",
         type: "field",
-        unlockEnergy: "1e7",
-        baseCost: "1e7",
+        unlockEnergy: "1e5",
+        baseCost: "1e5",
         costScaling: "1.10",
         scalingStepLevels: 30,
         scalingStepIncrease: "0.3",
         production: "0"
       },
-      { id: "fieldOscillation", name: "Field Oscillation", type: "oscillation", unlockEnergy: "1e10", baseCost: "1e10", costScaling: "2", scalingStepLevels: 5, scalingStepIncrease: "0.25", production: "0" },
-      { id: "fieldResonance", name: "Field Resonance", type: "resonance", unlockEnergy: "1e15", baseCost: "1e15", costScaling: "1.5", scalingStepLevels: 5, scalingStepIncrease: "0.125", production: "0" },
-      { id: "fieldCoupling", name: "Field Coupling", type: "coupling", unlockEnergy: "1e30", baseCost: "1e30", costScaling: "2", scalingStepLevels: 5, scalingStepIncrease: "0.5", production: "0" }
+      { id: "fieldOscillation", name: "Field Oscillation", type: "oscillation", unlockEnergy: "1e7", baseCost: "1e7", costScaling: "2", scalingStepLevels: 5, scalingStepIncrease: "0.25", production: "0" },
+      { id: "fieldResonance", name: "Field Resonance", type: "resonance", unlockEnergy: "1e11", baseCost: "1e11", costScaling: "1.5", scalingStepLevels: 5, scalingStepIncrease: "0.125", production: "0" },
+      { id: "fieldCoupling", name: "Field Coupling", type: "coupling", unlockEnergy: "1e18", baseCost: "1e18", costScaling: "2", scalingStepLevels: 5, scalingStepIncrease: "0.5", production: "0" }
     ]
+  };
+  // Second layer. Breaking Symmetry resets the run, Quanta, Condenses and Mass
+  // (the skill tree stays) for Broken Symmetries, which buy permanent perks
+  // and open Gen 8–10.
+  Game.CONFIG.SYMMETRY = {
+    name: "Break Symmetry",
+    // Late runs reach thousands of orders of magnitude, so rewards and costs
+    // scale with Energy's exponent: one more Broken Symmetry each time the
+    // exponent doubles past 100, and each Gen 8–10 unit costs a fixed number
+    // of extra orders of magnitude.
+    unlockEnergy: "1e100",
+    atomMass: "1e16",
+    massEnergyPower: 0.2,
+    massRewardStep: 0.1,
+    lore: "The field was perfectly balanced, and balance cannot build. Something tips. The mirror cracks, and what falls out of it has weight.",
+    atomLore: "Mass gathers, binds and holds. For the first time, something exists that does not fade back into the field: a stable atom. Existence has structure.",
+    structures: [
+      { id: "symmetryBreaking", name: "Symmetry Breaking", baseCost: "1e100", costScaling: "1e25", description: "Produces 1 Mass per game second. Mass strengthens all Energy and adds Broken Symmetries." },
+      { id: "massiveParticles", name: "Massive Particles", baseCost: "1e150", costScaling: "1e50", interval: "10", perk: "particles", description: "Every 10 game seconds, each unit creates one added Gen 8 (Symmetry Breaking)." },
+      { id: "bindingForce", name: "Binding Force", baseCost: "1e250", costScaling: "1e75", massMultiplier: "10", perk: "binding", description: "Each unit multiplies Mass production by ×10." }
+    ],
+    perks: [
+      { id: "headStart", name: "Head start", cost: "1", startingEnergy: "1e30", description: "Begin every run with 1e30 Energy." },
+      { id: "particles", name: "Massive particles", cost: "2", description: "Unlock Gen 9 (Massive Particles), which creates Gen 8 units over time." },
+      { id: "quanta", name: "Asymmetric quanta", cost: "2", quantaMultiplier: "2", description: "Condensing grants ×2 Primordial Quanta." },
+      { id: "memory", name: "Lasting memory", cost: "3", description: "Breaking Symmetry keeps your lifetime Condense count for Memory of condensation." },
+      { id: "swift", name: "Swift buyers", cost: "3", intervalMultiplier: 0.5, description: "Automation buyers attempt purchases twice as often." },
+      { id: "heavyStart", name: "Heavy start", cost: "4", startingSymmetryBreaking: "10", description: "Begin every run with 10 added Gen 8 (Symmetry Breaking)." },
+      { id: "binding", name: "Binding force", cost: "5", description: "Unlock Gen 10 (Binding Force), which multiplies Mass production by ×10 per unit." },
+      { id: "echo", name: "Echoing mass", cost: "8", description: "Breaking Symmetry halves Mass instead of resetting it." }
+    ],
+    deeper: { name: "Deeper asymmetry", baseCost: "1", costStep: "1", massMultiplier: "2", description: "Each level doubles Mass production. Each level costs 1 Broken Symmetry more than the last." }
   };
   Game.CONFIG.AUTOMATION = {
     buyers: [
@@ -200,16 +251,57 @@
     {name:"Fading momentum",unlockEnergy:"1e125",startExponent:15,exponentStep:6,description:"Energy production falls continuously to 85% of its previous strength each real second. Any successful generator or Disturb purchase resets this suppression."}
   ];
   Game.CONFIG.CHALLENGES[4].unlockEnergy="1e95";
-  Game.CONFIG.SYMMETRY={cost:"10000"};
+  Game.CONFIG.SYMMETRY.cost="10000";
   Game.CONFIG.CHALLENGES.forEach(function (rule,index) {
     Game.CONFIG.DISCOVERY_ACHIEVEMENTS.push({id:"challenge"+(index+1),name:rule.name+" · Challenge",kind:"challenge",track:index+1,amount:"1",reward:"none",icon:"condense",requirement:"Complete level one of "+rule.name+". Further milestones: levels 5 and 10."});
   });
   Game.CONFIG.DISCOVERY_ACHIEVEMENTS.push({id:"allChallenges",name:"Eight facets of existence",kind:"allChallenges",amount:"1",reward:"power",multiplier:"1.02",icon:"coherent",requirement:"Complete at least one level of all eight challenges."});
   const automationParents=["1-5-1","2-4-1","2-4-2","4-4-1","3-2-3","3-5-1","3-5-2","4-4-2"];
+  // One-line summaries shown first in the skill panel; full rules sit behind a toggle.
+  const summaries = {
+    "0-0": "×1.05 all Energy for every lifetime Condense. Free.",
+    "1-1": "×2 click Energy.",
+    "1-2": "Each click also grants 0.25s of generator production.",
+    "1-2-1": "Each click advances all generators by 0.33 game seconds instead.",
+    "1-2-2": "At max Disturb, an automatic click every 9 seconds.",
+    "1-3-1": "Gen 1 output ×1.005 per Gen 1 you bought.",
+    "1-3-2": "Gen 1 counts as (owned)^1.1 for production.",
+    "1-4-1": "Each click grants 1% of a second of all output.",
+    "1-4-2": "Each Gen 1 bought shortens its cycle by 0.025s (min 1s).",
+    "1-5-1": "Gen 1 doubles itself after 60s, then 90s, 120s, …",
+    "1-5-2": "A bubble appears every 10s; click it for +1 of every generator.",
+    "2-1": "+5 points positive Fluct chance, and shows the odds.",
+    "2-1-2": "Each negative Fluct in a row makes the next roll 1s sooner.",
+    "2-2": "Fluct rolls every 6.7s instead of 10s.",
+    "2-3-1": "Quantum Resonance slows down less (0.9s per step).",
+    "2-3-2": "Energy Resonance every 25s instead of 30s.",
+    "2-3-3": "Quantum Resonance slows every 11 instead of every 10.",
+    "2-4-1": "Each Quantum Resonance cycle also grants Energy Resonance.",
+    "2-4-2": "Each Quantum Resonance cycle advances Gen 4 by 15s.",
+    "3-1": "Oscillation holds its peak for 10s instead of 5s.",
+    "3-2": "Start every run with 1 free Gen 5.",
+    "3-2-1": "Toggle: freeze Oscillation just before its peak, release with a click.",
+    "3-2-2": "Oscillation peak pauses (not lost) while Fluct is negative.",
+    "3-2-3": "Oscillation cycle shortened to 45s.",
+    "3-3": "A ×1.15 bonus visits each generator for 30s in turn.",
+    "3-4-1": "Each Gen 6 strengthens the peak by ×1.033 instead of ×1.025.",
+    "3-4-2": "Start every run with 1 free Gen 7.",
+    "3-4-3": "The wandering bonus hits two generators at ×1.2.",
+    "3-5-1": "Gen 6 counts ×log₁₀(Quantum Resonance).",
+    "3-5-2": "Each Gen 7 bought also counts as a Gen 6.",
+    "4-1": "Resonance soft caps spaced ×3.3 apart instead of ×3.",
+    "4-2": "×1.2 all Energy.",
+    "4-3-1": "Each Condense counts twice for Memory of condensation.",
+    "4-3-2": "Timed output arrives 1 second sooner.",
+    "4-3-3": "Gen 4 growth ×1.01 per Gen 4 you bought.",
+    "4-4-1": "Resonance soft cap starts at 150 instead of 100.",
+    "4-4-2": "Quanta bonus uses the higher of unspent or half of lifetime Quanta."
+  };
+  Object.keys(summaries).forEach(function (id) { Game.CONFIG.PRESTIGE.skills[id].summary = summaries[id]; });
   Game.CONFIG.AUTOMATION.buyers.forEach(function (buyer,index) {
     buyer.title=Game.CONFIG.CHALLENGES[index].name;
-    Game.CONFIG.PRESTIGE.skills[buyer.skill]={name:index===7 ? "Automatic condensation" : "Automatic "+Game.CONFIG.GENERATORS[index].name.toLowerCase(),cost:"100",requires:automationParents[index],
-      description:(index===7 ? "Automatically Condense once the available reward reaches the Quanta target chosen in the Automation tab (default: 1). The normal 1e50 Energy minimum applies; each reset claims the full available reward. Resets the run as normal. Repeat automatic Condenses skip the cinematic." : "Automatically buy Max "+buyer.name+" using available Energy per activation. Respects unlock conditions and current costs; ignores the manual buy quantity.")+" Starts at one attempt every 5 real seconds. Its ten-level restricted-run challenge reduces the interval by 0.4 seconds per level, reaching 1 second. Configure individual buyers or all buyers in the Automation tab. Unlocked automation starts OFF. Timers continue while unfocused, do not bank failed purchases, and restart each run. Challenge progress is permanent."};
+    Game.CONFIG.PRESTIGE.skills[buyer.skill]={name:index===7 ? "Automatic condensation" : "Automatic "+Game.CONFIG.GENERATORS[index].name.toLowerCase(),cost:"100",requires:automationParents[index],summary:index===7 ? "Condense automatically at your chosen Quanta target." : "Automatically buy as many "+buyer.name+" as you can afford, every few seconds.",
+      description:(index===7 ? "Automatically Condense once the available reward reaches the Quanta target chosen in the Automation tab (default: 1). The normal 1e10 Energy minimum applies; each reset claims the full available reward. Resets the run as normal. Repeat automatic Condenses skip the cinematic." : "Automatically buy Max "+buyer.name+" using available Energy per activation. Respects unlock conditions and current costs; ignores the manual buy quantity.")+" Starts at one attempt every 5 real seconds. Its ten-level restricted-run challenge reduces the interval by 0.4 seconds per level, reaching 1 second. Configure individual buyers or all buyers in the Automation tab. Unlocked automation starts OFF. Timers continue while unfocused, do not bank failed purchases, and restart each run. Challenge progress is permanent."};
     Game.CONFIG.PRESTIGE.branches.find(function (branch) { return branch.id===Number(buyer.skill[0]); }).nodes.push(buyer.skill);
   });
 })(window.CosmicIdle);

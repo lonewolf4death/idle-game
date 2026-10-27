@@ -38,7 +38,7 @@
       <p id="upgrade-empty" class="muted">Create Energy to discover your first upgrade.</p>
       <details id="click-upgrade" class="generator-card" data-collapse="clickPower" open hidden>
         <summary><h3>Disturb</h3><button id="buy-click-upgrade-collapsed" class="collapsed-buy">Buy</button></summary>
-        <p>Add +1 base Energy per click and strengthen its glow.</p>
+        <p>Add +2 base Energy per click and strengthen its glow.</p>
         <p id="auto-click-status" class="muted" hidden></p>
         <div class="generator-meta"><strong id="click-upgrade-level">Level 0 / 1,000</strong><span id="click-upgrade-scaling" class="muted" hidden></span><span id="click-upgrade-affordable" class="muted"></span><button id="buy-click-upgrade">Buy</button></div>
       </details>
@@ -60,6 +60,7 @@
         <button id="lore-tab" role="tab" aria-selected="false" aria-controls="lore-view" tabindex="-1">Lore</button>
         <button id="challenges-tab" role="tab" aria-selected="false" aria-controls="challenges-view" tabindex="-1">Challenges</button>
         <button id="automation-tab" role="tab" aria-selected="false" aria-controls="automation-view" tabindex="-1">Automation</button>
+        <button id="symmetry-tab" role="tab" aria-selected="false" aria-controls="symmetry-view" tabindex="-1" hidden>Symmetry</button>
         <button id="settings-tab" role="tab" aria-selected="false" aria-controls="settings-view" tabindex="-1">Settings</button>
       </div>
       <div id="energy-view" role="tabpanel" aria-labelledby="energy-tab">
@@ -111,7 +112,7 @@
             <div class="tree-camera-controls" role="group" aria-label="Skill tree camera"><button id="tree-zoom-out" aria-label="Zoom out">−</button><span id="tree-zoom-level" aria-live="off">100%</span><button id="tree-zoom-in" aria-label="Zoom in">+</button><button id="tree-fit">Fit constellation</button></div>
             <div class="tree-legend"><span><i class="available"></i>Available</span><span><i class="owned"></i>Owned</span><span><i class="locked"></i>Requires parent</span></div>
           </div>
-          <div id="skill-map" class="skill-map" role="region" tabindex="0" aria-label="2D skill map. Scroll to explore. Click a node to inspect its effect and cost." hidden><div id="skill-map-world"><svg id="skill-map-links" viewBox="0 0 1350 925" aria-hidden="true"></svg><div class="map-branch-title" style="left:180px">01 · Impulse</div><div class="map-branch-title" style="left:510px">02 · Probability</div><div class="map-branch-title" style="left:840px">03 · Rhythm</div><div class="map-branch-title" style="left:1170px">04 · Continuum</div><div id="symmetry-placeholder" class="symmetry-placeholder" role="note"><span class="symmetry-mark">◇</span><strong>Symmetry</strong><span id="symmetry-state">Disconnected · future tree</span><button id="unlock-symmetry">Unlock · 10,000 Quanta</button><small>Future mechanics unformed</small></div></div></div>
+          <div id="skill-map" class="skill-map" role="region" tabindex="0" aria-label="2D skill map. Scroll to explore. Click a node to inspect its effect and cost." hidden><div id="skill-map-world"><svg id="skill-map-links" viewBox="0 0 1350 925" aria-hidden="true"></svg><div class="map-branch-title" style="left:180px">01 · Impulse</div><div class="map-branch-title" style="left:510px">02 · Probability</div><div class="map-branch-title" style="left:840px">03 · Rhythm</div><div class="map-branch-title" style="left:1170px">04 · Continuum</div><div id="symmetry-placeholder" class="symmetry-placeholder" role="note"><span class="symmetry-mark">◇</span><strong>Symmetry</strong><span id="symmetry-state">Disconnected · future tree</span><button id="unlock-symmetry">Unlock · 10,000 Quanta</button><small>Mass, perks and the first atom</small></div></div></div>
         </section>
         <section class="condense-panel" aria-label="Condensation preview">
           <div class="condense-summary"><span class="label">Condense now to receive</span><strong id="condense-reward">+0 Primordial Quanta</strong><p id="condense-requirement">Requires 1e50 held Energy.</p><p id="condense-next" class="muted"></p></div>
@@ -267,18 +268,31 @@
       <section id="automation-view" class="achievements-view automation-view" role="tabpanel" aria-labelledby="automation-tab" tabindex="0" hidden>
         <div class="achievements-heading"><span class="label">Let the field sustain itself</span><h2 id="automation-heading">Automation</h2><p>Configure generator buyers and automatic Condensing.</p></div>
         <section class="automation-settings" aria-labelledby="automation-heading">
-          <p class="settings-note">Unlock a buyer in the skill tree, then enable it here. One purchase per attempt. Timers use real seconds, including time out of focus; clicks do not accelerate them. Failed attempts are not saved up. When timers coincide, buyers act in Gen order, then Condense.</p>
+          <p class="settings-note">Unlock buyers in the skill tree, then switch them on here. Each attempt buys one unit on a real-time timer.</p>
           <div class="automation-actions"><button id="automation-all-on">Enable all unlocked</button><button id="automation-all-off">Disable all</button><button id="automation-challenges">View challenges</button></div>
           <div id="automation-settings-list" class="settings-list"></div>
           <form id="auto-condense-target-form" class="auto-condense-target" novalidate>
             <label for="auto-condense-target">Auto-Condense minimum reward <span class="muted">(Primordial Quanta)</span></label>
             <div><input id="auto-condense-target" type="text" inputmode="decimal" value="1" autocomplete="off" spellcheck="false" aria-describedby="auto-condense-target-help auto-condense-target-status"><button id="auto-condense-target-apply" type="submit">Apply target</button></div>
-            <p id="auto-condense-target-help" class="settings-note">Enter a whole number of 1 or more. Scientific notation is supported, for example 1e3. Auto-Condense pauses while you edit this field.</p>
+            <p id="auto-condense-target-help" class="settings-note">A whole number, 1 or more (1e3 works). Paused while you edit.</p>
             <p id="auto-condense-target-status" class="settings-note" role="status" aria-live="polite"></p>
             <p id="auto-condense-target-progress" class="settings-note"></p>
           </form>
-          <p class="settings-note">Auto-Condense waits until the available reward meets your Quanta target, then claims the full reward on its next attempt. The normal 1e50 Energy minimum still applies. Automatic Condenses skip the cinematic. New automation starts disabled.</p>
+          <p class="settings-note">Auto-Condense waits until the reward reaches your target, then Condenses without the cinematic.</p>
         </section>
+      </section>
+      <section id="symmetry-view" class="achievements-view symmetry-view" role="tabpanel" aria-labelledby="symmetry-tab" tabindex="0" hidden>
+        <div class="achievements-heading"><span class="label">The mirror cracks</span><h2>Symmetry</h2><p>Reset your run, Quanta and Condense count for Broken Symmetries (BS); your skill tree stays. You earn one at 1e100 Energy, and one more each time Energy's exponent doubles. Spend them on permanent perks and Mass. Mass strengthens Energy, adds 10% to Breaks per order of magnitude, and at 1e16 forms the first stable atom.</p></div>
+        <div class="condense-panel symmetry-panel">
+          <span class="label">Break Symmetry now to receive</span><strong id="symmetry-reward">+0 Broken Symmetries</strong>
+          <p id="symmetry-requirement" class="muted"></p>
+          <button id="symmetry-break" disabled>Break Symmetry</button>
+        </div>
+        <div class="symmetry-balance"><span class="label">Broken Symmetries</span><strong id="symmetry-shards">0</strong><span id="symmetry-summary" class="muted"></span></div>
+        <section class="symmetry-atom" aria-labelledby="symmetry-atom-title"><h3 id="symmetry-atom-title">The first atom</h3><div id="symmetry-atom-bar" class="milestone-track" role="progressbar" aria-label="Progress to the first stable atom" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="symmetry-atom-fill"></div></div><p id="symmetry-atom-text" class="muted"></p></section>
+        <h3 class="symmetry-subhead">Perks</h3>
+        <div id="symmetry-perks" class="symmetry-perks"></div>
+        <div class="symmetry-perk symmetry-deeper"><div><h3 id="symmetry-deeper-level">Deeper asymmetry</h3><p>Each level doubles Mass production. Each level costs 1 Broken Symmetry more than the last.</p></div><button id="symmetry-deeper">Buy</button></div>
       </section>
       <section id="settings-view" class="achievements-view" role="tabpanel" aria-labelledby="settings-tab" tabindex="0" hidden>
         <div class="achievements-heading"><span class="label">Your experience</span><h2>Settings</h2></div>
@@ -287,6 +301,10 @@
           <button id="export-button">Export</button>
           <button id="import-button">Import</button>
           <button id="reset-button" class="danger">Hard Reset</button>
+        </div>
+        <div id="save-safety" class="settings-save-actions" role="group" aria-label="Backups" hidden>
+          <button id="restore-backup-button" hidden>Restore session backup</button>
+          <button id="export-recovery-button" hidden>Export unreadable save</button>
         </div>
         <p id="save-status" class="settings-note" role="status">Autosave enabled.</p>
         <div class="settings-list">
@@ -306,8 +324,9 @@
           <label><span>Volume</span><input id="setting-volume" type="range" min="0" max="1" step="0.01" aria-label="Volume"></label>
           <label><span>Visual feedback</span><select id="setting-visuals"><option value="0">None — sound only</option><option value="1">Faint abstract glow</option><option value="2">Classic sparks</option></select></label>
           <label><span>Automatically dismiss lore and notifications after 6 seconds</span><input id="setting-autoDismiss" type="checkbox"></label>
+          <label><span>Offline progress (up to 24 hours)</span><input id="setting-offlineProgress" type="checkbox"></label>
         </div>
-        <p class="settings-note">Popups wait for a click by default. Generator hotkeys: 1–9 buy Gen 1–9; 0 buys Gen 10, when available. Uses the selected buy amount in the Energy tab. Sounds begin after your first interaction. Settings are saved with your progress.</p><div class="sound-previews"><button id="preview-sound">Preview click</button><button id="preview-auto-sound">Preview automatic impulse</button><button id="preview-perk-sound">Preview skill purchase</button></div><p id="music-stage" class="settings-note"></p><p id="audio-status" class="settings-note" role="status"></p>
+        <p class="settings-note">Hotkeys 1–9 and 0 buy Gen 1–10 at the selected amount. Sound starts after your first click.</p><div class="sound-previews"><button id="preview-sound">Preview click</button><button id="preview-auto-sound">Preview automatic impulse</button><button id="preview-perk-sound">Preview skill purchase</button></div><p id="music-stage" class="settings-note"></p><p id="audio-status" class="settings-note" role="status"></p>
       </section>
     </section>
     </div>
@@ -326,10 +345,13 @@
     </section>
     </section>
   </main>
-  <section id="skill-detail" class="skill-detail" role="dialog" aria-labelledby="skill-detail-name" aria-describedby="skill-detail-description" hidden><button id="close-skill-detail" aria-label="Close skill details">×</button><div><span id="skill-detail-id" class="label">1-1 · Impulse</span><h4 id="skill-detail-name">Focused disturbance</h4><p id="skill-detail-description"></p><p id="skill-detail-cost" class="stats-note"></p></div><button id="buy-skill">Unlock · 1 Quanta</button><p id="skill-purchase-status" role="status" aria-live="polite"></p></section>
+  <section id="skill-detail" class="skill-detail" role="dialog" aria-labelledby="skill-detail-name" aria-describedby="skill-detail-description" hidden><button id="close-skill-detail" aria-label="Close skill details">×</button><div><span id="skill-detail-id" class="label">1-1 · Impulse</span><h4 id="skill-detail-name">Focused disturbance</h4><p id="skill-detail-summary" class="skill-summary"></p><details id="skill-detail-rules" class="skill-rules"><summary>Full rules</summary><p id="skill-detail-description"></p></details><p id="skill-detail-cost" class="stats-note"></p></div><button id="buy-skill">Unlock · 1 Quanta</button><p id="skill-purchase-status" role="status" aria-live="polite"></p></section>
 
   <dialog id="challenge-dialog" aria-labelledby="challenge-confirm-title" aria-describedby="challenge-confirm-description"><span class="label">Alter the primordial field</span><h2 id="challenge-confirm-title"></h2><p id="challenge-confirm-description"></p><div class="respec-choices"><button id="challenge-cancel">Keep this run</button><button id="challenge-confirm">Restart run</button></div></dialog>
   <dialog id="respec-dialog" aria-labelledby="respec-title" aria-describedby="respec-description"><span class="label">Reform the constellation</span><h2 id="respec-title">Respec skills?</h2><strong id="respec-refund"></strong><p id="respec-description"></p><div class="respec-choices"><button id="cancel-respec">Keep my skills</button><button id="confirm-respec">Respec · restart run</button></div></dialog>
+  <dialog id="symmetry-dialog" aria-labelledby="symmetry-confirm-title" aria-describedby="symmetry-confirm-description"><span class="label">Break the balance</span><h2 id="symmetry-confirm-title">Break Symmetry?</h2><strong id="symmetry-confirm-reward"></strong><p id="symmetry-confirm-description"></p><div class="respec-choices"><button id="cancel-symmetry">Not yet</button><button id="confirm-symmetry">Break Symmetry</button></div></dialog>
+  <dialog id="save-dialog" class="save-dialog" aria-labelledby="save-dialog-title" aria-describedby="save-dialog-note"><span class="label">Your progress</span><h2 id="save-dialog-title">Export save</h2><p id="save-dialog-note"></p><textarea id="save-text" rows="7" spellcheck="false" autocomplete="off" aria-labelledby="save-dialog-title"></textarea><p id="save-dialog-status" class="settings-note" role="status" aria-live="polite"></p><div class="respec-choices"><button id="save-copy">Copy</button><button id="save-download">Download file</button><button id="save-upload-button">Load file</button><input id="save-upload" type="file" accept=".txt,text/plain" hidden><button id="save-import-confirm">Import</button><button id="save-close">Close</button></div></dialog>
+  <div id="offline-progress" class="offline-progress" role="status" aria-live="polite" hidden><span class="label">Catching up on time away</span><div class="milestone-track"><div id="offline-fill"></div></div><span id="offline-text" class="muted"></span></div>
   <dialog id="story-dialog" aria-labelledby="story-title" aria-describedby="story-text">
     <button id="story-dismiss" class="story-card" aria-label="Dismiss message">
       <span id="story-icon" aria-hidden="true"></span><span id="story-kind" class="label">Lore</span><h2 id="story-title">Before structure</h2><p id="story-text"></p><span id="story-hint">Click to continue</span>
@@ -351,6 +373,7 @@
   <script src="js/core/playtime.js"></script>
   <script src="js/core/progression.js"></script>
   <script src="js/core/prestige.js"></script>
+  <script src="js/core/symmetry.js"></script>
   <script src="js/layers/energy/energy.js"></script>
   <script src="js/layers/energy/coherence.js"></script>
   <script src="js/layers/energy/fieldExcitation.js"></script>
@@ -372,7 +395,9 @@
   <script src="js/ui/treeCamera.js"></script>
   <script src="js/ui/treeMap.js"></script>
   <script src="js/ui/automation.js"></script>
+  <script src="js/ui/symmetry.js"></script>
   <script src="js/ui/render.js"></script>
+  <script src="js/core/offline.js"></script>
   <script src="js/core/gameLoop.js"></script>
   <script src="js/main.js"></script>
 </body>

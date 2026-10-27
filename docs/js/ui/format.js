@@ -3,10 +3,12 @@
   Game.Format = {
     number: function (value, decimals) {
       const d = Game.D(value);
-      const places = decimals === undefined ? 2 : decimals;
+      let places = decimals === undefined ? 2 : decimals;
       if (!(Number.isFinite(d.mantissa) && Number.isFinite(d.exponent))) return "∞";
       if (d.eq(0)) return "0";
-      if (d.abs().lt(1000)) {
+      // Plain numbers up to a million; whole numbers from 1,000 so they stay short.
+      if (d.abs().lt(1e6)) {
+        if (d.abs().gte(1000)) places = 0;
         let formatter = numberFormatters.get(places);
         if (!formatter) { formatter = new Intl.NumberFormat(undefined, { maximumFractionDigits: places });numberFormatters.set(places, formatter); }
         return formatter.format(d.toNumber());

@@ -1,6 +1,9 @@
 (function (Game) {
   function start() {
     Game.Save.load();
+    Game.Offline.noteLoad();
+    // Start catch-up before any startup message opens, so messages wait for it.
+    Game.Offline.resumeFromSave();
     Game.UI.init();
     Game.Experience.init();
     Game.PotentialBubble.init();

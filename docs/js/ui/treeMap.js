@@ -37,6 +37,8 @@
         })[0];
         if (target) Game.PrestigeUI.nodes[target].focus();
       });
+      // The 3D constellation is unreadable on narrow screens; open the 2D map there.
+      if (window.matchMedia && window.matchMedia("(max-width:760px)").matches) Game.player.ui.skillTree2D = 1;
       this.syncMode();
     },
     syncMode: function () {

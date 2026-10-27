@@ -31,7 +31,8 @@
       return state.purchased.add(state.added).add(id === "fieldExcitation" ? this.getCoupledFields() : id === "fieldResonance" ? this.getSharedResonance() : 0);
     },
     getSharedResonance: function () { return Game.Challenges.produces("fieldCoupling") && Game.Progression.hasSkill("3-5-2") ? Game.player.generators.fieldCoupling.purchased : D(0); },
-    resonanceCountMultiplier: function () { return Game.Progression.hasSkill("3-5-1") ? D(Math.max(1, Game.player.resources.quantumResonance.gt(0) ? Game.player.resources.quantumResonance.log10() / Math.log10(2) : 1)) : D(1); },
+    // log₁₀ rather than log₂: Gen 6's count is an exponent on the Oscillation peak, so log₂ caused a runaway jump.
+    resonanceCountMultiplier: function () { return Game.Progression.hasSkill("3-5-1") ? D(Math.max(1, Game.player.resources.quantumResonance.gt(0) ? Game.player.resources.quantumResonance.log10() : 1)) : D(1); },
     getCoupledFields: function () {
       if(!Game.Challenges.produces("fieldCoupling")) return D(0);
       const state = Game.player.generators.fieldCoupling;
@@ -117,15 +118,19 @@
     getGeneratorCost: function (generator) {
       const owned = Game.player.generators[generator.id].purchased.toNumber();
       const step = (generator.scalingStepLevels || Game.CONFIG.GENERATOR_SCALING.stepLevels);
-      const key = [owned, generator.lateScalingStart,generator.lateScalingStepIncrease,generator.baseCost, generator.costScaling, step, generator.scalingStepIncrease || Game.CONFIG.GENERATOR_SCALING.stepIncrease,Game.Challenges.priceMultiplier().toString()].join("|");
+      const key = [generator.lateScalingStart,generator.lateScalingStepIncrease,generator.baseCost, generator.costScaling, step, generator.scalingStepIncrease || Game.CONFIG.GENERATOR_SCALING.stepIncrease,Game.Challenges.priceMultiplier().toString()].join("|");
       const cache = this._costCache || (this._costCache = Object.create(null)), previous = cache[generator.id];
       const cacheable = this.getGeneratorScaling === originalScalingRule;
-      if (cacheable && previous && previous.key === key) return previous.cost;
-      let cost = D(generator.baseCost).mul(Game.Challenges.priceMultiplier());
-      for (let start = 0; start < owned; start += step) {
-        cost = cost.mul(this.getGeneratorScaling(generator, start).pow(Math.min(step, owned - start)));
+      if (cacheable && previous && previous.key === key && previous.owned === owned) return previous.cost;
+      // Continue from a cached lower count so each purchase costs one block, not all of them.
+      const resume = cacheable && previous && previous.key === key && previous.owned < owned;
+      let cost = resume ? previous.cost : D(generator.baseCost).mul(Game.Challenges.priceMultiplier());
+      for (let start = resume ? previous.owned : 0; start < owned;) {
+        const take = Math.min(step - start % step, owned - start);
+        cost = cost.mul(this.getGeneratorScaling(generator, start).pow(take));
+        start += take;
       }
-      if (cacheable) cache[generator.id] = { key: key, cost: cost };
+      if (cacheable) cache[generator.id] = { key: key, owned: owned, cost: cost };
       return cost;
     },
 
@@ -267,7 +272,8 @@
         const interval = D(Game.Modifiers.getFluctuationRules().rollInterval);
         const untilRoll = hasFluctuation ? Decimal.max(0, interval.sub(state.elapsed)) : D(Infinity);
         const gen = this.getGenerator("energyDisturbance"), timers = Game.player.generators.energyDisturbance;
-        const untilBurst = Game.Challenges.produces(gen.id) && this.getOwned(gen.id).gt(0) && this.getOwned(gen.id).lt(gen.smoothAt) ? this.burstInterval(gen).sub(timers.burstTimers.reduce(function (latest, timer) { return Decimal.max(latest, timer); }, timers.burstElapsed)) : D(Infinity);
+        // Offline catch-up lets tickProduction pay several bursts per segment.
+        const untilBurst = !Game.Loop.coarse && Game.Challenges.produces(gen.id) && this.getOwned(gen.id).gt(0) && this.getOwned(gen.id).lt(gen.smoothAt) ? this.burstInterval(gen).sub(timers.burstTimers.reduce(function (latest, timer) { return Decimal.max(latest, timer); }, timers.burstElapsed)) : D(Infinity);
         const segment = Decimal.min(this.replicationRemaining(), Decimal.min(Game.Progression.generatorFocus().remaining, Decimal.min(remaining, Decimal.min(untilBurst, Decimal.min(Game.FieldDynamics.nextEventIn(), Decimal.min(untilRoll, Decimal.min(Game.Coherence.nextEventIn(), Game.FieldExcitation.nextEventIn())))))));
         if (segment.gt(0)) {
           this.tickProduction(segment);
@@ -275,6 +281,7 @@
           Game.Coherence.advance(segment);
           Game.FieldExcitation.advance(segment);
           Game.FieldDynamics.advance(segment);
+          Game.Structure.advance(segment);
           if (this.replicationActive()) Game.player.disturbanceReplication.elapsed = Game.player.disturbanceReplication.elapsed.add(segment);
           if (hasFluctuation) state.elapsed = state.elapsed.add(segment);
           remaining = remaining.sub(segment);

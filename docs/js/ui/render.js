@@ -4,7 +4,7 @@
   function setText(node, value) { value = String(value);if (node.textContent !== value) node.textContent = value; }
 
   Game.UI = {
-    views: ["energy", "prestige", "achievements", "stats", "lore", "challenges", "automation", "settings"],
+    views: ["energy", "prestige", "achievements", "stats", "lore", "challenges", "automation", "symmetry", "settings"],
     generatorNodes: {},
     buyAmount: 1,
 
@@ -135,13 +135,14 @@
       Game.AchievementsUI.init();
       Game.PrestigeUI.init();
       Game.StatsUI.init();
+      Game.SymmetryUI.init();
       this.views.forEach(function (view) {
         const tab = byId(view + "-tab");
         tab.addEventListener("click", function () { Game.UI.selectView(view); });
         tab.addEventListener("keydown", function (event) {
           if (["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
             event.preventDefault();
-            const views = Game.UI.views;
+            const views = Game.UI.views.filter(function (name) { return !byId(name + "-tab").hidden; });
             const index = views.indexOf(view);
             const target = event.key === "Home" ? views[0] : event.key === "End" ? views[views.length - 1] : views[(index + (event.key === "ArrowRight" ? 1 : views.length - 1)) % views.length];
             Game.UI.selectView(target, true);
@@ -215,6 +216,7 @@
 
         list.appendChild(card);
       });
+      Game.SymmetryUI.buildStructureCards(list);
 
       Game.Tooltips.init();
       Game.FieldWaves.init();
@@ -247,6 +249,11 @@
         if (event.defaultPrevented || event.repeat || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey || !/^[0-9]$/.test(event.key)) return;
         if (byId("energy-view").hidden || document.querySelector("dialog[open]") || event.target.closest && event.target.closest("input,textarea,select,[contenteditable]:not([contenteditable=false])")) return;
         const index=event.key==="0"?9:Number(event.key)-1, gen=Game.CONFIG.GENERATORS[index];
+        const structure=Game.CONFIG.SYMMETRY.structures[index-Game.CONFIG.GENERATORS.length];
+        if (!gen && structure) {
+          if (!Game.Structure.unlocked(structure.id)) return;
+          event.preventDefault();Game.Structure.buy(structure.id,Game.UI.buyAmount);Game.UI.render();return;
+        }
         if (!gen || !(Game.UI.isUnlocked(gen) || Game.Energy.getOwned(gen.id).gt(0))) return;
         event.preventDefault();Game.Energy.buyGenerator(gen.id,Game.UI.buyAmount);Game.UI.render();
       });
@@ -268,6 +275,72 @@
       byId("export-button").addEventListener("click", function () { Game.Save.exportSave(); });
       byId("import-button").addEventListener("click", function () { Game.Save.importSave(); });
       byId("reset-button").addEventListener("click", function () { Game.Save.hardReset(); });
+      byId("restore-backup-button").addEventListener("click", function () { Game.Save.restoreBackup();Game.UI.updateSaveSafety(); });
+      byId("export-recovery-button").addEventListener("click", function () { Game.UI.openSaveDialog("recovery"); });
+      this.initSaveDialog();
+      this.updateSaveSafety();
+    },
+
+    updateSaveSafety: function () {
+      const backup = Game.Save.hasBackup(), recovery = Game.Save.hasRecovery();
+      byId("restore-backup-button").hidden = !backup;
+      byId("export-recovery-button").hidden = !recovery;
+      byId("save-safety").hidden = !backup && !recovery;
+    },
+
+    initSaveDialog: function () {
+      const dialog = byId("save-dialog"), text = byId("save-text"), status = byId("save-dialog-status");
+      byId("save-close").addEventListener("click", function () { dialog.close(); });
+      dialog.addEventListener("close", function () { text.value = "";if (Game.Experience) Game.Experience.next(); });
+      byId("save-copy").addEventListener("click", function () {
+        text.select();
+        const done = function () { status.textContent = "Copied to the clipboard."; };
+        if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(text.value).then(done, function () { status.textContent = "Select the text and copy it manually."; });
+        else { try { document.execCommand("copy");done(); } catch (error) { status.textContent = "Select the text and copy it manually."; } }
+      });
+      byId("save-download").addEventListener("click", function () {
+        const url = URL.createObjectURL(new Blob([text.value], { type: "text/plain" }));
+        const link = document.createElement("a"), stamp = new Date().toISOString().slice(0, 10);
+        link.href = url;link.download = (dialog.dataset.mode === "recovery" ? "cosmic-idle-unreadable-" : "cosmic-idle-save-") + stamp + ".txt";
+        document.body.appendChild(link);link.click();link.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+        status.textContent = "Save file downloaded.";
+      });
+      byId("save-upload-button").addEventListener("click", function () { byId("save-upload").click(); });
+      byId("save-upload").addEventListener("change", function () {
+        const file = this.files && this.files[0];
+        if (!file) return;
+        file.text().then(function (value) { text.value = value.trim();status.textContent = "File loaded. Press Import to continue."; });
+        this.value = "";
+      });
+      byId("save-import-confirm").addEventListener("click", function () {
+        if (!text.value.trim()) { status.textContent = "Paste a save or load a save file first.";return; }
+        if (!confirm("Replace your current progress with this save? Your current progress is kept as a backup.")) return;
+        if (Game.Save.importText(text.value)) { dialog.close();Game.UI.updateSaveSafety(); }
+        else status.textContent = "That save is invalid or belongs to a different version. Your game has not changed.";
+      });
+    },
+
+    openSaveDialog: function (mode) {
+      const dialog = byId("save-dialog"), text = byId("save-text"), importing = mode === "import";
+      dialog.dataset.mode = mode;
+      byId("save-dialog-title").textContent = importing ? "Import save" : mode === "recovery" ? "Unreadable save" : "Export save";
+      byId("save-dialog-note").textContent = importing ? "Paste a save below or load a save file, then press Import." : mode === "recovery" ? "This save could not be loaded. Keep a copy so it can be repaired later." : "Copy this text or download it as a file to back up your progress or move it to another device.";
+      text.value = importing ? "" : mode === "recovery" ? Game.Save.recoveryText() : Game.Save.exportText();
+      text.readOnly = !importing;
+      byId("save-dialog-status").textContent = "";
+      ["save-copy", "save-download"].forEach(function (id) { byId(id).hidden = importing; });
+      ["save-upload-button", "save-import-confirm"].forEach(function (id) { byId(id).hidden = !importing; });
+      dialog.showModal();
+      if (importing) text.focus(); else text.select();
+    },
+
+    showOffline: function (progress) {
+      const panel = byId("offline-progress");
+      if (progress === null) { panel.hidden = true;return; }
+      panel.hidden = false;
+      byId("offline-fill").style.width = Math.round(progress * 100) + "%";
+      setText(byId("offline-text"), Math.round(progress * 100) + "% of " + Game.Format.duration(Game.Offline.total));
     },
 
     updateCompactBuy: function (compact, full, name) {
@@ -282,10 +355,36 @@
 
     },
 
+    // Tabs appear as the player reaches them, based on progress that survives resets.
+    tabVisible: function (view) {
+      const p = Game.player;
+      const automation = Game.CONFIG.AUTOMATION.buyers.some(function (buyer) { return Game.Progression.hasSkill(buyer.skill) || p.automation.buyers[buyer.id].level > 0; });
+      switch (view) {
+        case "prestige": return p.prestige.times.gt(0) || p.symmetry.times.gt(0) || p.resources.energy.gte(1e30);
+        case "achievements": return Game.Progression.achievementUnlocked() || Game.Progression.firstGeneratorAchievementUnlocked() || Object.keys(p.achievements).some(function (id) { return p.achievements[id] === 1; }) || Game.Playtime.state().level > 0 || Game.Achievements.fluctLevel() > 0;
+        case "stats": return p.lore.generatorSeen === 1 || p.stats.generatorsBought.gt(0);
+        case "lore": return p.lore.clickSeen === 1 || p.stats.manualClicks.gt(0);
+        case "challenges": case "automation": return automation || !!p.challenges.active;
+        case "symmetry": return Game.Symmetry.discovered();
+        default: return true;
+      }
+    },
+    updateTabs: function () {
+      const self = this;
+      this.views.forEach(function (view) {
+        const tab = byId(view + "-tab"), visible = self.tabVisible(view);
+        if (tab.hidden === !visible) return;
+        tab.hidden = !visible;
+        if (!visible && tab.getAttribute("aria-selected") === "true") self.selectView("energy");
+      });
+    },
+
     render: function () {
       const p = Game.player;
+      this.updateTabs();
       if (Game.PotentialBubble) Game.PotentialBubble.update();
       Game.AutomationUI.render();
+      Game.SymmetryUI.render();
       Game.FieldExcitation.checkUnlock();
       setText(byId("existence-state"), Game.Energy.getOwned("fieldExcitation").gt(0) ? "Excited" : "Dormant");
       setText(byId("existence-structure"), p.lore.fieldSecondSeen ? "Fields" : "None");
@@ -310,7 +409,7 @@
         if (gen.id === "energyDisturbance" && Game.Progression.hasSkill("1-3-2")) ownershipText += " · Effective: " + Game.Format.number(Game.Energy.getProductionCount(gen.id), 2);
         if (gen.type === "resonance" && Game.Energy.getSharedResonance().gt(0)) ownershipText += " · +" + Game.Format.number(Game.Energy.getSharedResonance(),0) + " from purchased Gen 7";
         if (gen.type === "resonance" && Game.Progression.hasSkill("3-5-1")) ownershipText += " · QR ×" + Game.Format.number(Game.Energy.resonanceCountMultiplier(),3) + " · Effective: " + Game.Format.number(Game.Energy.getProductionCount(gen.id),2);
-        if (gen.id === "energyDisturbance" && Game.Progression.hasSkill("1-5-1")) ownershipText += " · Double in " + Game.Format.number(Game.Energy.replicationRemaining(),1) + "s · interval " + Game.Format.number(Game.Energy.replicationInterval(),0) + "s";
+        if (gen.id === "energyDisturbance" && Game.Progression.hasSkill("1-5-1")) ownershipText += (Game.Energy.replicationActive() ? " · Double in " + Game.Format.number(Game.Energy.replicationRemaining(),1) + "s" : " · Doubling starts once Gen 1 is owned") + " · interval " + Game.Format.number(Game.Energy.replicationInterval(),0) + "s";
         if (Game.Progression.generatorFocusMultiplier(gen.id).gt(1)) ownershipText += " · Wandering rhythm ×" + Game.Format.number(focus.multiplier, 2);
         setText(node.owned, ownershipText);
         node.scaling.hidden = !false;
@@ -404,7 +503,7 @@
       setText(byId("resonance-fluct-growth"), "Fluct base: " + Game.Format.number(Game.Energy.fluctGrowth(), 6) + " · effective Resonance: " + Game.Format.number(quantumSoftcap.effective, 3) + " · exponent " + Game.Format.number(quantumSoftcap.power, 2) + (quantumSoftcap.next ? " · next at " + Game.Format.number(quantumSoftcap.next, 0) : " · final soft cap"));
       const fluct = Game.Energy.getOwned("quantumFluctuation");
       byId("fluct-display").hidden = fluct.lte(0);
-      setText(byId("fluct-display"), "Fluct " + (p.fluctuation.positive ? "+" : "−") + " · ×" + Game.Format.number(Game.Energy.fluctMultiplier(), 5));
+      setText(byId("fluct-display"), "Fluct " + (p.fluctuation.positive ? "+" : "−") + " · ×" + Game.Format.number(Game.Energy.fluctMultiplier(), 3));
       setText(byId("music-stage"), "Eventide · " + ["Unformed tones", "Pentatonic notes · 10 clicks", "Harmonic layers · 25 purchased generators", "Interwoven tones · Quantum Fluctuation", "Resonance chords · Coherent Energy", "Field harmonics · Field Excitation"][Game.Audio.musicStage()]);
       setText(byId("click-gain"), "+" + Game.Format.number(Game.Energy.manualGain()) + (Game.Progression.hasSkill("1-2-1") ? " direct / click · +0.33s all generators" : " / click"));
       const achieved = Game.Progression.achievementUnlocked();

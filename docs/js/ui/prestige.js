@@ -131,7 +131,7 @@
       Game.TreeMap.syncMode();
       const sym=byId('unlock-symmetry'),symOwned=Game.player.prestige.symmetry;
       sym.disabled=!Game.Prestige.canUnlockSymmetry();setText(sym,symOwned?'Unlocked · 10,000 Quanta':'Unlock · 10,000 Quanta');
-      setText(byId('symmetry-state'),symOwned?'Unlocked · future mechanics unformed':'Disconnected · future tree');
+      setText(byId('symmetry-state'),symOwned?'Unlocked · see the Symmetry tab':'Disconnected · opens Breaking Symmetry');
       const p = Game.player, reward = Game.Prestige.reward(), ready = reward.gt(0), experienced = p.prestige.times.gt(0);
       setText(byId("quanta-balance"), number(p.prestige.quanta));
       byId("quanta-header").hidden = !(experienced || p.prestige.quanta.gt(0) || reveal);
@@ -139,7 +139,7 @@
       setText(byId("quanta-bonus"), "×" + Game.Format.number(quantaBonus.multiplier, 5) + " all Energy" + (quantaBonus.suppressed ? " · disabled in this challenge" : quantaBonus.active ? " · soft-capped" : "") + (Game.Progression.hasSkill("4-4-2") ? " · basis " + Game.Format.number(quantaBonus.basis, 1) + " Quanta" : ""));
       setText(byId("condense-earned"), number(p.prestige.totalQuanta) + " earned · " + number(p.prestige.times) + " condensations" + (Game.Progression.hasSkill("4-3-1") ? " · " + number(Game.Progression.effectiveCondenses()) + " effective" : ""));
       setText(byId("condense-reward"), "+" + number(reward) + " Primordial Quanta");
-      setText(byId("condense-next"), "Next reward: " + number(reward.add(1)) + " at " + number(Game.Prestige.nextRewardEnergy()) + " held Energy");
+      setText(byId("condense-next"), "Next reward: " + number(reward.add(Game.Symmetry.quantaMultiplier())) + " at " + number(Game.Prestige.nextRewardEnergy()) + " held Energy");
       setText(byId("condense-requirement"), Game.Challenges.active() ? "Condense is unavailable during a challenge. Complete its Energy goal or exit the challenge first." : ready ? "Ready to condense. Your current run will reset." : "Requires " + number(Game.CONFIG.PROGRESSION.prestigeEnergy) + " held Energy.");
       byId("condense-button").disabled = !ready;
       setText(byId("condense-button"), "Condense Energy · +" + number(reward) + " Quanta");
@@ -172,6 +172,10 @@
       if (selected === "0-0") description += " Current bonus: ×" + Game.Format.number(Game.Progression.hasSkill("0-0") ? Game.Progression.condenseMemoryMultiplier() : Game.D(definition.energyPerCondense).pow(Game.Progression.effectiveCondenses()), 5) + " from " + number(p.prestige.times) + " lifetime Condenses" + (Game.Progression.hasSkill("4-3-1") ? " (" + number(Game.Progression.effectiveCondenses()) + " effective)" : "") + ".";
       if (selected === "1-2" && Game.Progression.hasSkill("1-2-1")) description += " Replaced by 1-2-1: clicks now advance all generators by 0.33 game seconds instead of granting this Energy-only payout.";
       if (selected === "3-3" && Game.Progression.hasSkill("3-4-3")) description += " Upgraded by 3-4-3: the current bonus is ×1.2 for two adjacent generators.";
+      // Live notes appended above (current bonus, replacements) stay visible with the summary.
+      const hasSummary = !!(definition && definition.summary), live = hasSummary ? description.slice(definition.description.length) : "";
+      setText(byId("skill-detail-summary"), hasSummary ? definition.summary + live : description);
+      byId("skill-detail-rules").hidden = !hasSummary;
       setText(byId("skill-detail-description"), description);
       const afterSpend=Decimal.max(0,p.prestige.quanta.sub(definition.cost));
       const afterBasis=Decimal.max(afterSpend,Game.Progression.hasSkill("4-4-2") || selected==="4-4-2" ? p.prestige.totalQuanta.div(2) : 0);
