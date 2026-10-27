@@ -37,7 +37,7 @@
     achievement: function (name) { return name.indexOf("A moment") === 0 ? "time" : ({"First sparks":"spark","First generator":"engine","A growing engine":"growing","A coherent beginning":"coherent","Against the current":"negative","First condensation":"condense"}[name] || "achievements"); },
     init: function () {
       Object.keys(achievementIds).forEach(function (id) { document.querySelector('#' + id + ' .achievement-emblem').innerHTML = Game.Icons.svg(achievementIds[id]); });
-      ["energy","prestige","achievements","stats","lore","challenges","settings"].forEach(function (id) { document.getElementById(id + "-tab").insertAdjacentHTML("afterbegin", Game.Icons.svg(id)); });
+      ["energy","prestige","achievements","stats","lore","challenges","automation","settings"].forEach(function (id) { document.getElementById(id + "-tab").insertAdjacentHTML("afterbegin", Game.Icons.svg(id==="automation"?"time":id)); });
       document.querySelector(".header-energy .label").insertAdjacentHTML("afterbegin", this.svg("spark"));
       document.querySelector(".header-quanta>span").insertAdjacentHTML("afterbegin", this.svg("quanta"));
       ["quantumResonance","energyResonance"].forEach(function (id) { document.querySelector('#resonance-overview [data-tip="' + id + '"]').insertAdjacentHTML("afterbegin", Game.Icons.svg(id)); });

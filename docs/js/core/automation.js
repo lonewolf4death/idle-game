@@ -1,10 +1,24 @@
 (function (Game) {
   // Real-time timers deliberately do not accelerate from click-granted game time.
   Game.Automation = {
+    editingCondenseTarget:false,
     definition: function (id) { return Game.CONFIG.AUTOMATION.buyers.find(function (buyer) { return buyer.id === id; }); },
     unlocked: function (id) { const buyer=this.definition(id);return !!buyer && Game.Progression.hasSkill(buyer.skill); },
     interval: function (id) { return (50 - 4 * Game.player.automation.buyers[id].level) / 10; },
-    active: function (id) { return !Game.Challenges.active() && !Game.Challenges.confirming && this.unlocked(id) && !!Game.player.settings.autoBuyers[id]; },
+    active: function (id) { return !Game.Challenges.active() && !Game.Challenges.confirming && !(id==='condense' && this.editingCondenseTarget) && this.unlocked(id) && !!Game.player.settings.autoBuyers[id]; },
+    parseCondenseTarget: function (input) {
+      if (typeof input!=='string' && typeof input!=='number') return null;
+      const value=String(input).trim();
+      if (!/^\+?(?:\d+(?:\.\d*)?|\.\d+)(?:e[+-]?\d+)?$/i.test(value)) return null;
+      const target=Game.D(value);
+      if (!Number.isFinite(target.mantissa) || !Number.isFinite(target.exponent) || target.lt(1) || !target.eq(target.floor()) || target.toString()==='Infinity') return null;
+      return target;
+    },
+    setCondenseTarget: function (input) {
+      const target=this.parseCondenseTarget(input);
+      if(!target) return false;
+      Game.player.settings.autoCondenseTarget=target;return true;
+    },
     setEnabled: function (id, enabled) {
       if (!this.definition(id) || enabled && !this.unlocked(id)) return false;
       Game.player.settings.autoBuyers[id]=Number(!!enabled);
@@ -31,7 +45,9 @@
         const state=Game.player.automation.buyers[buyer.id];
         if (!Game.Automation.active(buyer.id) || state.elapsed+1e-9<Game.Automation.interval(buyer.id)) return;
         state.elapsed=0;
-        if (buyer.id === 'condense') Game.Prestige.condense(true);
+        if (buyer.id === 'condense') {
+          if(Game.Prestige.reward().gte(Game.player.settings.autoCondenseTarget)) Game.Prestige.condense(true);
+        }
         else Game.Energy.buyGenerator(buyer.id,1);
       });
     },

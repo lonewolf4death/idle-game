@@ -21,6 +21,23 @@
       element('automation-all-on').addEventListener('click',function () { view.toggleAll(true); });
       element('automation-all-off').addEventListener('click',function () { view.toggleAll(false); });
       element('automation-challenges').addEventListener('click',function () { Game.UI.selectView('challenges',true); });
+      const target=element('auto-condense-target');
+      target.addEventListener('input',function () { view.targetDirty=true; });
+      target.addEventListener('focus',function () {
+        Game.Loop.pump(performance.now());Game.Automation.editingCondenseTarget=true;view.render();
+      });
+      target.addEventListener('blur',function () {
+        Game.Loop.pump(performance.now());Game.Automation.editingCondenseTarget=false;view.render();
+      });
+      element('auto-condense-target-form').addEventListener('submit',function (event) {
+        event.preventDefault();
+        if(!Game.Automation.setCondenseTarget(target.value)) {
+          target.setAttribute('aria-invalid','true');text(element('auto-condense-target-status'),'Enter a whole number of at least 1. Your saved target is unchanged.');target.focus();return;
+        }
+        view.targetDirty=false;target.removeAttribute('aria-invalid');target.value=Game.player.settings.autoCondenseTarget.toString();target.blur();
+        text(element('auto-condense-target-status'),'Saved · Condense at '+number(Game.player.settings.autoCondenseTarget)+' Quanta or more.');
+        Game.Save.save();view.render();
+      });
       element('challenge-detail').addEventListener('click',function (event) {
         if(event.target.closest('#challenge-enter')) view.confirmRun('enter');
         if(event.target.closest('#challenge-exit')) view.confirmRun('exit');
@@ -89,20 +106,29 @@
     },
     render: function () {
       if(!this.rows.energyDisturbance) return;
-      const challengesVisible=!element('challenges-view').hidden,settingsVisible=!element('settings-view').hidden;
-      if(!challengesVisible && !settingsVisible) return;
+      const challengesVisible=!element('challenges-view').hidden,automationVisible=!element('automation-view').hidden;
+      if(!automationVisible) Game.Automation.editingCondenseTarget=false;
+      if(!challengesVisible && !automationVisible) return;
       const view=this,active=Game.Challenges.active();Game.Challenges.observe();
       Game.CONFIG.AUTOMATION.buyers.forEach(function (buyer,index) {
         const state=Game.player.automation.buyers[buyer.id],unlocked=Game.Automation.unlocked(buyer.id),interval=Game.Automation.interval(buyer.id).toFixed(1);
-        if(settingsVisible) {
+        if(automationVisible) {
           const row=view.rows[buyer.id],input=row.querySelector('input');input.disabled=!unlocked;input.checked=!!Game.player.settings.autoBuyers[buyer.id];
-          text(row.querySelector('small'),unlocked ? (active?'Paused in challenge · ':'')+'Every '+interval+'s · challenge '+state.level+'/10' : 'Unlock skill '+buyer.skill+' · 100 Quanta');
+          text(row.querySelector('small'),unlocked ? (active?'Paused in challenge · ':buyer.id==='condense' && Game.Automation.editingCondenseTarget?'Paused while editing · ':'')+'Every '+interval+'s · challenge '+state.level+'/10' : 'Unlock skill '+buyer.skill+' · 100 Quanta');
         }
         if(challengesVisible) {
           const track=view.tracks[buyer.id];track.setAttribute('aria-pressed',String(view.selected===buyer.id));
           text(track.querySelector('small'),unlocked ? (active===index+1?'Running · ':'')+state.level+'/10 · '+interval+'s · '+buyer.name : 'Locked · skill '+buyer.skill+' · 100 Quanta');
         }
       });
+      if(automationVisible) {
+        const input=element('auto-condense-target'),target=Game.player.settings.autoCondenseTarget;
+        if(this.targetOwner!==Game.player) {
+          this.targetOwner=Game.player;this.targetDirty=false;input.removeAttribute('aria-invalid');input.value=target.toString();text(element('auto-condense-target-status'),'');
+        }
+        if(!this.targetDirty && document.activeElement!==input && input.getAttribute('aria-invalid')!=='true' && input.value!==target.toString()) input.value=target.toString();
+        text(element('auto-condense-target-progress'),'Saved target: '+number(target)+' Quanta · Available now: '+number(Game.Prestige.reward())+' Quanta'+(active?' · Automation paused in challenge':Game.Automation.editingCondenseTarget?' · Auto-Condense paused while editing':''));
+      }
       if(!challengesVisible) return;
       const buyer=Game.Automation.definition(this.selected),index=Game.CONFIG.AUTOMATION.buyers.indexOf(buyer)+1,state=Game.player.automation.buyers[buyer.id],unlocked=Game.Automation.unlocked(buyer.id),rule=Game.Challenges.definition(index),running=active===index;
       const key=[buyer.id,state.level,active,unlocked].join('|');

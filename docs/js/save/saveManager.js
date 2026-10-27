@@ -44,6 +44,7 @@
         return source.map(function (value) { return merge(value, Game.D(0)); });
       }
       if (defaults instanceof Decimal) {
+        if(path==='settings.autoCondenseTarget' && !Game.Automation.parseCondenseTarget(source)) throw new Error('Invalid auto-Condense target');
         if (typeof source !== 'string' && typeof source !== 'number') throw new Error('Invalid number');
         const value = Game.D(source);
         if (!(Number.isFinite(value.mantissa) && Number.isFinite(value.exponent)) || value.lt(0)) throw new Error('Invalid number');
@@ -92,6 +93,7 @@
     if (!player.fluctuation.rollReductionStacks.eq(player.fluctuation.rollReductionStacks.floor())) throw new Error('Invalid Fluct reduction stack');
     if (player.generatorFocus.elapsed.gte(Game.D(Game.CONFIG.PRESTIGE.skills["3-3"].focusSeconds).mul(Game.CONFIG.GENERATORS.length))) throw new Error('Invalid generator focus timer');
     const settings = player.settings;
+    if (settings.autoCondenseTarget.lt(1) || !settings.autoCondenseTarget.eq(settings.autoCondenseTarget.floor())) throw new Error('Invalid auto-Condense target');
     if (!Object.values(player.achievements).concat(Object.values(player.lore)).every(function (value) { return value === 0 || value === 1; })) throw new Error('Invalid permanent progress');
     if (![player.prestige.quanta, player.prestige.totalQuanta, player.prestige.times].every(function (value) { return value.eq(value.floor()); }) || player.prestige.totalQuanta.lt(player.prestige.quanta)) throw new Error('Invalid Primordial Quanta');
     if (!Object.values(player.prestige.skills).every(function (value) { return value === 0 || value === 1; })) throw new Error('Invalid skill progress');

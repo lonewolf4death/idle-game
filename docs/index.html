@@ -59,6 +59,7 @@
         <button id="stats-tab" role="tab" aria-selected="false" aria-controls="stats-view" tabindex="-1">Stats</button>
         <button id="lore-tab" role="tab" aria-selected="false" aria-controls="lore-view" tabindex="-1">Lore</button>
         <button id="challenges-tab" role="tab" aria-selected="false" aria-controls="challenges-view" tabindex="-1">Challenges</button>
+        <button id="automation-tab" role="tab" aria-selected="false" aria-controls="automation-view" tabindex="-1">Automation</button>
         <button id="settings-tab" role="tab" aria-selected="false" aria-controls="settings-view" tabindex="-1">Settings</button>
       </div>
       <div id="energy-view" role="tabpanel" aria-labelledby="energy-tab">
@@ -263,6 +264,22 @@
         <div class="achievements-heading"><span class="label">Patterns becoming purpose</span><h2>Challenge runs</h2><p>Reach an Energy goal under altered rules. Ten levels per challenge. Permanent automation rewards.</p></div>
         <div class="challenge-layout"><nav id="challenge-tracks" aria-label="Automation challenges"></nav><article id="challenge-detail" class="challenge-detail"></article></div>
       </section>
+      <section id="automation-view" class="achievements-view automation-view" role="tabpanel" aria-labelledby="automation-tab" tabindex="0" hidden>
+        <div class="achievements-heading"><span class="label">Let the field sustain itself</span><h2 id="automation-heading">Automation</h2><p>Configure generator buyers and automatic Condensing.</p></div>
+        <section class="automation-settings" aria-labelledby="automation-heading">
+          <p class="settings-note">Unlock a buyer in the skill tree, then enable it here. One purchase per attempt. Timers use real seconds, including time out of focus; clicks do not accelerate them. Failed attempts are not saved up. When timers coincide, buyers act in Gen order, then Condense.</p>
+          <div class="automation-actions"><button id="automation-all-on">Enable all unlocked</button><button id="automation-all-off">Disable all</button><button id="automation-challenges">View challenges</button></div>
+          <div id="automation-settings-list" class="settings-list"></div>
+          <form id="auto-condense-target-form" class="auto-condense-target" novalidate>
+            <label for="auto-condense-target">Auto-Condense minimum reward <span class="muted">(Primordial Quanta)</span></label>
+            <div><input id="auto-condense-target" type="text" inputmode="decimal" value="1" autocomplete="off" spellcheck="false" aria-describedby="auto-condense-target-help auto-condense-target-status"><button id="auto-condense-target-apply" type="submit">Apply target</button></div>
+            <p id="auto-condense-target-help" class="settings-note">Enter a whole number of 1 or more. Scientific notation is supported, for example 1e3. Auto-Condense pauses while you edit this field.</p>
+            <p id="auto-condense-target-status" class="settings-note" role="status" aria-live="polite"></p>
+            <p id="auto-condense-target-progress" class="settings-note"></p>
+          </form>
+          <p class="settings-note">Auto-Condense waits until the available reward meets your Quanta target, then claims the full reward on its next attempt. The normal 1e50 Energy minimum still applies. Automatic Condenses skip the cinematic. New automation starts disabled.</p>
+        </section>
+      </section>
       <section id="settings-view" class="achievements-view" role="tabpanel" aria-labelledby="settings-tab" tabindex="0" hidden>
         <div class="achievements-heading"><span class="label">Your experience</span><h2>Settings</h2></div>
         <div class="settings-save-actions" role="group" aria-label="Save data">
@@ -272,13 +289,6 @@
           <button id="reset-button" class="danger">Hard Reset</button>
         </div>
         <p id="save-status" class="settings-note" role="status">Autosave enabled.</p>
-        <section class="automation-settings" aria-labelledby="automation-heading">
-          <h3 id="automation-heading">Automation</h3>
-          <p class="settings-note">Unlock a buyer in the skill tree, then enable it here. One purchase per attempt. Timers use real seconds, including time out of focus; clicks do not accelerate them. Failed attempts are not saved up. When timers coincide, buyers act in Gen order, then Condense.</p>
-          <div class="automation-actions"><button id="automation-all-on">Enable all unlocked</button><button id="automation-all-off">Disable all</button><button id="automation-challenges">View challenges</button></div>
-          <div id="automation-settings-list" class="settings-list"></div>
-          <p class="settings-note">Auto-Condense resets the run as soon as its timer fires at or above 1e50 Energy. Repeat automatic Condenses skip the cinematic. New automation starts disabled.</p>
-        </section>
         <div class="settings-list">
           <label><span>Sound</span><input id="setting-sound" type="checkbox"></label>
           <label><span>Mute sounds while unfocused</span><input id="setting-muteUnfocused" type="checkbox"></label>

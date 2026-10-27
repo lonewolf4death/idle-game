@@ -4,7 +4,7 @@
   function setText(node, value) { value = String(value);if (node.textContent !== value) node.textContent = value; }
 
   Game.UI = {
-    views: ["energy", "prestige", "achievements", "stats", "lore", "challenges", "settings"],
+    views: ["energy", "prestige", "achievements", "stats", "lore", "challenges", "automation", "settings"],
     generatorNodes: {},
     buyAmount: 1,
 
@@ -13,6 +13,7 @@
       document.body.classList.toggle("achievements-active", name === "achievements");
       document.body.classList.toggle("stats-active", name === "stats");
       document.body.classList.toggle("challenges-active", name === "challenges");
+      document.body.classList.toggle("automation-active", name === "automation");
       if (name !== "energy") Game.FieldWaves.clear();
       this.views.forEach(function (view) {
         const active = view === name;
