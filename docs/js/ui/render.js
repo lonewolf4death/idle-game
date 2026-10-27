@@ -236,6 +236,7 @@
         });
       });
       byId("energy-field").addEventListener("click", function (event) {
+        if (!Game.Challenges.clicksAllowed()) return;
         Game.Audio.play("click");
         Game.UI.flashEnergy(event);
         Game.Energy.generateManual();
@@ -343,7 +344,8 @@
           setText(node.production, fluctText);
         } else if (gen.type === "coherent") {
           const output = owned.mul(Game.Progression.generatorMultiplier()).mul(Game.Progression.generatorFocusMultiplier(gen.id));
-          setText(node.production, Game.Format.number(output) + " Quantum Resonance / " + Game.Format.number(Game.Coherence.quantumInterval()) + "s · " + Game.Format.number(output) + " Energy Resonance / " + Game.Coherence.energyInterval().toString() + "s" + (Game.Progression.hasSkill("2-4-1") ? " · QR cycles also produce ER" : "") + (Game.Progression.hasSkill("2-4-2") ? " · each QR cycle advances Gen 4 by 15s" : ""));
+          const energyOutput=Game.Challenges.active(7)?Game.D(0):output;
+          setText(node.production, Game.Format.number(output) + " Quantum Resonance / " + Game.Format.number(Game.Coherence.quantumInterval()) + "s · " + Game.Format.number(energyOutput) + " Energy Resonance / " + Game.Coherence.energyInterval().toString() + "s" + (Game.Progression.hasSkill("2-4-1") && !Game.Challenges.active(7) ? " · QR cycles also produce ER" : "") + (Game.Progression.hasSkill("2-4-2") ? " · each QR cycle advances Gen 4 by 15s" : ""));
         } else if (gen.type === "field") {
           setText(node.production, "+" + Game.Format.number(Game.FieldExcitation.boostPerCycle(), 5) + " base Energy/sec to Energy Disturbance every " + Game.FieldExcitation.interval().toString() + "s · next in " + Game.Format.number(Game.FieldExcitation.remaining()) + "s · accumulated base bonus +" + Game.Format.number(p.fieldExcitation.baseRateBonus, 5) + "/sec");
         } else if (gen.burstInterval && owned.lt(gen.smoothAt)) {
@@ -358,6 +360,8 @@
           if (node.description.textContent !== description) node.description.textContent = description;
         }
         setText(node.buy, quote.count.gt(0) ? "Buy " + Game.Format.number(quote.count, 0) + " — " + Game.Format.number(quote.cost) + " Energy" : "Buy 1 — " + Game.Format.number(Game.Energy.getGeneratorCost(gen)) + " Energy");
+        if (Game.Challenges.active() && !Game.Challenges.allowedGenerator(gen.id)) setText(node.buy,"Unavailable in this challenge");
+        else if(Game.Challenges.purchaseLimit(gen.id)===0) setText(node.buy,"Challenge limit · 10 purchased");
         node.buy.disabled = quote.count.lte(0);
         Game.UI.updateCompactBuy(node.collapsedBuy, node.buy, gen.name);
       });
@@ -440,6 +444,7 @@
       setText(byId("real-time-display"), Game.Format.duration(p.time.realPlayed));
       setText(byId("game-time-display"), Game.Format.duration(p.time.gamePlayed));
       if (!byId("stats-view").hidden) Game.StatsUI.render(false);
+      Game.AutomationUI.renderBanner();
     }
   };
 })(window.CosmicIdle);

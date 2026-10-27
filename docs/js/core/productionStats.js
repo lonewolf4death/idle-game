@@ -92,6 +92,7 @@
       entries.push({ id: "continuum", label: "4-2 · Boundless potential", factor: s.prestige.energyMultiplier, color: "quanta" });
       entries.push({ id: "condense-memory", label: "0-0 · Memory of condensation", factor: s.prestige.condenseMemory, color: "quanta" });
       if (!generator) entries.push({ id: "skills", label: "1-1 · Focused disturbance", factor: s.prestige.clickMultiplier, color: "quanta" });
+      if (!generator && !Game.Challenges.clicksAllowed()) entries.push({id:"challenge",label:"Hands off · clicks disabled",factor:D(0),color:"slowdown"});
       const strength = this.fluctBreakdown(s);
       entries.push({ id: "fluct", label: "Fluct", tip: "fluctFormula", factor: s.fluct.multiplier, color: "fluct", children: strength.entries, childBasis: "fluct-strength", strength: strength });
       entries.push({ id: "oscillation", label: "Field Oscillation", tip: "fieldOscillation", factor: s.dynamics.multiplier, color: "field", children: this.withShares([
@@ -99,7 +100,7 @@
         { id: "oscillation-resonance", label: "Gen 6 · Field Resonance", factor: s.dynamics.resonanceCurrent }
       ], active), childBasis: "oscillation" });
       if (generator) entries.push({ id: "speed", label: "Game speed", factor: s.speed, color: "speed" });
-      if (!generator && (amount.captured.gt(0) || Game.Progression.hasSkill("1-4-1"))) entries.push({
+      if (!generator && amount.ordinary.gt(0) && (amount.captured.gt(0) || Game.Progression.hasSkill("1-4-1"))) entries.push({
         id: "captured-production", label: "Click production bonuses", factor: amount.total.div(amount.ordinary), color: "quanta", childBasis: "captured-production",
         children: [
           { id: "ordinary-click", label: "Ordinary click Energy", factor: amount.ordinary, output: amount.ordinary, share: amount.ordinary.div(amount.total).toNumber() },
@@ -122,7 +123,7 @@
       const baseRate = D(disturbance.burstProduction).div(disturbance.burstInterval);
       const owned = Game.Energy.getOwned(disturbance.id), coherenceOwned = Game.Energy.getOwned("coherentEnergy");
       const oscillation = Game.FieldDynamics.multiplier();
-      const clickBonus = Game.Progression.clickMultiplier().mul(Game.Progression.clickSkillMultiplier()).mul(fluct).mul(Game.Progression.energyMultiplier()).mul(oscillation);
+      const clickBonus = Game.Challenges.clicksAllowed() ? Game.Progression.clickMultiplier().mul(Game.Progression.clickSkillMultiplier()).mul(fluct).mul(Game.Progression.energyMultiplier()).mul(oscillation) : D(0);
       const focus = Game.Progression.generatorFocusMultiplier(disturbance.id), countMultiplier = Game.Energy.getCountMultiplier(disturbance.id);
       const generatorBonus = generatorAchievements.mul(fluct).mul(Game.Progression.energyMultiplier()).mul(oscillation).mul(focus).mul(countMultiplier);
       const generatorRate = Game.Energy.getProductionPerSecond();

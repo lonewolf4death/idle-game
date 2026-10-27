@@ -15,10 +15,11 @@
     Game.CONFIG.DISCOVERY_ACHIEVEMENTS.forEach(function (definition) { achievements[definition.id]=0; });
     const buyers={}, autoBuyers={};
     Game.CONFIG.AUTOMATION.buyers.forEach(function (buyer) {
-      buyers[buyer.id]={level:0,board:0,moves:0,elapsed:0};autoBuyers[buyer.id]=0;
+      buyers[buyer.id]={level:0,elapsed:0};autoBuyers[buyer.id]=0;
     });
     return {
       automation: {buyers:buyers},
+      challenges: {active:0,bestEnergy:D(0)},
       unlocks: { fluctOdds: 0, fieldExcitation: 0 },
       ui: { collapsed: collapsed, skillTree2D: 0 },
       version: Game.CONFIG.VERSION,

@@ -3,7 +3,7 @@
   Game.Prestige = {
     canBuySkill: function (id) {
       const definition = Game.CONFIG.PRESTIGE.skills[id];
-      if (!definition || Game.Progression.hasSkill(id)) return false;
+      if (Game.Challenges.active() || !definition || Game.Progression.hasSkill(id)) return false;
       if (definition.requires && !Game.Progression.hasSkill(definition.requires)) return false;
       return Game.player.prestige.quanta.gte(definition.cost);
     },
@@ -47,7 +47,7 @@
         return sum.add(Game.Progression.hasSkill(id) ? Game.CONFIG.PRESTIGE.skills[id].cost : 0);
       }, D(0));
     },
-    canRespec: function () { return Object.keys(Game.player.prestige.skills).some(function (id) { return Game.Progression.hasSkill(id); }); },
+    canRespec: function () { return !Game.Challenges.active() && Object.keys(Game.player.prestige.skills).some(function (id) { return Game.Progression.hasSkill(id); }); },
     respec: function () {
       if (!this.canRespec()) return false;
       const old = Game.player, refund = this.respecRefund();
@@ -72,6 +72,7 @@
       Game.Save.save();if (Game.UI) Game.UI.render();return true;
     },
     reward: function () {
+      if (Game.Challenges.active()) return D(0);
       const energy = Game.player.resources.energy, minimum = D(Game.CONFIG.PROGRESSION.prestigeEnergy);
       if (energy.lt(minimum)) return D(0);
       // Decimal's normalized exponent is floor(log10(E)), including exact powers of ten.

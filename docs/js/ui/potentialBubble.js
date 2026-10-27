@@ -15,7 +15,7 @@
       window.addEventListener("blur",function () { Game.PotentialBubble.clear(); });
     },
     eligible: function () {
-      return Game.Progression.hasSkill("1-5-2") && !document.hidden && document.hasFocus() && !document.getElementById("energy-view").hidden && !document.querySelector("dialog[open]") && !(Game.CondenseFX && Game.CondenseFX.active);
+      return !Game.Challenges.active() && Game.Progression.hasSkill("1-5-2") && !document.hidden && document.hasFocus() && !document.getElementById("energy-view").hidden && !document.querySelector("dialog[open]") && !(Game.CondenseFX && Game.CondenseFX.active);
     },
     clear: function () { this.active=null;this.nextAt=null;if (this.node) this.node.hidden=true;if (this.notice) this.notice.hidden=true; },
     windowOpen: function (now) {

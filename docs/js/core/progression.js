@@ -43,6 +43,7 @@
       // Match the exponential at the boundary, then grow linearly in Quanta:
       // ten times the bonus basis gives ten times the capped multiplier.
       // Avoid evaluating the uncapped exponential for enormous balances.
+      if (Game.Challenges.active(8)) return {basis:basis,threshold:cached.threshold,cap:cached.cap,active:false,suppressed:true,multiplier:D(1)};
       return { basis:basis, threshold:cached.threshold, cap:cached.cap, active:active, multiplier:active ? cached.cap.mul(basis.div(cached.threshold)) : cached.base.pow(basis) };
     },
     bonusQuanta: function () { return Decimal.max(Game.player.prestige.quanta, this.hasSkill("4-4-2") ? Game.player.prestige.totalQuanta.div(2) : 0); },
@@ -51,7 +52,7 @@
       return D(this.hasSkill("4-2") ? Game.CONFIG.PRESTIGE.skills["4-2"].energyMultiplier : 1);
     },
     condenseMemoryMultiplier: function () {
-      return this.hasSkill("0-0") ? D(Game.CONFIG.PRESTIGE.skills["0-0"].energyPerCondense).pow(this.effectiveCondenses()) : D(1);
+      return this.hasSkill("0-0") && !Game.Challenges.active(8) ? D(Game.CONFIG.PRESTIGE.skills["0-0"].energyPerCondense).pow(this.effectiveCondenses()) : D(1);
     },
     effectiveCondenses: function () { return Game.player.prestige.times.mul(this.hasSkill("4-3-1") ? Game.CONFIG.PRESTIGE.skills["4-3-1"].condenseCountMultiplier : 1); },
     productionInterval: function (base) { return Decimal.max(1, D(base).sub(this.hasSkill("4-3-2") ? Game.CONFIG.PRESTIGE.skills["4-3-2"].intervalReduction : 0)); },

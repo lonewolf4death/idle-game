@@ -183,7 +183,7 @@
       show("stats-click-time-step", advancesTime || Game.Progression.hasSkill("1-4-1") || reveal);
       let clickNote = advancesTime ? "1-2-1 · Each manual click also advances all generators by 0.33 game seconds. Timed Energy and resources are produced through their normal cycles, replacing Captured instant's Energy-only payout." : "1-2-1 · Locked: manual clicks do not advance generator time.";
       if (Game.Progression.hasSkill("1-4-1")) clickNote += " 1-4-1 · Additional per click: +" + number(s.clicks.echo.energy) + " Energy, +" + number(s.clicks.echo.quantumResonance) + " Quantum Resonance, +" + number(s.clicks.echo.energyResonance) + " Energy Resonance, +" + number(s.clicks.echo.baseGrowth) + " Gen 1 base growth. Fractional Resonance is retained.";
-      text("stats-click-time-step", clickNote);
+      text("stats-click-time-step", Game.Challenges.clicksAllowed()?clickNote:"Hands off challenge · clicks and their Energy, resource and time rewards are disabled.");
       text("stats-generator-total", number(s.generators.perRealSecond));
       this.renderContributions(s, "generators", reveal);
       this.renderContributions(s, "clicks", reveal);
@@ -277,7 +277,7 @@
       text("stats-coherence-owned", number(s.coherence.owned, 0));
       text("stats-coherence-bonus", multiplier(s.coherence.bonus));
       text("stats-quantum-output", increase(s.coherence.perCycle));
-      text("stats-resonance-output", increase(s.coherence.perCycle) + (Game.Progression.hasSkill("2-4-1") ? " · plus matching ER on each QR cycle" : ""));
+      text("stats-resonance-output", Game.Challenges.active(7)?"Disabled · Sparse universe":increase(s.coherence.perCycle) + (Game.Progression.hasSkill("2-4-1") ? " · plus matching ER on each QR cycle" : ""));
       text("stats-quantum-interval", number(s.coherence.quantumInterval) + "s");
       text("stats-resonance-interval", number(s.coherence.energyInterval) + "s");
       text("stats-quantum-held", number(s.coherence.quantum, 0));

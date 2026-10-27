@@ -32,8 +32,9 @@
       return Game.Progression.productionInterval(D(config.quantumInterval).add(Game.player.stats.totalQuantumResonance.div(config.quantumSlowdownEvery).floor().mul(config.quantumSlowdownSeconds)));
     },
     outputPerCycle: function () { return Game.Energy.getOwned("coherentEnergy").mul(Game.Progression.generatorMultiplier()).mul(Game.Progression.generatorFocusMultiplier("coherentEnergy")); },
-    energyPerSecond: function () { return this.outputPerCycle().mul(D(1).div(this.energyInterval()).add(Game.Progression.hasSkill("2-4-1") ? D(1).div(this.quantumInterval()) : 0)); },
+    energyPerSecond: function () { if (Game.Challenges.active(7)) return D(0);return this.outputPerCycle().mul(D(1).div(this.energyInterval()).add(Game.Progression.hasSkill("2-4-1") ? D(1).div(this.quantumInterval()) : 0)); },
     grantOutput: function (kind, amount) {
+      if (Game.Challenges.active(3) || Game.Challenges.active(7) && kind==="energyResonance") return D(0);
       const state = Game.player.coherence, carryKey = kind === "quantumResonance" ? "quantumCarry" : "energyCarry";
       const total = D(amount).add(state[carryKey]), produced = total.add(1e-12).floor();
       state[carryKey] = Decimal.max(0, total.sub(produced));

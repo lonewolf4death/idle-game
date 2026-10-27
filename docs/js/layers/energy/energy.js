@@ -3,17 +3,18 @@
 
   Game.Energy = {
     baseManualGain: function () {
+      if (!Game.Challenges.clicksAllowed()) return D(0);
       return Game.Progression.clickBaseGain().mul(Game.Progression.clickMultiplier()).mul(Game.Progression.clickSkillMultiplier()).mul(this.fluctMultiplier()).mul(Game.Progression.energyMultiplier()).mul(Game.FieldDynamics.multiplier());
     },
     capturedProductionGain: function () {
-      return Game.Progression.hasSkill("1-2") && !Game.Progression.hasSkill("1-2-1") ? this.getProductionPerSecond().mul(Game.Time.getGameSpeed()).mul(Game.CONFIG.PRESTIGE.skills["1-2"].productionSeconds) : D(0);
+      return Game.Challenges.clicksAllowed() && Game.Progression.hasSkill("1-2") && !Game.Progression.hasSkill("1-2-1") ? this.getProductionPerSecond().mul(Game.Time.getGameSpeed()).mul(Game.CONFIG.PRESTIGE.skills["1-2"].productionSeconds) : D(0);
     },
     manualGain: function () { return this.baseManualGain().add(this.capturedProductionGain()).add(Game.Progression.hasSkill("1-4-1") ? this.clickOutputBonus().energy : 0); },
     clickOutputBonus: function () {
-      const seconds = D(Game.Progression.hasSkill("1-4-1") ? Game.CONFIG.PRESTIGE.skills["1-4-1"].outputSeconds : 0);
+      const seconds = D(Game.Challenges.clicksAllowed() && Game.Progression.hasSkill("1-4-1") ? Game.CONFIG.PRESTIGE.skills["1-4-1"].outputSeconds : 0);
       // Capture every rate before granting resources, so this click cannot feed itself.
       const coherent = Game.Coherence.outputPerCycle();
-      return { energy: this.getProductionPerSecond().mul(seconds), quantumResonance: coherent.div(Game.Coherence.quantumInterval()).mul(seconds), energyResonance: Game.Coherence.energyPerSecond().mul(seconds), baseGrowth: Game.FieldExcitation.growthPerSecond().mul(seconds) };
+      return { energy: this.getProductionPerSecond().mul(seconds), quantumResonance: coherent.div(Game.Coherence.quantumInterval()).mul(seconds), energyResonance: Game.Coherence.energyPerSecond().mul(seconds), baseGrowth: Game.Challenges.active(4) ? D(0) : Game.FieldExcitation.growthPerSecond().mul(seconds) };
     },
     burstInterval: function (gen) {
       const reduction = gen.id === "energyDisturbance" && Game.Progression.hasSkill("1-4-2") ? Game.player.generators[gen.id].purchased.mul(Game.CONFIG.PRESTIGE.skills["1-4-2"].secondsPerPurchased) : D(0);
@@ -25,6 +26,7 @@
     },
 
     getOwned: function (id) {
+      if (!Game.Challenges.allowedGenerator(id)) return D(0);
       const state = Game.player.generators[id];
       return state.purchased.add(state.added).add(id === "fieldExcitation" ? this.getCoupledFields() : id === "fieldResonance" ? this.getSharedResonance() : 0);
     },
@@ -46,10 +48,10 @@
     purchasedBaseMultiplier: function () {
       return Game.Progression.hasSkill("1-3-1") ? D(Game.CONFIG.PRESTIGE.skills["1-3-1"].baseMultiplierPerPurchased).pow(Game.player.generators.energyDisturbance.purchased) : D(1);
     },
-    autoClickEligible: function () { return Game.Progression.hasSkill("1-2-2") && Game.player.upgrades.clickPower.gte(Game.Modifiers.getClickUpgradeRules().maxLevel); },
+    autoClickEligible: function () { return !Game.Challenges.active() && Game.Progression.hasSkill("1-2-2") && Game.player.upgrades.clickPower.gte(Game.Modifiers.getClickUpgradeRules().maxLevel); },
     autoClickRemaining: function () { return this.autoClickEligible() ? Decimal.max(0, D(Game.CONFIG.PRESTIGE.skills["1-2-2"].interval).sub(Game.player.autoClick.elapsed)) : D(Infinity); },
     replicationInterval: function () { const rules=Game.CONFIG.PRESTIGE.skills["1-5-1"];return D(rules.firstInterval).add(Game.player.disturbanceReplication.doubles.mul(rules.intervalGrowth)); },
-    replicationActive: function () { return Game.Progression.hasSkill("1-5-1") && this.getOwned("energyDisturbance").gt(0); },
+    replicationActive: function () { return !Game.Challenges.active(7) && Game.Progression.hasSkill("1-5-1") && this.getOwned("energyDisturbance").gt(0); },
     replicationRemaining: function () { return this.replicationActive() ? Decimal.max(0,this.replicationInterval().sub(Game.player.disturbanceReplication.elapsed)) : D(Infinity); },
     resolveReplication: function () {
       if (!this.replicationActive() || this.replicationRemaining().gt(1e-12)) return;
@@ -77,6 +79,7 @@
       return D(1).sub(penalty.mul(Game.Modifiers.getFluctuationRules().negativePenaltyScale));
     },
     rollFluctuation: function () {
+      if (Game.Challenges.active(2)) { Game.player.fluctuation.positive=0;return; }
       if (this.getOwned("quantumFluctuation").lte(0)) return;
       Game.Achievements.checkFluctMastery();
       const chance = Math.max(0, Math.min(1, Game.Modifiers.getFluctuationRules().positiveChance));
@@ -89,6 +92,7 @@
       if (Game.UI) Game.UI.fluctuationFeedback();
     },
     addGenerators: function (id, amount) {
+      if (!Game.Challenges.addedAllowed(id)) return false;
       const state = Game.player.generators[id], gen = this.getGenerator(id), value = D(amount);
       if (!state || !Number.isFinite(value.exponent) || !Number.isFinite(value.mantissa) || value.lt(0) || !value.eq(value.floor())) return false;
       const beforeCredit = this.syncGeneratorTimers(gen, state);
@@ -102,7 +106,7 @@
       return Game.CONFIG.GENERATORS.find(function (gen) { return gen.id === id; });
     },
     // Future stage generators can supply a non-Energy unlock requirement.
-    generatorEnabled: function (gen) { return Boolean(gen) && (!gen.unlockRequirement || gen.unlockRequirement(Game.player)); },
+    generatorEnabled: function (gen) { return Boolean(gen) && Game.Challenges.allowedGenerator(gen.id) && (!gen.unlockRequirement || gen.unlockRequirement(Game.player)); },
 
     getGeneratorScaling: function (generator, owned) {
       const tier = Math.floor((owned === undefined ? Game.player.generators[generator.id].purchased.toNumber() : owned) / (generator.scalingStepLevels || Game.CONFIG.GENERATOR_SCALING.stepLevels));
@@ -139,19 +143,19 @@
     },
     getBaseRate: function (generator) {
       const rate = generator.burstInterval ? D(generator.burstProduction).div(generator.burstInterval) : D(generator.production);
-      const base = generator.id === "energyDisturbance" ? rate.add(Game.player.fieldExcitation.baseRateBonus).mul(this.purchasedBaseMultiplier()) : rate;
+      const base = generator.id === "energyDisturbance" ? rate.add(Game.Challenges.active(4)?0:Game.player.fieldExcitation.baseRateBonus).mul(this.purchasedBaseMultiplier()) : rate;
       return generator.burstInterval ? base.mul(generator.burstInterval).div(this.burstInterval(generator)) : base;
     },
 
     generateManual: function (deferTime) {
+      if (!Game.Challenges.clicksAllowed()) return D(0);
       const previouslyUnlocked = Game.Progression.achievementUnlocked();
       Game.FieldDynamics.releasePeak();
       Game.player.stats.manualClicks = Game.player.stats.manualClicks.add(1);
       Game.Achievements.capture(Game.player,true);
       const bonus = this.clickOutputBonus();
       const gain = this.baseManualGain().add(this.capturedProductionGain()).add(bonus.energy);
-      Game.player.resources.energy = Game.player.resources.energy.add(gain);
-      Game.player.stats.totalEnergy = Game.player.stats.totalEnergy.add(gain);
+      this.addEnergy(gain);
       if (Game.Progression.hasSkill("1-4-1")) {
         Game.Coherence.grantOutput("quantumResonance", bonus.quantumResonance);
         Game.Coherence.grantOutput("energyResonance", bonus.energyResonance);
@@ -165,10 +169,10 @@
 
     quoteGenerator: function (id, amount) {
       const gen = this.getGenerator(id);
-      if (!gen) return { count: D(0), cost: D(0) };
+      if (!this.generatorEnabled(gen)) return { count: D(0), cost: D(0) };
       let level = Game.player.generators[id].purchased.toNumber();
       let next = this.getGeneratorCost(gen), cost = D(0), count = 0;
-      const limit = amount === "max" ? Infinity : Number(amount || 1);
+      const limit = Math.min(Game.Challenges.purchaseLimit(id),amount === "max" ? Infinity : Number(amount || 1));
       const budget = Game.player.resources.energy;
       // Sum each 25-level geometric block, preserving tier transitions for bulk buying.
       while (count < limit) {
@@ -212,6 +216,7 @@
         if (!hadGrowingAchievement && Game.Progression.growingEngineAchievementUnlocked()) Game.UI.notifyAchievement("A growing engine", "×1.1 generator production");
         if (!hadCoherentAchievement && Game.Progression.coherentAchievementUnlocked()) Game.UI.notifyAchievement("A coherent beginning", "×1.05 all generator production");
       }
+      Game.Challenges.afterPurchase(id);
       if (gen.type === "coherent" && Game.UI) Game.Coherence.showLore();
       if (["oscillation", "resonance", "coupling"].includes(gen.type) && Game.UI) Game.UI.dynamicsFeedback(gen.id);
       return true;
@@ -239,6 +244,7 @@
       if (gain.lte(0)) return;
       Game.player.resources.energy = Game.player.resources.energy.add(gain);
       Game.player.stats.totalEnergy = Game.player.stats.totalEnergy.add(gain);
+      Game.Challenges.observe();
     },
     tick: function (gameDelta) {
       const state = Game.player.fluctuation;

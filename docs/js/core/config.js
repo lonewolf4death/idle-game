@@ -187,10 +187,21 @@
       {id:"condense",skill:"4-5-2",name:"Condense Energy",title:"Condensation matrix"}
     ]
   };
+  Game.CONFIG.CHALLENGES = [
+    {name:"Hands off",startExponent:10,exponentStep:4,description:"Clicks are disabled, including their Energy, time advance and peak release. Start with one added Gen 1 (Energy Disturbance) so the run can grow without clicking."},
+    {name:"Against the tide",startExponent:12,exponentStep:4,description:"Fluct is permanently negative. Start with one added Gen 2 (Quantum Fluctuation). Forced negative rolls do not earn Against the current streak rewards."},
+    {name:"Severed resonance",startExponent:10,exponentStep:4,blocked:["coherentEnergy"],description:"Gen 3 (Coherent Energy) is unavailable. No Quantum Resonance or Energy Resonance can be produced, including through clicks. Grow without Resonance or its triggered effects."},
+    {name:"Unexcited field",startExponent:10,exponentStep:4,blocked:["fieldExcitation","fieldCoupling"],description:"Gen 4 (Field Excitation) and Gen 7 (Field Coupling) are unavailable. Accumulated field growth and click-granted base growth are disabled. Gen 1 must grow through other bonuses."},
+    {name:"Broken rhythm",startExponent:12,exponentStep:4,blocked:["fieldOscillation","fieldResonance"],description:"Gen 5 (Field Oscillation) and Gen 6 (Field Resonance) are unavailable. There is no rising or peak multiplier. Use Fluct, fields and clicks instead."},
+    {name:"Chain reaction",startExponent:12,exponentStep:4,description:"Buying a generator erases the purchased and added counts of every lower-numbered generator. Rebuild them in the right order. Purchase prices restart for erased generators; accumulated resources, field growth and derived skill effects remain."},
+    {name:"Sparse universe",startExponent:8,exponentStep:4,description:"At most ten paid purchases of each generator per run. Added units from Energy Resonance, replication and other grants are disabled. Quantum Resonance, effective-count skills and Gen 7 coupling still work."},
+    {name:"Forgotten origin",startExponent:8,exponentStep:4,description:"The unspent/lifetime Quanta Energy bonus and Memory of condensation multiplier are disabled. Other skills, achievements and playtime bonuses remain. Build the run without those two permanent Energy multipliers."}
+  ];
   const automationParents=["1-5-1","2-4-1","2-4-2","4-4-1","3-2-3","3-5-1","3-5-2","4-4-2"];
   Game.CONFIG.AUTOMATION.buyers.forEach(function (buyer,index) {
+    buyer.title=Game.CONFIG.CHALLENGES[index].name;
     Game.CONFIG.PRESTIGE.skills[buyer.skill]={name:index===7 ? "Automatic condensation" : "Automatic "+Game.CONFIG.GENERATORS[index].name.toLowerCase(),cost:"100",requires:automationParents[index],
-      description:(index===7 ? "Automatically Condense at 1e50 held Energy or more, taking the available Quanta reward. Resets the run as normal. Repeat automatic Condenses skip the cinematic." : "Automatically attempt to buy exactly one "+buyer.name+" using Energy per activation. Respects unlock conditions and current costs; ignores the manual buy quantity.")+" Starts at one attempt every 5 real seconds. Its ten-level phase-alignment challenge reduces the interval by 0.4 seconds per level, reaching 1 second. Configure individual buyers or all buyers in Settings. Unlocked automation starts OFF. Timers continue while unfocused, do not bank failed purchases, and restart each run. Challenge progress is permanent."};
+      description:(index===7 ? "Automatically Condense at 1e50 held Energy or more, taking the available Quanta reward. Resets the run as normal. Repeat automatic Condenses skip the cinematic." : "Automatically attempt to buy exactly one "+buyer.name+" using Energy per activation. Respects unlock conditions and current costs; ignores the manual buy quantity.")+" Starts at one attempt every 5 real seconds. Its ten-level restricted-run challenge reduces the interval by 0.4 seconds per level, reaching 1 second. Configure individual buyers or all buyers in Settings. Unlocked automation starts OFF. Timers continue while unfocused, do not bank failed purchases, and restart each run. Challenge progress is permanent."};
     Game.CONFIG.PRESTIGE.branches.find(function (branch) { return branch.id===Number(buyer.skill[0]); }).nodes.push(buyer.skill);
   });
 })(window.CosmicIdle);

@@ -118,7 +118,7 @@
     introduction: 'Existence contains potential, but no meaningful structure has formed.',
     enqueue: function (message) { this.queue.push(message); this.next(); },
     next: function () {
-      if (this.active || !this.queue.length || byId('respec-dialog').open || Game.CondenseFX && Game.CondenseFX.active) return;
+      if (this.active || !this.queue.length || byId('respec-dialog').open || byId('challenge-dialog').open || Game.CondenseFX && Game.CondenseFX.active) return;
       this.active = this.queue.shift();
       const dialog = byId('story-dialog');
       dialog.classList.remove('is-dismissing');

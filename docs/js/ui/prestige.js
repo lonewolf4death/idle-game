@@ -132,11 +132,11 @@
       setText(byId("quanta-balance"), number(p.prestige.quanta));
       byId("quanta-header").hidden = !(experienced || p.prestige.quanta.gt(0) || reveal);
       const quantaBonus=Game.Progression.quantaBonusState();
-      setText(byId("quanta-bonus"), "×" + Game.Format.number(quantaBonus.multiplier, 5) + " all Energy" + (quantaBonus.active ? " · soft-capped" : "") + (Game.Progression.hasSkill("4-4-2") ? " · basis " + Game.Format.number(quantaBonus.basis, 1) + " Quanta" : ""));
+      setText(byId("quanta-bonus"), "×" + Game.Format.number(quantaBonus.multiplier, 5) + " all Energy" + (quantaBonus.suppressed ? " · disabled in this challenge" : quantaBonus.active ? " · soft-capped" : "") + (Game.Progression.hasSkill("4-4-2") ? " · basis " + Game.Format.number(quantaBonus.basis, 1) + " Quanta" : ""));
       setText(byId("condense-earned"), number(p.prestige.totalQuanta) + " earned · " + number(p.prestige.times) + " condensations" + (Game.Progression.hasSkill("4-3-1") ? " · " + number(Game.Progression.effectiveCondenses()) + " effective" : ""));
       setText(byId("condense-reward"), "+" + number(reward) + " Primordial Quanta");
       setText(byId("condense-next"), "Next reward: " + number(reward.add(1)) + " at " + number(Game.Prestige.nextRewardEnergy()) + " held Energy");
-      setText(byId("condense-requirement"), ready ? "Ready to condense. Your current run will reset." : "Requires " + number(Game.CONFIG.PROGRESSION.prestigeEnergy) + " held Energy.");
+      setText(byId("condense-requirement"), Game.Challenges.active() ? "Condense is unavailable during a challenge. Complete its Energy goal or exit the challenge first." : ready ? "Ready to condense. Your current run will reset." : "Requires " + number(Game.CONFIG.PROGRESSION.prestigeEnergy) + " held Energy.");
       byId("condense-button").disabled = !ready;
       setText(byId("condense-button"), "Condense Energy · +" + number(reward) + " Quanta");
       byId("prestige-view").classList.toggle("can-condense", ready);
@@ -149,7 +149,7 @@
       setText(byId("condense-achievement-status"), Game.Progression.condenseAchievementUnlocked() ? "Unlocked" : "0 / 1 condensations");
       if (byId("prestige-view").hidden) return;
       setText(byId("respec-skills"), "Respec · " + number(Game.Prestige.respecRefund()) + " Q");
-      byId("respec-skills").title = "Refund " + number(Game.Prestige.respecRefund()) + " Quanta" + " and restart this run";
+      byId("respec-skills").title = Game.Challenges.active()?"Exit the challenge before changing skills":"Refund " + number(Game.Prestige.respecRefund()) + " Quanta" + " and restart this run";
       byId("respec-skills").disabled = !Game.Prestige.canRespec();
       const selected = this.selected, definition = Game.CONFIG.PRESTIGE.skills[selected];
       Object.keys(this.nodes).forEach(function (id) {
@@ -173,7 +173,7 @@
       const afterBasis=Decimal.max(afterSpend,Game.Progression.hasSkill("4-4-2") || selected==="4-4-2" ? p.prestige.totalQuanta.div(2) : 0);
       setText(byId("skill-detail-cost"), "Cost: " + definition.cost + " Quanta · " + (owned ? "Owned · Permanent skill · survives Condensing" : "After purchase: " + number(afterSpend) + " unspent" + (affordable ? " · Quanta bonus ×" + Game.Format.number(Game.Progression.quantaMultiplier(afterBasis), 5) : "")));
       byId("buy-skill").disabled = !affordable;
-      setText(byId("buy-skill"), owned ? "Owned" : definition.requires && !Game.Progression.hasSkill(definition.requires) ? "Requires " + definition.requires : affordable ? "Unlock · " + definition.cost + " Quanta" : "Need " + definition.cost + " Quanta");
+      setText(byId("buy-skill"), owned ? "Owned" : Game.Challenges.active()?"Exit challenge to unlock skills":definition.requires && !Game.Progression.hasSkill(definition.requires) ? "Requires " + definition.requires : affordable ? "Unlock · " + definition.cost + " Quanta" : "Need " + definition.cost + " Quanta");
       const detailKey = selected + String(owned) + String(reveal) + p.prestige.quanta.toString();
       if (this.detailKey !== detailKey) { this.detailKey = detailKey;this.positionDetails(); }
       if (p.ui.skillTree2D) Game.TreeMap.updateState();else Game.TreeCamera.updateState();

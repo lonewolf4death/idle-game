@@ -10,10 +10,11 @@
       return Game.Energy.getOwned("fieldExcitation").gt(0) ? this.remaining() : D(Infinity);
     },
     boostPerCycle: function () {
+      if (Game.Challenges.active(4)) return D(0);
       return Game.Energy.getOwned("fieldExcitation").mul(Game.CONFIG.FIELD_EXCITATION.baseRateIncrease).mul(Game.Progression.generatorMultiplier()).mul(Game.Progression.generatorFocusMultiplier("fieldExcitation")).mul(this.purchasedMultiplier());
     },
     purchasedMultiplier: function () { return Game.Progression.hasSkill("4-3-3") ? D(Game.CONFIG.PRESTIGE.skills["4-3-3"].fieldMultiplierPerPurchased).pow(Game.player.generators.fieldExcitation.purchased) : D(1); },
-    growthPerSecond: function () { return this.boostPerCycle().div(this.interval()).mul(D(1).add(Game.Progression.hasSkill("2-4-2") && Game.Energy.getOwned("coherentEnergy").gt(0) ? D(Game.CONFIG.PRESTIGE.skills["2-4-2"].fieldSeconds).div(Game.Coherence.quantumInterval()) : 0)); },
+    growthPerSecond: function () { if (Game.Challenges.active(4)) return D(0);return this.boostPerCycle().div(this.interval()).mul(D(1).add(Game.Progression.hasSkill("2-4-2") && Game.Energy.getOwned("coherentEnergy").gt(0) ? D(Game.CONFIG.PRESTIGE.skills["2-4-2"].fieldSeconds).div(Game.Coherence.quantumInterval()) : 0)); },
     advance: function (gameDelta) {
       if (Game.Energy.getOwned("fieldExcitation").gt(0)) {
         Game.player.fieldExcitation.elapsed = Game.player.fieldExcitation.elapsed.add(gameDelta);

@@ -51,6 +51,7 @@
 
     </aside>
     <section class="view-area" aria-label="Game views">
+      <section id="active-challenge-banner" class="active-challenge-banner" aria-label="Active challenge" hidden><div><strong id="active-challenge-name"></strong><p id="active-challenge-progress"></p></div><div><button id="active-challenge-view">View rules</button><button id="active-challenge-complete">Complete challenge</button><button id="active-challenge-exit">Exit challenge</button></div></section>
       <div class="view-tabs" role="tablist" aria-label="Game views">
         <button id="energy-tab" role="tab" aria-selected="true" aria-controls="energy-view" tabindex="0">Energy</button>
         <button id="prestige-tab" role="tab" aria-selected="false" aria-controls="prestige-view" tabindex="-1">Condense</button>
@@ -259,7 +260,7 @@
         <div class="achievements-heading"><span class="label">An unfolding existence</span><h2>Lore</h2><p>Fragments discovered along the way.</p></div><div id="lore-entries"></div>
       </section>
       <section id="challenges-view" class="achievements-view challenges-view" role="tabpanel" aria-labelledby="challenges-tab" tabindex="0" hidden>
-        <div class="achievements-heading"><span class="label">Patterns becoming purpose</span><h2>Phase alignment</h2><p>Eight challenge tracks. Ten levels each. Permanent automation mastery.</p></div>
+        <div class="achievements-heading"><span class="label">Patterns becoming purpose</span><h2>Challenge runs</h2><p>Reach an Energy goal under altered rules. Ten levels per challenge. Permanent automation rewards.</p></div>
         <div class="challenge-layout"><nav id="challenge-tracks" aria-label="Automation challenges"></nav><article id="challenge-detail" class="challenge-detail"></article></div>
       </section>
       <section id="settings-view" class="achievements-view" role="tabpanel" aria-labelledby="settings-tab" tabindex="0" hidden>
@@ -301,7 +302,7 @@
     </section>
     </div>
     <section class="milestone" aria-label="Next major milestone">
-      <div class="milestone-heading"><span>Condense Energy</span><span id="milestone-value"></span><div id="milestone-condense-summary" class="milestone-condense-summary" hidden><span id="milestone-quanta-rate" title="Quanta available if you Condense now, divided by this run's real elapsed minutes.">0 Quanta/min</span><button id="milestone-condense" hidden>Condense Energy</button></div></div>
+      <div class="milestone-heading"><span id="milestone-title">Condense Energy</span><span id="milestone-value"></span><div id="milestone-condense-summary" class="milestone-condense-summary" hidden><span id="milestone-quanta-rate" title="Quanta available if you Condense now, divided by this run's real elapsed minutes.">0 Quanta/min</span><button id="milestone-condense" hidden>Condense Energy</button></div></div>
       <div id="milestone-bar" class="milestone-track" role="progressbar" aria-label="Logarithmic progress to Condense Energy" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="milestone-fill"></div></div>
       <span id="milestone-caption" class="muted"></span>
     <section class="simulation-strip">
@@ -317,6 +318,7 @@
   </main>
   <section id="skill-detail" class="skill-detail" role="dialog" aria-labelledby="skill-detail-name" aria-describedby="skill-detail-description" hidden><button id="close-skill-detail" aria-label="Close skill details">×</button><div><span id="skill-detail-id" class="label">1-1 · Impulse</span><h4 id="skill-detail-name">Focused disturbance</h4><p id="skill-detail-description"></p><p id="skill-detail-cost" class="stats-note"></p></div><button id="buy-skill">Unlock · 1 Quanta</button><p id="skill-purchase-status" role="status" aria-live="polite"></p></section>
 
+  <dialog id="challenge-dialog" aria-labelledby="challenge-confirm-title" aria-describedby="challenge-confirm-description"><span class="label">Alter the primordial field</span><h2 id="challenge-confirm-title"></h2><p id="challenge-confirm-description"></p><div class="respec-choices"><button id="challenge-cancel">Keep this run</button><button id="challenge-confirm">Restart run</button></div></dialog>
   <dialog id="respec-dialog" aria-labelledby="respec-title" aria-describedby="respec-description"><span class="label">Reform the constellation</span><h2 id="respec-title">Respec skills?</h2><strong id="respec-refund"></strong><p id="respec-description"></p><div class="respec-choices"><button id="cancel-respec">Keep my skills</button><button id="confirm-respec">Respec · restart run</button></div></dialog>
   <dialog id="story-dialog" aria-labelledby="story-title" aria-describedby="story-text">
     <button id="story-dismiss" class="story-card" aria-label="Dismiss message">

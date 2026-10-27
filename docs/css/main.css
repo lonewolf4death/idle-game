@@ -676,7 +676,7 @@ summary.contribution-row { cursor:pointer; }
 .energy-spark.automatic-impulse { background:radial-gradient(ellipse,#ddc28f44,#af86c122,transparent 70%); border:1px solid #d6bd8044; }
 .sound-previews { display:flex; flex-wrap:wrap; gap:8px; }
 
-/* Finite, event-driven puzzles: no animated canvas or background timers. */
+/* Challenge runs share the simulation clock; this screen only reports state. */
 .automation-settings { margin:22px 0 30px; border-top:1px solid var(--border); padding-top:14px; }
 .automation-settings h3 { font-size:14px; color:var(--energy); font-weight:400; }
 .automation-actions { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
@@ -696,10 +696,16 @@ summary.contribution-row { cursor:pointer; }
 .challenge-levels .is-complete { color:var(--energy); border-color:var(--energy); }
 .challenge-instructions { color:var(--muted); font-size:12px; line-height:1.85; }
 .challenge-instructions b { color:var(--text); font-weight:400; }
-.phase-grid { display:grid; grid-template-columns:repeat(var(--grid-size),1fr); gap:8px; max-width:350px; margin:24px auto; }
-.phase-grid button { padding:0; aspect-ratio:1; display:grid; place-items:center; color:#667d80; border:1px solid #3d555b; background:#101c21; font-size:22px; border-radius:4px; }
-.phase-grid button.is-lit { color:#dcc5ee; border-color:#aa86c4; background:#50345d; box-shadow:inset 0 0 18px #c096e817; }
-.phase-grid button:hover:not(:disabled) { border-color:var(--energy); background:#66503b; }
+.challenge-rules { font-size:13px; color:var(--text); line-height:1.9; padding:16px 0; border-block:1px solid var(--border); }
+.challenge-goal { padding:16px; border:1px solid #736181; background:#a68cbe0b; margin:20px 0; }
+.challenge-goal>* { display:block; }.challenge-goal strong { color:var(--energy); font-size:19px; font-weight:400; margin-top:5px; }
+.challenge-goal p { color:var(--muted); font-size:11px; margin-bottom:0; }
+.active-challenge-banner { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 18px; border-bottom:1px solid #736181; background:#a68cbe13; flex-shrink:0; }
+.active-challenge-banner strong { font-size:12px; font-weight:400; color:#dbc1ec; }.active-challenge-banner p { font-size:10px; color:var(--muted); margin:3px 0 0; }
+.active-challenge-banner>div:last-child { display:flex; flex-wrap:wrap; gap:5px; }.active-challenge-banner button { font-size:10px; padding:6px 8px; }
+#challenge-dialog { width:min(540px,calc(100vw - 32px)); max-height:85dvh; overflow:auto; background:var(--surface); color:var(--text); border:1px solid #74617c; padding:24px; box-shadow:0 24px 100px #0009; }
+#challenge-dialog::backdrop { background:#05090cc9; backdrop-filter:blur(4px); }#challenge-dialog h2 { font-size:20px; font-weight:400; color:var(--energy); }#challenge-dialog p { font-size:12px; line-height:1.9; color:var(--muted); }
+#challenge-dialog.is-dismissing { animation:story-fade 2s ease-out forwards; }#challenge-dialog.is-dismissing::backdrop { animation:story-backdrop-fade 2s ease-out forwards; }
 .challenge-actions { display:flex; gap:12px; align-items:center; justify-content:space-between; font-size:11px; color:var(--muted); }
 .challenge-result { min-height:22px; font-size:12px; color:var(--energy); }
 .challenges-active .control-panel { display:none; }
@@ -711,8 +717,10 @@ summary.contribution-row { cursor:pointer; }
   #challenge-tracks .cosmic-icon { width:17px; height:17px; }
   #challenge-tracks small { font-size:9px; }
   .challenge-detail { padding:15px; }
-  .phase-grid { gap:6px; }
-  .challenges-active .header-energy,.challenges-active .brand .subtitle { display:none; }
+  .active-challenge-banner { flex-direction:column; align-items:flex-start; padding:7px 12px; gap:5px; }
+  .active-challenge-banner button { padding:4px 6px; font-size:9px; }
+  .challenges-active .header-energy,.challenges-active .subtitle { display:none; }
+  .challenges-active .topbar { min-height:64px; padding:8px 12px; }
 }
 #respec-skills { color:#bc999a; font-size:10px; }
 @media(prefers-reduced-motion:reduce) { .perk-purchase-ring,.perk-purchase-fleck { display:none; }.perk-awakened { animation:none;outline:1px solid #d6bd80; } }
