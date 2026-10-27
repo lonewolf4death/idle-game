@@ -1,7 +1,6 @@
 (function (Game) {
   const D = Game.D;
   const rules = function () { return Game.CONFIG.SYMMETRY; };
-  const automationSkills = function () { return Game.CONFIG.AUTOMATION.buyers.map(function (buyer) { return buyer.skill; }); };
 
   Game.Symmetry = {
     has: function (perk) { return Game.player.symmetry.perks[perk] === 1; },
@@ -39,9 +38,9 @@
     canBreak: function () { return this.reward().gt(0); },
     // Applied to every fresh normal run: Condense, respec, challenge exit and Break.
     startRun: function (fresh) {
-      if (fresh.symmetry.perks.headStart === 1 && !fresh.challenges.active) {
-        fresh.resources.energy = Decimal.max(fresh.resources.energy, D(this.perk("headStart").startingEnergy));
-      }
+      if (fresh.challenges.active) return;
+      if (fresh.symmetry.perks.headStart === 1) fresh.resources.energy = Decimal.max(fresh.resources.energy, D(this.perk("headStart").startingEnergy));
+      if (fresh.symmetry.perks.heavyStart === 1) fresh.structures.symmetryBreaking.added = D(this.perk("heavyStart").startingSymmetryBreaking);
     },
     preserve: function (old, fresh) { fresh.symmetry = old.symmetry; },
     breakSymmetry: function (automated) {
@@ -59,16 +58,14 @@
       fresh.fluctuation.positiveChanceMastery = old.fluctuation.positiveChanceMastery;
       Game.Automation.preserve(old, fresh);
       fresh.settings = old.settings;fresh.ui = old.ui;
-      const keepAll = old.symmetry.perks.constellation === 1, keepAutomation = old.symmetry.perks.automation === 1, automation = automationSkills();
-      Object.keys(old.prestige.skills).forEach(function (id) {
-        if (old.prestige.skills[id] === 1 && (keepAll || keepAutomation && automation.includes(id))) fresh.prestige.skills[id] = 1;
-      });
-      if (old.symmetry.perks.memory === 1) fresh.prestige.times = old.prestige.times.div(2).floor();
+      // The constellation survives; Quanta and the Condense count do not.
+      fresh.prestige.skills = old.prestige.skills;
+      if (old.symmetry.perks.memory === 1) fresh.prestige.times = old.prestige.times;
       fresh.symmetry = old.symmetry;
       fresh.symmetry.times = fresh.symmetry.times.add(1);
       fresh.symmetry.shards = fresh.symmetry.shards.add(reward);
       fresh.symmetry.total = fresh.symmetry.total.add(reward);
-      fresh.symmetry.mass = D(0);
+      fresh.symmetry.mass = old.symmetry.perks.echo === 1 ? old.symmetry.mass.div(2) : D(0);
       if (fresh.prestige.skills["3-2"]) fresh.generators.fieldOscillation.added = D(Game.CONFIG.PRESTIGE.skills["3-2"].startingOscillations);
       if (fresh.prestige.skills["3-4-2"]) fresh.generators.fieldCoupling.added = D(Game.CONFIG.PRESTIGE.skills["3-4-2"].startingCouplings);
       this.startRun(fresh);

@@ -194,8 +194,9 @@
       { id: "fieldCoupling", name: "Field Coupling", type: "coupling", unlockEnergy: "1e30", baseCost: "1e30", costScaling: "2", scalingStepLevels: 5, scalingStepIncrease: "0.5", production: "0" }
     ]
   };
-  // Second layer. Breaking Symmetry resets Quanta, Condenses and the skill tree
-  // for Broken Symmetries, which buy permanent perks and open Gen 8–10.
+  // Second layer. Breaking Symmetry resets the run, Quanta, Condenses and Mass
+  // (the skill tree stays) for Broken Symmetries, which buy permanent perks
+  // and open Gen 8–10.
   Game.CONFIG.SYMMETRY = {
     name: "Break Symmetry",
     // Late runs reach thousands of orders of magnitude, so rewards and costs
@@ -214,14 +215,14 @@
       { id: "bindingForce", name: "Binding Force", baseCost: "1e600", costScaling: "1e400", massMultiplier: "10", perk: "binding", description: "Each unit multiplies Mass production by ×10." }
     ],
     perks: [
-      { id: "automation", name: "Persistent automation", cost: "1", description: "Breaking Symmetry keeps your eight automation skills and their settings." },
-      { id: "headStart", name: "Head start", cost: "1", startingEnergy: "1e12", description: "Begin every Condense run with 1e12 Energy." },
+      { id: "headStart", name: "Head start", cost: "1", startingEnergy: "1e30", description: "Begin every run with 1e30 Energy." },
       { id: "particles", name: "Massive particles", cost: "2", description: "Unlock Gen 9 (Massive Particles), which creates Gen 8 units over time." },
       { id: "quanta", name: "Asymmetric quanta", cost: "2", quantaMultiplier: "2", description: "Condensing grants ×2 Primordial Quanta." },
-      { id: "constellation", name: "Remembered constellation", cost: "3", description: "Breaking Symmetry keeps every skill-tree skill." },
+      { id: "memory", name: "Lasting memory", cost: "3", description: "Breaking Symmetry keeps your lifetime Condense count for Memory of condensation." },
       { id: "swift", name: "Swift buyers", cost: "3", intervalMultiplier: 0.5, description: "Automation buyers attempt purchases twice as often." },
+      { id: "heavyStart", name: "Heavy start", cost: "4", startingSymmetryBreaking: "10", description: "Begin every run with 10 added Gen 8 (Symmetry Breaking)." },
       { id: "binding", name: "Binding force", cost: "5", description: "Unlock Gen 10 (Binding Force), which multiplies Mass production by ×10 per unit." },
-      { id: "memory", name: "Lasting memory", cost: "8", description: "Breaking Symmetry keeps half of your lifetime Condenses for Memory of condensation." }
+      { id: "echo", name: "Echoing mass", cost: "8", description: "Breaking Symmetry halves Mass instead of resetting it." }
     ],
     deeper: { name: "Deeper asymmetry", baseCost: "1", costStep: "1", massMultiplier: "2", description: "Each level doubles Mass production. Each level costs 1 Broken Symmetry more than the last." }
   };

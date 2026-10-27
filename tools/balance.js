@@ -93,7 +93,11 @@ while (Game.player.time.realPlayed < end) {
   [10, 20, 30, skillIds.length].forEach(function (n) { if (owned >= n) mark("s" + n, n + " skills owned"); });
 
   const shards = Game.Symmetry.reward();
-  if (allowBreak && Game.Symmetry.canBreak() && Game.player.symmetry.shards.add(shards).gte(nextPerkCost())) {
+  // Break whenever the reward buys the next perk; once every perk is owned,
+  // run long cycles so Mass can build toward the atom.
+  const perksDone = Game.CONFIG.SYMMETRY.perks.every(function (perk) { return Game.Symmetry.has(perk.id); });
+  const breakNow = perksDone ? Game.player.time.currentEnergyRunReal >= RUN_HOURS * 3600 : Game.player.symmetry.shards.add(shards).gte(nextPerkCost());
+  if (allowBreak && Game.Symmetry.canBreak() && breakNow) {
     const n = Game.player.symmetry.times.toNumber() + 1;
     mark("b" + n, "Break #" + n + " (+" + shards.toString() + " BS at " + e.toExponential(1) + ", cycle mass " + Game.player.symmetry.mass.toExponential(1) + ")");
     Game.Symmetry.breakSymmetry(true);

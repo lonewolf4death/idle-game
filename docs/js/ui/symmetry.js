@@ -47,11 +47,9 @@
     confirmBreak: function () {
       const reward = Game.Symmetry.reward();
       if (reward.lte(0)) return;
-      const s = Game.player.symmetry, keeps = [];
-      if (s.perks.constellation) keeps.push("every skill"); else if (s.perks.automation) keeps.push("your automation skills");
-      if (s.perks.memory) keeps.push("half of your Condenses");
+      const s = Game.player.symmetry;
       set(byId("symmetry-confirm-reward"), "+" + Game.Format.number(reward, 0) + " Broken " + (reward.eq(1) ? "Symmetry" : "Symmetries"));
-      set(byId("symmetry-confirm-description"), "This resets your current run, Primordial Quanta, Condense count and skill tree" + (keeps.length ? ", but keeps " + keeps.join(" and ") : "") + ". Achievements, lore, playtime, challenge levels and settings stay. Mass returns to zero.");
+      set(byId("symmetry-confirm-description"), "This resets your current run, Primordial Quanta" + (s.perks.memory ? "" : ", Condense count") + " and Mass" + (s.perks.echo ? " (halved, thanks to Echoing mass)" : "") + ". Your skill tree, achievements, lore, playtime, challenge levels and settings stay.");
       byId("symmetry-dialog").showModal();
     },
     render: function () {

@@ -149,27 +149,30 @@ test("first Break needs the full tree and 1e100 Energy", function () {
   assert.ok(G.Symmetry.breakSymmetry(true));
   assert.strictEqual(G.player.symmetry.shards.toString(), "3");
   assert.strictEqual(G.player.prestige.quanta.toString(), "0");
-  assert.ok(!G.Progression.hasSkill("1-1"), "tree resets without perks");
+  assert.ok(G.Progression.hasSkill("1-1") && G.Progression.hasSkill("4-5-2"), "the skill tree stays");
+  assert.ok(G.player.prestige.times.eq(0), "Condense count resets");
   assert.strictEqual(G.player.achievements.firstBreak, 1);
   G.player.resources.energy = G.D("1e100");
   assert.strictEqual(G.Symmetry.reward().toString(), "1", "later Breaks need only Energy");
 });
 
-test("perks keep skills, speed buyers and add a head start", function () {
+test("perks: head start, heavy start, memory, echo and swift buyers", function () {
   const { Game: G } = createGame();
   fullTree(G);
-  G.player.symmetry.perks.automation = 1;
-  G.player.symmetry.perks.headStart = 1;
-  G.player.symmetry.perks.swift = 1;
+  G.player.prestige.times = G.D(20);
+  ["headStart", "heavyStart", "memory", "echo", "swift"].forEach(function (id) { G.player.symmetry.perks[id] = 1; });
+  G.player.symmetry.times = G.D(1);
+  G.player.symmetry.mass = G.D(1000);
   G.player.resources.energy = G.D("1e100");
   G.Symmetry.breakSymmetry(true);
-  assert.ok(G.Progression.hasSkill("1-6-1") && G.Progression.hasSkill("4-5-2"), "automation skills kept");
-  assert.ok(!G.Progression.hasSkill("1-1"));
-  assert.strictEqual(G.player.resources.energy.toString(), "1000000000000");
+  assert.ok(G.player.resources.energy.eq(1e30));
+  assert.strictEqual(G.player.structures.symmetryBreaking.added.toString(), "10");
+  assert.strictEqual(G.player.prestige.times.toString(), "20", "Lasting memory keeps Condenses");
+  assert.strictEqual(G.player.symmetry.mass.toString(), "500", "Echoing mass halves Mass");
   assert.strictEqual(G.Automation.interval("energyDisturbance"), 2.5);
   G.player.resources.energy = G.D("1e60");
   G.Prestige.condense(true);
-  assert.ok(G.player.resources.energy.gte(1e12), "head start applies after Condense");
+  assert.ok(G.player.resources.energy.gte(1e30), "head start applies after Condense");
 });
 
 test("Mass grows from Gen 8–10 and forms the atom", function () {
@@ -205,8 +208,6 @@ test("Gen 8–10 and Mass are disabled inside challenges", function () {
   fullTree(G);
   G.player.resources.energy = G.D("1e100");
   G.Symmetry.breakSymmetry(true);
-  G.player.symmetry.perks.automation = 1;
-  G.player.prestige.skills["1-6-1"] = 1;
   G.player.symmetry.mass = G.D(1e6);
   assert.ok(G.Challenges.enter(1));
   assert.strictEqual(G.Structure.quote("symmetryBreaking", 1).count.toString(), "0");
