@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Cosmic Idle — Energy</title>
+  <link rel="stylesheet" href="css/main.css" />
+</head>
+<body>
+  <main class="game-shell">
+    <header class="topbar">
+      <div>
+        <h1>Cosmic Idle</h1>
+        <p class="subtitle">Existence before structure.</p>
+      </div>
+    <section class="status-grid header-energy">
+      <article class="stat-card">
+        <span class="label">Primordial Energy</span>
+        <strong id="energy-display">0</strong>
+        <span id="energy-rate" class="muted">+0 / sec</span>
+        <span id="click-gain" class="muted">+1 / click</span>
+        <span id="fluct-display" class="muted" hidden></span>
+        <span id="generator-focus-status" class="muted" hidden></span>
+        <div id="quanta-header" class="header-quanta" hidden><span>Unspent Quanta <strong id="quanta-balance">0</strong></span><span><button class="info-term" data-tip="quantaBonus">Energy bonus</button> <strong id="quanta-bonus">×1 all Energy</strong></span></div>
+      </article>
+    </section>
+    </header>
+
+    <div class="game-layout">
+    <aside class="control-panel" aria-label="Energy controls">
+    <div class="buy-amounts" role="group" aria-label="Purchase quantity">
+      <span class="label">Buy amount</span>
+      <div><button data-buy-amount="1" aria-pressed="true">1</button><button data-buy-amount="5" aria-pressed="false">5</button><button data-buy-amount="10" aria-pressed="false">10</button><button data-buy-amount="100" aria-pressed="false">100</button><button data-buy-amount="max" aria-pressed="false">Max</button></div>
+      <p>Buy up to the selected amount.</p>
+    </div>
+    <section class="panel" data-category="upgrades">
+      <h2><button class="category-toggle" data-category-toggle="upgrades" aria-expanded="true">Click upgrades</button></h2>
+      <p id="upgrade-empty" class="muted">Create Energy to discover your first upgrade.</p>
+      <details id="click-upgrade" class="generator-card" data-collapse="clickPower" open hidden>
+        <summary><h3>Disturb</h3><button id="buy-click-upgrade-collapsed" class="collapsed-buy">Buy</button></summary>
+        <p>Add +1 base Energy per click and strengthen its glow.</p>
+        <p id="auto-click-status" class="muted" hidden></p>
+        <div class="generator-meta"><strong id="click-upgrade-level">Level 0 / 1,000</strong><span id="click-upgrade-scaling" class="muted" hidden></span><span id="click-upgrade-affordable" class="muted"></span><button id="buy-click-upgrade">Buy</button></div>
+      </details>
+    </section>
+    <section id="generators-panel" class="panel" data-category="generators" hidden>
+      <h2><button class="category-toggle" data-category-toggle="generators" aria-expanded="true">Generators</button></h2>
+      <p id="generator-empty" class="muted">Create Energy to discover generators.</p>
+      <div id="generator-list" class="card-list"></div>
+    </section>
+
+    </aside>
+    <section class="view-area" aria-label="Game views">
+      <div class="view-tabs" role="tablist" aria-label="Game views">
+        <button id="energy-tab" role="tab" aria-selected="true" aria-controls="energy-view" tabindex="0">Energy</button>
+        <button id="prestige-tab" role="tab" aria-selected="false" aria-controls="prestige-view" tabindex="-1">Condense</button>
+        <button id="achievements-tab" role="tab" aria-selected="false" aria-controls="achievements-view" tabindex="-1">Achievements <span id="achievement-count">0 / 7</span></button>
+        <button id="stats-tab" role="tab" aria-selected="false" aria-controls="stats-view" tabindex="-1">Stats</button>
+        <button id="lore-tab" role="tab" aria-selected="false" aria-controls="lore-view" tabindex="-1">Lore</button>
+        <button id="settings-tab" role="tab" aria-selected="false" aria-controls="settings-view" tabindex="-1">Settings</button>
+      </div>
+      <div id="energy-view" role="tabpanel" aria-labelledby="energy-tab">
+        <section id="resonance-overview" class="resonance-overview" aria-label="Resonance resources" hidden>
+          <div class="quantum-resource"><span class="label"><button class="info-term" data-tip="quantumResonance">Quantum Resonance</button></span><strong id="quantum-resonance-display">0</strong><span id="quantum-resonance-timer" class="muted"></span><span id="quantum-resonance-softcap" class="muted" hidden><button class="info-term" data-tip="quantumSoftcap">Fluct effect soft-capped</button></span><span id="resonance-fluct-growth" class="muted"></span></div>
+          <div class="energy-resource"><span class="label"><button class="info-term" data-tip="energyResonance">Energy Resonance</button></span><strong id="energy-resonance-display">0</strong><span id="energy-resonance-timer" class="muted"></span><span class="muted">Each adds +1 Energy Disturbance</span></div>
+        </section>
+    <div id="energy-field" class="energy-field" role="button" tabindex="0" aria-label="Generate Energy. Click anywhere in this field, or press Enter or Space.">
+      <svg class="potential-contours" viewBox="0 0 700 500" preserveAspectRatio="none" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="0.6"><path d="M-40 290 C140 130 210 410 370 240 S570 170 740 235"/><path d="M-40 302 C140 142 210 422 370 252 S570 182 740 247"/><path d="M-40 314 C140 154 210 434 370 264 S570 194 740 259"/><path d="M-40 326 C140 166 210 446 370 276 S570 206 740 271"/><path d="M-40 338 C140 178 210 458 370 288 S570 218 740 283"/></g></svg>
+      <div class="field-caption"><span class="label">PRIMORDIAL ENERGY</span><strong id="center-energy">0.00</strong><div class="existence-state"><p><span>State:</span><b id="existence-state">Dormant</b></p><p><span>Structure:</span><b id="existence-structure">None</b></p><p><span>Time:</span><b>Undefined</b></p></div></div>
+      <canvas id="field-waves" aria-hidden="true"></canvas>
+      <div id="energy-effects" class="energy-effects" aria-hidden="true"></div>
+      <span class="field-footnote" aria-hidden="true">Click anywhere to stir the potential.</span>
+    </div>
+      </div>
+      <section id="achievements-view" class="achievements-view" role="tabpanel" aria-labelledby="achievements-tab" tabindex="0" hidden>
+        <div class="achievements-heading"><span class="label">Milestones of creation</span><h2>Achievements</h2><p>Small discoveries. Permanent rewards.</p></div>
+        <div class="achievement-table" role="table" aria-label="All achievements">
+          <div class="achievement-row achievement-columns" role="row"><span role="columnheader">Achievement</span><span role="columnheader">Requirement</span><span role="columnheader">Reward</span><span role="columnheader">Status</span></div>
+          <div id="click-achievement" class="achievement-row" role="row">
+            <div role="cell" class="achievement-name"><span class="achievement-emblem" aria-hidden="true">✦</span><div><span class="achievement-number">01</span><h3>First sparks</h3></div></div>
+            <div role="cell"><span class="mobile-cell-label">Requirement</span>Click <span id="achievement-required">10</span> times</div>
+            <div role="cell"><span class="mobile-cell-label">Reward</span><span id="achievement-reward">×1.05</span> Energy per click</div>
+            <div role="cell"><span class="mobile-cell-label">Status</span><strong id="achievement-status">0 / 10 clicks</strong></div>
+          </div>
+          <div id="first-generator-achievement" class="achievement-row" role="row"><div role="cell" class="achievement-name"><span class="achievement-emblem" aria-hidden="true">✦</span><div><span class="achievement-number">02</span><h3>First generator</h3></div></div><div role="cell"><span class="mobile-cell-label">Requirement</span>Buy your first generator</div><div role="cell"><span class="mobile-cell-label">Reward</span>×1.05 Energy per click</div><div role="cell"><span class="mobile-cell-label">Status</span><strong id="first-generator-status">0 / 1 generators</strong></div></div>
+          <div id="twenty-five-achievement" class="achievement-row" role="row"><div role="cell" class="achievement-name"><span class="achievement-emblem" aria-hidden="true">✦</span><div><span class="achievement-number">03</span><h3>A growing engine</h3></div></div><div role="cell"><span class="mobile-cell-label">Requirement</span>Purchase 25 Energy Disturbances</div><div role="cell"><span class="mobile-cell-label">Reward</span>×1.1 generator production</div><div role="cell"><span class="mobile-cell-label">Status</span><strong id="twenty-five-status">0 / 25 Energy Disturbances</strong></div></div>
+          <div id="five-minutes-achievement" class="achievement-row" role="row"><div role="cell" class="achievement-name"><span class="achievement-emblem" aria-hidden="true">✦</span><div><span class="achievement-number">04</span><h3>A moment in the void</h3></div></div><div role="cell"><span class="mobile-cell-label">Requirement</span><span id="playtime-requirement">Reach 5 minutes</span></div><div role="cell"><span class="mobile-cell-label">Reward</span><span id="playtime-reward">×1.025 all Energy production</span><span id="playtime-next-reward" class="achievement-detail"></span></div><div role="cell"><span class="mobile-cell-label">Status</span><strong id="five-minutes-status">Tier 0 · 0s / 5 minutes</strong></div></div>
+          <div id="coherent-achievement" class="achievement-row" role="row"><div role="cell" class="achievement-name"><span class="achievement-emblem" aria-hidden="true">✦</span><div><span class="achievement-number">05</span><h3>A coherent beginning</h3></div></div><div role="cell"><span class="mobile-cell-label">Requirement</span>Purchase 1 Coherent Energy</div><div role="cell"><span class="mobile-cell-label">Reward</span>×1.05 all generator production</div><div role="cell"><span class="mobile-cell-label">Status</span><strong id="coherent-achievement-status">0 / 1 Coherent Energy</strong></div></div>
+          <div id="fluct-streak-achievement" class="achievement-row" role="row" hidden>
+            <div role="cell" class="achievement-name"><span class="achievement-emblem" aria-hidden="true">✦</span><div><span class="achievement-number">06</span><h3 id="fluct-streak-name">Against the current</h3></div></div>
+            <div role="cell"><span class="mobile-cell-label">Requirement</span><span id="fluct-streak-condition"></span></div>
+            <div role="cell"><span class="mobile-cell-label">Reward</span><span id="fluct-streak-reward">Fluct favors reinforcement.</span></div>
+            <div role="cell"><span class="mobile-cell-label">Status</span><strong id="fluct-streak-status"></strong><span id="fluct-streak-tiers" class="achievement-detail"></span></div>
+          </div>
+          <div id="condense-achievement" class="achievement-row" role="row"><div role="cell" class="achievement-name"><span class="achievement-emblem" aria-hidden="true">✦</span><div><span class="achievement-number">07</span><h3>First condensation</h3></div></div><div role="cell"><span class="mobile-cell-label">Requirement</span>Condense Energy once</div><div role="cell"><span class="mobile-cell-label">Reward</span>×1.05 all Energy production</div><div role="cell"><span class="mobile-cell-label">Status</span><strong id="condense-achievement-status">0 / 1 condensations</strong></div></div>
+        </div>
+      </section>
+      <section id="prestige-view" class="achievements-view prestige-view" role="tabpanel" aria-labelledby="prestige-tab" tabindex="0" hidden>
+        <div class="prestige-heading"><div class="achievements-heading"><span class="label">First prestige</span><h2>Condense Energy</h2></div><p id="condense-earned" class="stats-note">0 earned · 0 condensations</p></div>
+        <section class="primordial-skills" aria-labelledby="skill-tree-title">
+          <div class="skill-tree-heading"><h3 id="skill-tree-title">The first constellation</h3><p id="tree-view-help">Drag to orbit · Shift / right-drag to pan · Scroll or pinch to zoom</p><div class="tree-view-switch" role="group" aria-label="Skill tree view"><button id="respec-skills" title="Refund all skill costs and restart this run" disabled>Respec</button><button id="tree-view-3d" aria-pressed="true">3D constellation</button><button id="tree-view-2d" aria-pressed="false">2D map</button></div></div>
+          <div id="skill-tree" class="constellation-tree" role="region" tabindex="0" aria-label="3D skill constellation. Drag to orbit, Shift or right-drag to pan, scroll or pinch to zoom. Arrow keys orbit, plus and minus zoom, zero fits the constellation. Focus a skill to inspect or use arrows to navigate skills.">
+            <canvas id="skill-scene" aria-hidden="true"></canvas>
+            <div id="skill-world" class="skill-labels"><svg id="skill-label-links" aria-hidden="true"></svg></div>
+            <span id="tree-core-label" class="tree-core-label" aria-hidden="true">PRIMORDIAL FIELD</span>
+            <p id="tree-render-status" class="tree-render-status" role="status" hidden></p>
+            <div class="tree-branch-nav" role="group" aria-label="Jump to a skill branch"><button data-tree-branch="1">Impulse</button><button data-tree-branch="2">Probability</button><button data-tree-branch="3">Rhythm</button><button data-tree-branch="4">Continuum</button></div>
+            <div class="tree-camera-controls" role="group" aria-label="Skill tree camera"><button id="tree-zoom-out" aria-label="Zoom out">−</button><span id="tree-zoom-level" aria-live="off">100%</span><button id="tree-zoom-in" aria-label="Zoom in">+</button><button id="tree-fit">Fit constellation</button></div>
+            <div class="tree-legend"><span><i class="available"></i>Available</span><span><i class="owned"></i>Owned</span><span><i class="locked"></i>Requires parent</span></div>
+          </div>
+          <div id="skill-map" class="skill-map" role="region" tabindex="0" aria-label="2D skill map. Scroll to explore. Click a node to inspect its effect and cost." hidden><div id="skill-map-world"><svg id="skill-map-links" viewBox="0 0 1350 925" aria-hidden="true"></svg><div class="map-branch-title" style="left:180px">01 · Impulse</div><div class="map-branch-title" style="left:510px">02 · Probability</div><div class="map-branch-title" style="left:840px">03 · Rhythm</div><div class="map-branch-title" style="left:1170px">04 · Continuum</div><div id="symmetry-placeholder" class="symmetry-placeholder" role="note"><span class="symmetry-mark">◇</span><strong>Symmetry</strong><span>Unformed · future tree</span><small>High Quanta cost · TBD</small></div></div></div>
+        </section>
+        <section class="condense-panel" aria-label="Condensation preview">
+          <div class="condense-summary"><span class="label">Condense now to receive</span><strong id="condense-reward">+0 Primordial Quanta</strong><p id="condense-requirement">Requires 1e50 held Energy.</p><p id="condense-next" class="muted"></p></div>
+          <div class="condense-actions"><button id="condense-button" disabled>Condense Energy · +0 Quanta</button><details class="condense-reset-info"><summary>What resets?</summary><div><p>Resets Energy, purchased and added generators, Disturb, Resonance resources, accumulated Field Excitation, and all run timers and bonuses. Starting skills apply to the fresh run.</p><p class="condense-keeps">Keeps achievements and rewards, lore, total playtime, Primordial Quanta, skills, and settings.</p></div></details></div>
+        </section>
+      </section>
+      <section id="stats-view" class="achievements-view stats-view" role="tabpanel" aria-labelledby="stats-tab" tabindex="0" hidden>
+        <div class="achievements-heading"><span class="label">The shape of production</span><h2>Stats</h2><p>Production bonuses and the history of condensation.</p></div>
+        <div class="stats-subtabs" role="tablist" aria-label="Statistics pages">
+          <button id="stats-production-tab" role="tab" aria-selected="true" aria-controls="stats-production-panel" data-stats-page="production">Production</button>
+          <button id="stats-condense-tab" role="tab" aria-selected="false" aria-controls="stats-condense-panel" tabindex="-1" data-stats-page="condense">Condense history</button>
+        </div>
+        <div id="stats-production-panel" role="tabpanel" aria-labelledby="stats-production-tab">
+        <div class="stats-overview">
+          <article><span class="label">Generator Energy / sec</span><strong id="stats-generator-total">0</strong><span class="muted">Includes current bonuses; timed payouts arrive in bursts.</span></article>
+          <article><span id="stats-click-total-label" class="label">Energy per click</span><strong id="stats-click-total">1</strong><span class="muted">Includes all current click bonuses.</span></article>
+        </div>
+        <p id="stats-clock-note" class="stats-note" hidden></p>
+        <p id="stats-click-time-step" class="stats-note" hidden></p>
+        <p id="stats-auto-clicks" class="stats-note" hidden></p>
+        <dl class="discovery-bonuses"><div id="stats-click-discoveries-row" hidden><dt>Discovered achievements · click Energy</dt><dd id="stats-click-discoveries"></dd></div><div id="stats-generator-discoveries-row" hidden><dt>Discovered achievements · generator Energy</dt><dd id="stats-generator-discoveries"></dd></div></dl>
+        <p id="stats-empty" class="stats-note">Create Energy to discover more production sources.</p>
+        <section class="production-breakdown" aria-labelledby="stats-contribution-title">
+          <div class="breakdown-heading"><h3 id="stats-contribution-title">Energy / sec contributions</h3><span id="stats-contribution-total"></span></div>
+          <p class="breakdown-explanation">Percentages compare each factor's logarithmic strength. Negative shares are slowdowns; absolute shares add to 100%. Expand a row for its sources.</p>
+          <p id="stats-contribution-empty" class="stats-note" hidden></p>
+          <div id="stats-energy-contributions" class="contribution-layout"></div>
+        </section>
+        <details id="stats-click-contributions" class="stats-disclosure">
+          <summary>Click contributions</summary>
+          <p class="breakdown-explanation">The same comparison for Energy per click. Within Base click Energy, percentages show actual portions of each click.</p>
+          <div id="stats-manual-contributions" class="contribution-layout"></div>
+        </details>
+        <details id="stats-detailed" class="stats-disclosure">
+          <summary>Detailed production values</summary>
+        <div class="stats-sections">
+          <section class="stats-section" aria-labelledby="stats-click-title">
+            <h3 id="stats-click-title">Click breakdown</h3>
+            <dl>
+              <div><dt>Base potential</dt><dd id="stats-click-base"></dd></div>
+              <div id="stats-disturb-row"><dt>Disturb <span id="stats-disturb-level" class="muted"></span></dt><dd id="stats-click-disturb"></dd></div>
+              <div class="stats-subtotal"><dt>Base Energy per click</dt><dd id="stats-click-base-total"></dd></div>
+              <div id="stats-first-sparks-row"><dt>First sparks</dt><dd id="stats-first-sparks"></dd></div>
+              <div id="stats-first-generator-row"><dt>First generator</dt><dd id="stats-first-generator"></dd></div>
+              <div id="stats-click-time-row"><dt>A moment in the void <span class="stats-time-tier muted"></span></dt><dd id="stats-click-time"></dd></div>
+              <div id="stats-click-condense-row" hidden><dt>First condensation</dt><dd id="stats-click-condense"></dd></div>
+              <div id="stats-click-quanta-row" hidden><dt>Unspent Primordial Quanta</dt><dd id="stats-click-quanta"></dd></div>
+              <div id="stats-click-skill-row" hidden><dt>1-1 · Focused disturbance</dt><dd id="stats-click-skill"></dd></div>
+              <div id="stats-click-continuum-row" hidden><dt>4-2 · Boundless potential</dt><dd id="stats-click-continuum"></dd></div>
+              <div id="stats-click-memory-row" hidden><dt>0-0 · Memory of condensation</dt><dd id="stats-click-memory"></dd></div>
+              <div id="stats-click-fluct-row"><dt><button class="info-term" data-tip="fluct">Fluct</button></dt><dd id="stats-click-fluct"></dd></div>
+              <div class="stats-subtotal"><dt>Combined click multiplier</dt><dd id="stats-click-bonus"></dd></div>
+              <div id="stats-click-captured-row" hidden><dt>1-2 · Captured generator production</dt><dd id="stats-click-captured"></dd></div>
+              <div class="stats-result"><dt>Energy per click</dt><dd id="stats-click-result"></dd></div>
+            </dl>
+          </section>
+          <section id="stats-generators-section" class="stats-section" aria-labelledby="stats-generator-title" hidden>
+            <h3 id="stats-generator-title">Gen 1 · Energy Disturbance</h3><p id="stats-generator-ownership" class="stats-note"></p>
+            <dl>
+              <div><dt>Original base / unit / sec</dt><dd id="stats-generator-base"></dd></div>
+              <div id="stats-field-base-row"><dt>Field Excitation base increase</dt><dd id="stats-generator-field"></dd></div>
+              <div id="stats-purchased-base-row" hidden><dt>1-3-1 · Purchased-unit base multiplier</dt><dd id="stats-generator-purchased-base"></dd></div>
+              <div class="stats-subtotal"><dt>Current base / unit / sec</dt><dd id="stats-generator-unit"></dd></div>
+              <div><dt>Base output · all units / sec</dt><dd id="stats-generator-base-total"></dd></div>
+              <div id="stats-generator-count-row" hidden><dt>1-3-2 · Effective count multiplier</dt><dd id="stats-generator-count"></dd></div>
+              <div id="stats-generator-focus-row" hidden><dt>3-3 · Wandering rhythm</dt><dd id="stats-generator-focus"></dd></div>
+              <div id="stats-growing-engine-row"><dt>A growing engine</dt><dd id="stats-growing-engine"></dd></div>
+              <div id="stats-coherent-beginning-row"><dt>A coherent beginning</dt><dd id="stats-coherent-beginning"></dd></div>
+              <div id="stats-generator-time-row"><dt>A moment in the void <span class="stats-time-tier muted"></span></dt><dd id="stats-generator-time"></dd></div>
+              <div id="stats-generator-condense-row" hidden><dt>First condensation</dt><dd id="stats-generator-condense"></dd></div>
+              <div id="stats-generator-quanta-row" hidden><dt>Unspent Primordial Quanta</dt><dd id="stats-generator-quanta"></dd></div>
+              <div id="stats-generator-continuum-row" hidden><dt>4-2 · Boundless potential</dt><dd id="stats-generator-continuum"></dd></div>
+              <div id="stats-generator-memory-row" hidden><dt>0-0 · Memory of condensation</dt><dd id="stats-generator-memory"></dd></div>
+              <div id="stats-generator-fluct-row"><dt><button class="info-term" data-tip="fluct">Fluct</button></dt><dd id="stats-generator-fluct"></dd></div>
+              <div class="stats-subtotal"><dt>Combined Energy multiplier</dt><dd id="stats-generator-bonus"></dd></div>
+              <div id="stats-generator-game-row"><dt>Energy / game second</dt><dd id="stats-generator-game"></dd></div>
+              <div id="stats-speed-row"><dt>Game speed</dt><dd id="stats-speed"></dd></div>
+              <div class="stats-result"><dt>Average Energy / second</dt><dd id="stats-generator-result"></dd></div>
+            </dl><p id="stats-generator-cadence" class="stats-note"></p>
+          </section>
+          <section id="stats-fluct-section" class="stats-section" aria-labelledby="stats-fluct-title" hidden>
+            <h3 id="stats-fluct-title">Gen 2 · Quantum Fluctuation</h3>
+            <dl>
+              <div><dt>Total owned</dt><dd id="stats-fluct-owned"></dd></div>
+              <div><dt>Current state</dt><dd id="stats-fluct-state"></dd></div>
+              <div class="stats-result"><dt><button class="info-term" data-tip="fluctFormula">Fluct</button> · all Energy</dt><dd id="stats-fluct-current"></dd></div>
+              <div><dt>Next roll</dt><dd id="stats-fluct-timer"></dd></div>
+              <div id="stats-fluct-odds-row" hidden><dt>Positive / negative chance</dt><dd id="stats-fluct-odds"></dd></div>
+            </dl><p id="stats-fluct-source" class="stats-note"></p><p id="stats-fluct-formula" class="stats-note" hidden></p>
+          </section>
+          <section id="stats-coherence-section" class="stats-section" aria-labelledby="stats-coherence-title" hidden>
+            <h3 id="stats-coherence-title">Gen 3 · Coherent Energy</h3>
+            <dl>
+              <div><dt>Total owned</dt><dd id="stats-coherence-owned"></dd></div>
+              <div><dt>Generator achievement bonus</dt><dd id="stats-coherence-bonus"></dd></div>
+              <div class="stats-result"><dt><button class="info-term" data-tip="quantumResonance">Quantum Resonance</button> / cycle</dt><dd id="stats-quantum-output"></dd></div>
+              <div><dt>Quantum Resonance cycle</dt><dd id="stats-quantum-interval"></dd></div>
+              <div><dt>Quantum Resonance held</dt><dd id="stats-quantum-held"></dd></div>
+              <div id="stats-softcap-row"><dt><button class="info-term" data-tip="quantumSoftcap">Fluct effect soft cap</button></dt><dd id="stats-quantum-softcap"></dd></div>
+              <div id="stats-effective-row" hidden><dt>Effective Quantum Resonance</dt><dd id="stats-effective-quantum"></dd></div>
+              <div id="stats-exponent-row" hidden><dt>Soft-cap exponent</dt><dd id="stats-quantum-exponent"></dd></div>
+              <div class="stats-result"><dt><button class="info-term" data-tip="energyResonance">Energy Resonance</button> / cycle</dt><dd id="stats-resonance-output"></dd></div>
+              <div><dt>Energy Resonance cycle</dt><dd id="stats-resonance-interval"></dd></div>
+              <div><dt>Gen 1 units created</dt><dd id="stats-resonance-added"></dd></div>
+            </dl><p class="stats-note">Generator achievements strengthen both outputs. Fractional output carries into future cycles. Each Energy Resonance adds one Gen 1 unit.</p>
+          </section>
+          <section id="stats-field-section" class="stats-section" aria-labelledby="stats-field-title" hidden>
+            <h3 id="stats-field-title">Gen 4 · Field Excitation</h3>
+            <dl>
+              <div><dt>Total owned</dt><dd id="stats-field-owned"></dd></div>
+              <div><dt>Base increase / cycle · all units</dt><dd id="stats-field-base"></dd></div>
+              <div><dt>Generator achievement bonus</dt><dd id="stats-field-bonus"></dd></div>
+              <div id="stats-field-purchased-row" hidden><dt>4-3-3 · Purchased Field Excitations</dt><dd id="stats-field-purchased"></dd></div>
+              <div class="stats-result"><dt>Gen 1 base increase / cycle</dt><dd id="stats-field-output"></dd></div>
+              <div><dt>Cycle duration</dt><dd id="stats-field-interval"></dd></div>
+              <div><dt>Accumulated Gen 1 base increase</dt><dd id="stats-field-accumulated"></dd></div>
+            </dl><p class="stats-note">The accumulated increase is already included in Gen 1's base rate above. Energy bonuses then multiply its Energy payouts.</p>
+          </section>
+          <section id="stats-dynamics-section" class="stats-section" hidden>
+            <h3>Field dynamics · Gen 5–7</h3><dl>
+              <div><dt>Oscillation cycle</dt><dd id="stats-oscillation-phase"></dd></div>
+              <div class="stats-result"><dt>Current all-Energy multiplier</dt><dd id="stats-oscillation-current"></dd></div>
+              <div><dt>Peak all-Energy multiplier</dt><dd id="stats-oscillation-peak"></dd></div>
+              <div><dt>Gen 6 · peak reinforcement</dt><dd id="stats-field-resonance"></dd></div>
+              <div><dt>Gen 7 · Disturb coupling</dt><dd id="stats-field-coupling"></dd></div>
+            </dl><p class="stats-note">Coupled Gen 4 units strengthen future base-rate increases. Their accumulated effect is included in Field Excitation above.</p>
+          </section>
+        </div>
+        </details>
+        </div>
+        <div id="stats-condense-panel" role="tabpanel" aria-labelledby="stats-condense-tab" hidden>
+          <div class="stats-overview">
+            <article><span class="label">Current run · real duration</span><strong id="stats-run-real-duration">0s</strong><span id="stats-run-reward" class="muted">+0 Quanta if condensed now</span></article>
+            <article><span class="label">Current Quanta / real minute</span><strong id="stats-run-quanta-minute">0</strong><span id="stats-run-quanta-hour" class="muted">0 Quanta / real hour</span></article>
+          </div>
+          <p id="stats-run-partial" class="stats-note" hidden>This run began before real-run tracking was added. Its duration and rates cover only the tracked portion. The next fresh run will be fully tracked.</p>
+          <div class="breakdown-heading"><h3>Last 10 Condenses</h3><span id="stats-condense-record-count">0 recorded</span></div>
+          <p class="stats-note">Newest first. All Quanta rates use real elapsed time.</p>
+          <p id="stats-condense-empty" class="stats-note">No recorded Condenses yet. Completed runs will appear here; older saves have no retrospective history.</p>
+          <div id="stats-condense-table-wrap" class="condense-history-scroll" tabindex="0" role="region" aria-label="Recent Condense runs" hidden>
+            <table class="condense-history-table"><thead><tr><th scope="col">Condense</th><th scope="col">Real duration</th><th scope="col">Quanta gained</th><th scope="col">Quanta / min</th><th scope="col">Quanta / hour</th></tr></thead><tbody id="stats-condense-rows"></tbody></table>
+          </div>
+          <p id="stats-condense-partial-note" class="stats-note" hidden>Partial records show only time tracked after this update. Their rates describe that tracked interval, rather than the entire run. A dash means a positive reward had no measurable real duration.</p>
+        </div>
+      </section>
+      <section id="lore-view" class="achievements-view lore-view" role="tabpanel" aria-labelledby="lore-tab" tabindex="0" hidden>
+        <div class="achievements-heading"><span class="label">An unfolding existence</span><h2>Lore</h2><p>Fragments discovered along the way.</p></div><div id="lore-entries"></div>
+      </section>
+      <section id="settings-view" class="achievements-view" role="tabpanel" aria-labelledby="settings-tab" tabindex="0" hidden>
+        <div class="achievements-heading"><span class="label">Your experience</span><h2>Settings</h2></div>
+        <div class="settings-save-actions" role="group" aria-label="Save data">
+          <button id="save-button">Save</button>
+          <button id="export-button">Export</button>
+          <button id="import-button">Import</button>
+          <button id="reset-button" class="danger">Hard Reset</button>
+        </div>
+        <p id="save-status" class="settings-note" role="status">Autosave enabled.</p>
+        <div class="settings-list">
+          <label><span>Sound</span><input id="setting-sound" type="checkbox"></label>
+          <label><span>Mute sounds while unfocused</span><input id="setting-muteUnfocused" type="checkbox"></label>
+          <label><span>Click sounds</span><input id="setting-clickSound" type="checkbox"></label>
+          <label><span>Potential bubble sounds</span><input id="setting-bubbleSound" type="checkbox"></label>
+          <label><span>Automatic click sounds</span><input id="setting-autoClickSound" type="checkbox"></label>
+          <label><span>Skill purchase sounds</span><input id="setting-perkSound" type="checkbox"></label>
+          <label><span>Skill purchase visuals</span><input id="setting-perkVisuals" type="checkbox"></label>
+          <label><span>Generator sounds</span><input id="setting-generatorSound" type="checkbox"></label>
+          <label><span>Quantum Fluctuation sounds</span><input id="setting-fluctuationSound" type="checkbox"></label>
+          <label><span>Coherent Energy sounds</span><input id="setting-coherentSound" type="checkbox"></label>
+          <label><span>Field sounds</span><input id="setting-fieldSound" type="checkbox"></label>
+          <label><span>Condense music</span><input id="setting-condenseSound" type="checkbox"></label>
+          <label><span>Condense cinematic</span><input id="setting-condenseVisuals" type="checkbox"></label>
+          <label><span>Volume</span><input id="setting-volume" type="range" min="0" max="1" step="0.01" aria-label="Volume"></label>
+          <label><span>Visual feedback</span><select id="setting-visuals"><option value="0">None — sound only</option><option value="1">Faint abstract glow</option><option value="2">Classic sparks</option></select></label>
+          <label><span>Automatically dismiss lore and notifications after 6 seconds</span><input id="setting-autoDismiss" type="checkbox"></label>
+        </div>
+        <p class="settings-note">Popups wait for a click by default. Generator hotkeys: 1–9 buy Gen 1–9; 0 buys Gen 10, when available. Uses the selected buy amount in the Energy tab. Sounds begin after your first interaction. Settings are saved with your progress.</p><div class="sound-previews"><button id="preview-sound">Preview click</button><button id="preview-auto-sound">Preview automatic impulse</button><button id="preview-perk-sound">Preview skill purchase</button></div><p id="music-stage" class="settings-note"></p><p id="audio-status" class="settings-note" role="status"></p>
+      </section>
+    </section>
+    </div>
+    <section class="milestone" aria-label="Next major milestone">
+      <div class="milestone-heading"><span>Condense Energy</span><span id="milestone-value"></span><div id="milestone-condense-summary" class="milestone-condense-summary" hidden><span id="milestone-quanta-rate" title="Quanta available if you Condense now, divided by this run's real elapsed minutes.">0 Quanta/min</span><button id="milestone-condense" hidden>Condense Energy</button></div></div>
+      <div id="milestone-bar" class="milestone-track" role="progressbar" aria-label="Logarithmic progress to Condense Energy" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="milestone-fill"></div></div>
+      <span id="milestone-caption" class="muted"></span>
+    <section class="simulation-strip">
+      <h2>Simulation</h2>
+      <div class="sim-grid">
+        <div><span class="label">Simulation TPS</span><strong id="tps-display">20</strong></div>
+        <div id="game-speed-stat" hidden><span class="label">Game Speed</span><strong id="game-speed-display">1×</strong></div>
+        <div><span class="label">Real Time Played</span><strong id="real-time-display">0s</strong></div>
+        <div id="game-time-stat" hidden><span class="label">Game Time Experienced</span><strong id="game-time-display">0s</strong></div>
+      </div>
+    </section>
+    </section>
+  </main>
+  <section id="skill-detail" class="skill-detail" role="dialog" aria-labelledby="skill-detail-name" aria-describedby="skill-detail-description" hidden><button id="close-skill-detail" aria-label="Close skill details">×</button><div><span id="skill-detail-id" class="label">1-1 · Impulse</span><h4 id="skill-detail-name">Focused disturbance</h4><p id="skill-detail-description"></p><p id="skill-detail-cost" class="stats-note"></p></div><button id="buy-skill">Unlock · 1 Quanta</button><p id="skill-purchase-status" role="status" aria-live="polite"></p></section>
+
+  <dialog id="respec-dialog" aria-labelledby="respec-title" aria-describedby="respec-description"><span class="label">Reform the constellation</span><h2 id="respec-title">Respec skills?</h2><strong id="respec-refund"></strong><p id="respec-description"></p><div class="respec-choices"><button id="cancel-respec">Keep my skills</button><button id="confirm-respec">Respec · restart run</button></div></dialog>
+  <dialog id="story-dialog" aria-labelledby="story-title" aria-describedby="story-text">
+    <button id="story-dismiss" class="story-card" aria-label="Dismiss message">
+      <span id="story-icon" aria-hidden="true"></span><span id="story-kind" class="label">Lore</span><h2 id="story-title">Before structure</h2><p id="story-text"></p><span id="story-hint">Click to continue</span>
+    </button>
+  </dialog>
+  <dialog id="condense-dialog" aria-labelledby="condense-cinematic-title" aria-describedby="condense-cinematic-reward"><canvas id="condense-canvas" aria-hidden="true"></canvas><div class="condense-cinematic-caption"><span class="label">The field remembers</span><h2 id="condense-cinematic-title">Condensing Energy</h2><p id="condense-cinematic-reward"></p></div><button id="skip-condense">Skip cinematic</button></dialog>
+
+  <!-- Break Infinity: large-number library -->
+  <script src="js/numbers/break_infinity.min.js"></script>
+
+  <!-- Load order matters because this version works directly from file:// -->
+  <script src="js/core/namespace.js"></script>
+  <script src="js/core/config.js"></script>
+  <script src="js/numbers/decimal.js"></script>
+  <script src="js/core/state.js"></script>
+  <script src="js/time/gameTime.js"></script>
+  <script src="js/core/modifiers.js"></script>
+  <script src="js/core/playtime.js"></script>
+  <script src="js/core/progression.js"></script>
+  <script src="js/core/prestige.js"></script>
+  <script src="js/layers/energy/energy.js"></script>
+  <script src="js/layers/energy/coherence.js"></script>
+  <script src="js/layers/energy/fieldExcitation.js"></script>
+  <script src="js/layers/energy/fieldDynamics.js"></script>
+  <script src="js/core/productionStats.js"></script>
+  <script src="js/save/saveManager.js"></script>
+  <script src="js/ui/format.js"></script>
+  <script src="js/ui/icons.js"></script>
+  <script src="js/ui/experience.js"></script>
+  <script src="js/ui/perkFX.js"></script>
+  <script src="js/ui/potentialBubble.js"></script>
+  <script src="js/ui/condenseFX.js"></script>
+  <script src="js/ui/tooltips.js"></script>
+  <script src="js/ui/fieldWaves.js"></script>
+  <script src="js/ui/stats.js"></script>
+  <script src="js/ui/achievements.js"></script>
+  <script src="js/ui/prestige.js"></script>
+  <script src="js/vendor/three.min.js"></script>
+  <script src="js/ui/treeCamera.js"></script>
+  <script src="js/ui/treeMap.js"></script>
+  <script src="js/ui/render.js"></script>
+  <script src="js/core/gameLoop.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>
