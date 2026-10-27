@@ -57,6 +57,7 @@
         <button id="achievements-tab" role="tab" aria-selected="false" aria-controls="achievements-view" tabindex="-1">Achievements <span id="achievement-count">0 / 7</span></button>
         <button id="stats-tab" role="tab" aria-selected="false" aria-controls="stats-view" tabindex="-1">Stats</button>
         <button id="lore-tab" role="tab" aria-selected="false" aria-controls="lore-view" tabindex="-1">Lore</button>
+        <button id="challenges-tab" role="tab" aria-selected="false" aria-controls="challenges-view" tabindex="-1">Challenges</button>
         <button id="settings-tab" role="tab" aria-selected="false" aria-controls="settings-view" tabindex="-1">Settings</button>
       </div>
       <div id="energy-view" role="tabpanel" aria-labelledby="energy-tab">
@@ -257,6 +258,10 @@
       <section id="lore-view" class="achievements-view lore-view" role="tabpanel" aria-labelledby="lore-tab" tabindex="0" hidden>
         <div class="achievements-heading"><span class="label">An unfolding existence</span><h2>Lore</h2><p>Fragments discovered along the way.</p></div><div id="lore-entries"></div>
       </section>
+      <section id="challenges-view" class="achievements-view challenges-view" role="tabpanel" aria-labelledby="challenges-tab" tabindex="0" hidden>
+        <div class="achievements-heading"><span class="label">Patterns becoming purpose</span><h2>Phase alignment</h2><p>Eight challenge tracks. Ten levels each. Permanent automation mastery.</p></div>
+        <div class="challenge-layout"><nav id="challenge-tracks" aria-label="Automation challenges"></nav><article id="challenge-detail" class="challenge-detail"></article></div>
+      </section>
       <section id="settings-view" class="achievements-view" role="tabpanel" aria-labelledby="settings-tab" tabindex="0" hidden>
         <div class="achievements-heading"><span class="label">Your experience</span><h2>Settings</h2></div>
         <div class="settings-save-actions" role="group" aria-label="Save data">
@@ -266,6 +271,13 @@
           <button id="reset-button" class="danger">Hard Reset</button>
         </div>
         <p id="save-status" class="settings-note" role="status">Autosave enabled.</p>
+        <section class="automation-settings" aria-labelledby="automation-heading">
+          <h3 id="automation-heading">Automation</h3>
+          <p class="settings-note">Unlock a buyer in the skill tree, then enable it here. One purchase per attempt. Timers use real seconds, including time out of focus; clicks do not accelerate them. Failed attempts are not saved up. When timers coincide, buyers act in Gen order, then Condense.</p>
+          <div class="automation-actions"><button id="automation-all-on">Enable all unlocked</button><button id="automation-all-off">Disable all</button><button id="automation-challenges">View challenges</button></div>
+          <div id="automation-settings-list" class="settings-list"></div>
+          <p class="settings-note">Auto-Condense resets the run as soon as its timer fires at or above 1e50 Energy. Repeat automatic Condenses skip the cinematic. New automation starts disabled.</p>
+        </section>
         <div class="settings-list">
           <label><span>Sound</span><input id="setting-sound" type="checkbox"></label>
           <label><span>Mute sounds while unfocused</span><input id="setting-muteUnfocused" type="checkbox"></label>
@@ -321,6 +333,7 @@
   <script src="js/core/config.js"></script>
   <script src="js/numbers/decimal.js"></script>
   <script src="js/core/state.js"></script>
+  <script src="js/core/automation.js"></script>
   <script src="js/time/gameTime.js"></script>
   <script src="js/core/modifiers.js"></script>
   <script src="js/core/playtime.js"></script>
@@ -346,6 +359,7 @@
   <script src="js/vendor/three.min.js"></script>
   <script src="js/ui/treeCamera.js"></script>
   <script src="js/ui/treeMap.js"></script>
+  <script src="js/ui/automation.js"></script>
   <script src="js/ui/render.js"></script>
   <script src="js/core/gameLoop.js"></script>
   <script src="js/main.js"></script>

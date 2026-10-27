@@ -4,7 +4,7 @@
   function setText(node, value) { value = String(value);if (node.textContent !== value) node.textContent = value; }
 
   Game.UI = {
-    views: ["energy", "prestige", "achievements", "stats", "lore", "settings"],
+    views: ["energy", "prestige", "achievements", "stats", "lore", "challenges", "settings"],
     generatorNodes: {},
     buyAmount: 1,
 
@@ -12,6 +12,7 @@
       document.body.classList.toggle("condense-active", name === "prestige");
       document.body.classList.toggle("achievements-active", name === "achievements");
       document.body.classList.toggle("stats-active", name === "stats");
+      document.body.classList.toggle("challenges-active", name === "challenges");
       if (name !== "energy") Game.FieldWaves.clear();
       this.views.forEach(function (view) {
         const active = view === name;
@@ -129,6 +130,7 @@
 
     init: function () {
       Game.Icons.init();
+      Game.AutomationUI.init();
       Game.AchievementsUI.init();
       Game.PrestigeUI.init();
       Game.StatsUI.init();
@@ -281,6 +283,7 @@
     render: function () {
       const p = Game.player;
       if (Game.PotentialBubble) Game.PotentialBubble.update();
+      Game.AutomationUI.render();
       Game.FieldExcitation.checkUnlock();
       setText(byId("existence-state"), Game.Energy.getOwned("fieldExcitation").gt(0) ? "Excited" : "Dormant");
       setText(byId("existence-structure"), p.lore.fieldSecondSeen ? "Fields" : "None");

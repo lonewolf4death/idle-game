@@ -96,6 +96,12 @@
     if (![player.prestige.quanta, player.prestige.totalQuanta, player.prestige.times].every(function (value) { return value.eq(value.floor()); }) || player.prestige.totalQuanta.lt(player.prestige.quanta)) throw new Error('Invalid Primordial Quanta');
     if (!Object.values(player.prestige.skills).every(function (value) { return value === 0 || value === 1; })) throw new Error('Invalid skill progress');
     if (![settings.sound, settings.muteUnfocused, settings.clickSound, settings.autoClickSound, settings.bubbleSound, settings.perkSound, settings.perkVisuals, settings.generatorSound, settings.fluctuationSound, settings.coherentSound, settings.fieldSound, settings.condenseSound, settings.condenseVisuals, settings.autoDismiss, player.lore.introductionSeen, player.lore.coherenceSeen, player.lore.fieldFirstSeen, player.lore.fieldSecondSeen].every(function (value) { return value === 0 || value === 1; }) || settings.volume > 1 || ![0, 1, 2].includes(settings.visuals)) throw new Error('Invalid settings');
+    Game.CONFIG.AUTOMATION.buyers.forEach(function (buyer) {
+      const state=player.automation.buyers[buyer.id], toggle=player.settings.autoBuyers[buyer.id];
+      if (![0,1].includes(toggle) || !Number.isInteger(state.level) || state.level>10 || !Number.isSafeInteger(state.moves) || !Number.isInteger(state.board) || state.board<0 || state.elapsed>5 || state.elapsed<0) throw new Error('Invalid automation progress');
+      if (state.level===10 ? state.board!==0 : state.board>=(1<<Game.Challenges.puzzle(buyer.id,state.level).masks.length)) throw new Error('Invalid challenge grid');
+      if (state.elapsed>=(50-4*state.level)/10+1e-9) throw new Error('Invalid automation timer');
+    });
     Game.Progression.captureAchievements(player);
     Game.player = player;
   }

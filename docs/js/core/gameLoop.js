@@ -40,8 +40,18 @@
       }
     },
     simulate: function (realDelta) {
-      this.advanceGameTime(Game.Time.getGameDelta(realDelta));
-      Game.Time.advance(realDelta, Game.D(0));
+      // Segment at real-time buyer boundaries so catch-up purchases affect only
+      // subsequent production and each Condense records the correct duration.
+      let remaining=realDelta;
+      while (remaining>1e-10) {
+        const step=Math.min(remaining,Game.Automation.remaining());
+        if (step>0) {
+          this.advanceGameTime(Game.Time.getGameDelta(step));
+          Game.Time.advance(step, Game.D(0));
+          Game.Automation.advance(step);remaining=Math.max(0,remaining-step);
+        }
+        Game.Automation.resolve();
+      }
     },
     pump: function (now) {
       const elapsed = Math.max(0, (now - this.lastTime) / 1000);

@@ -13,7 +13,12 @@
     Object.keys(Game.CONFIG.PRESTIGE.skills).forEach(function (id) { skills[id] = 0; });
     const achievements = { firstSparks:0, firstGenerator:0, growingEngine:0, coherentBeginning:0, condense:0 };
     Game.CONFIG.DISCOVERY_ACHIEVEMENTS.forEach(function (definition) { achievements[definition.id]=0; });
+    const buyers={}, autoBuyers={};
+    Game.CONFIG.AUTOMATION.buyers.forEach(function (buyer) {
+      buyers[buyer.id]={level:0,board:0,moves:0,elapsed:0};autoBuyers[buyer.id]=0;
+    });
     return {
+      automation: {buyers:buyers},
       unlocks: { fluctOdds: 0, fieldExcitation: 0 },
       ui: { collapsed: collapsed, skillTree2D: 0 },
       version: Game.CONFIG.VERSION,
@@ -34,7 +39,7 @@
       fieldExcitation: { elapsed: D(0), baseRateBonus: D(0) },
       fieldDynamics: { elapsed: D(0), held: 0 },
       upgrades: { clickPower: D(0) },
-      settings: { sound: 1, muteUnfocused: 1, clickSound: 1, autoClickSound: 1, bubbleSound: 1, perkSound: 1, perkVisuals: 1, generatorSound: 1, fluctuationSound: 1, coherentSound: 1, fieldSound: 1, condenseSound: 1, condenseVisuals: 1, volume: 0.3, visuals: 1, autoDismiss: 0, oscillationFreeze: 0 },
+      settings: { autoBuyers:autoBuyers, sound: 1, muteUnfocused: 1, clickSound: 1, autoClickSound: 1, bubbleSound: 1, perkSound: 1, perkVisuals: 1, generatorSound: 1, fluctuationSound: 1, coherentSound: 1, fieldSound: 1, condenseSound: 1, condenseVisuals: 1, volume: 0.3, visuals: 1, autoDismiss: 0, oscillationFreeze: 0 },
       lore: { introductionSeen: 0, clickSeen: 0, generatorSeen: 0, coherenceSeen: 0, fieldFirstSeen: 0, fieldSecondSeen: 0, condenseSeen: 0 },
       meta: {
         gameSpeedMultiplier: D(1)

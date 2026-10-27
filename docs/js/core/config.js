@@ -175,4 +175,22 @@
       { id: "fieldCoupling", name: "Field Coupling", type: "coupling", unlockEnergy: "1e30", baseCost: "1e30", costScaling: "2", scalingStepLevels: 5, scalingStepIncrease: "0.5", production: "0" }
     ]
   };
+  Game.CONFIG.AUTOMATION = {
+    buyers: [
+      {id:"energyDisturbance",skill:"1-6-1",name:"Gen 1 (Energy Disturbance)",title:"Disturbance lattice"},
+      {id:"quantumFluctuation",skill:"2-5-1",name:"Gen 2 (Quantum Fluctuation)",title:"Uncertain signals"},
+      {id:"coherentEnergy",skill:"2-5-2",name:"Gen 3 (Coherent Energy)",title:"Coherent network"},
+      {id:"fieldExcitation",skill:"4-5-1",name:"Gen 4 (Field Excitation)",title:"Excitation array"},
+      {id:"fieldOscillation",skill:"3-6-1",name:"Gen 5 (Field Oscillation)",title:"Oscillating phases"},
+      {id:"fieldResonance",skill:"3-6-2",name:"Gen 6 (Field Resonance)",title:"Resonant interference"},
+      {id:"fieldCoupling",skill:"3-6-3",name:"Gen 7 (Field Coupling)",title:"Coupled pathways"},
+      {id:"condense",skill:"4-5-2",name:"Condense Energy",title:"Condensation matrix"}
+    ]
+  };
+  const automationParents=["1-5-1","2-4-1","2-4-2","4-4-1","3-2-3","3-5-1","3-5-2","4-4-2"];
+  Game.CONFIG.AUTOMATION.buyers.forEach(function (buyer,index) {
+    Game.CONFIG.PRESTIGE.skills[buyer.skill]={name:index===7 ? "Automatic condensation" : "Automatic "+Game.CONFIG.GENERATORS[index].name.toLowerCase(),cost:"100",requires:automationParents[index],
+      description:(index===7 ? "Automatically Condense at 1e50 held Energy or more, taking the available Quanta reward. Resets the run as normal. Repeat automatic Condenses skip the cinematic." : "Automatically attempt to buy exactly one "+buyer.name+" using Energy per activation. Respects unlock conditions and current costs; ignores the manual buy quantity.")+" Starts at one attempt every 5 real seconds. Its ten-level phase-alignment challenge reduces the interval by 0.4 seconds per level, reaching 1 second. Configure individual buyers or all buyers in Settings. Unlocked automation starts OFF. Timers continue while unfocused, do not bank failed purchases, and restart each run. Challenge progress is permanent."};
+    Game.CONFIG.PRESTIGE.branches.find(function (branch) { return branch.id===Number(buyer.skill[0]); }).nodes.push(buyer.skill);
+  });
 })(window.CosmicIdle);

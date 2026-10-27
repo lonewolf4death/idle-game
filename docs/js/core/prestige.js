@@ -63,6 +63,7 @@
       fresh.prestige.quanta = old.prestige.quanta.add(refund);
       fresh.prestige.totalQuanta = old.prestige.totalQuanta;fresh.prestige.times = old.prestige.times;
       fresh.prestige.history = old.prestige.history;
+      Game.Automation.preserve(old,fresh);
       fresh.settings = old.settings;fresh.ui = old.ui;
       Game.player = fresh;
       if (Game.Loop) { Game.Loop.accumulator = 0;Game.Loop.lastTime = performance.now(); }
@@ -87,7 +88,7 @@
       const quanta=this.reward(), seconds=Game.player.time.currentEnergyRunReal;
       return { quanta:quanta, realSeconds:seconds, partial:Game.player.time.currentEnergyRunPartial, perMinute:this.quantaRate(quanta,seconds,60), perHour:this.quantaRate(quanta,seconds,3600) };
     },
-    condense: function () {
+    condense: function (automated) {
       const reward = this.reward();
       if (reward.lte(0)) return false;
       const old = Game.player, first = !Game.Progression.condenseAchievementUnlocked();
@@ -111,10 +112,11 @@
       fresh.prestige.history = [{ condense:fresh.prestige.times, quanta:reward, realSeconds:old.time.currentEnergyRunReal, partial:old.time.currentEnergyRunPartial }].concat(old.prestige.history).slice(0,10);
       if (fresh.prestige.skills["3-2"]) fresh.generators.fieldOscillation.added = D(Game.CONFIG.PRESTIGE.skills["3-2"].startingOscillations);
       if (fresh.prestige.skills["3-4-2"]) fresh.generators.fieldCoupling.added = D(Game.CONFIG.PRESTIGE.skills["3-4-2"].startingCouplings);
+      Game.Automation.preserve(old,fresh);
       fresh.settings = old.settings;
       fresh.ui = old.ui;
       Game.player = fresh;
-      if (Game.Loop) { Game.Loop.accumulator = 0; Game.Loop.lastTime = performance.now(); }
+      if (Game.Loop && !automated) { Game.Loop.accumulator = 0; Game.Loop.lastTime = performance.now(); }
       if (Game.UI) Game.UI.generatorSparkBudget = 0;
       const finish = function () {
         if (Game.player !== fresh) return;
@@ -124,7 +126,7 @@
       if (Game.Experience) Game.Experience.syncPlayer(true);
       Game.Save.save();
       if (Game.UI) Game.UI.render();
-      if (Game.CondenseFX) Game.CondenseFX.play(reward, finish);
+      if (Game.CondenseFX && !automated) Game.CondenseFX.play(reward, finish);
       else finish();
       return true;
     }

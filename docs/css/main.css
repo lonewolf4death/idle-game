@@ -629,8 +629,8 @@ summary.contribution-row { cursor:pointer; }
 .tree-view-switch button { font-size:11px; padding:6px 10px; color:var(--muted); }
 .tree-view-switch button[aria-pressed=true] { color:#ddc792; border-color:#947d4c; background:#d6bd800c; }
 .skill-map { position:relative; isolation:isolate; flex:1; min-height:160px; margin-top:8px; overflow:auto; border:1px solid #34404c; background:#0b1012; scrollbar-color:#3d5158 #0b1012; }
-#skill-map-world { position:relative; width:1350px; height:925px; margin:0 auto; }
-#skill-map-links { position:absolute; inset:0; width:1350px; height:925px; pointer-events:none; }
+#skill-map-world { position:relative; width:1350px; height:1110px; margin:0 auto; }
+#skill-map-links { position:absolute; inset:0; width:1350px; height:1110px; pointer-events:none; }
 #skill-map-links path { fill:none; stroke:#33424a; stroke-width:1.5; }
 #skill-map-links .is-available { stroke:#83719c; }
 #skill-map-links .is-owned { stroke:#ad945e; }
@@ -675,6 +675,45 @@ summary.contribution-row { cursor:pointer; }
 @keyframes perk-awakening { 10% { filter:brightness(1.8); } 100% { filter:brightness(1); } }
 .energy-spark.automatic-impulse { background:radial-gradient(ellipse,#ddc28f44,#af86c122,transparent 70%); border:1px solid #d6bd8044; }
 .sound-previews { display:flex; flex-wrap:wrap; gap:8px; }
+
+/* Finite, event-driven puzzles: no animated canvas or background timers. */
+.automation-settings { margin:22px 0 30px; border-top:1px solid var(--border); padding-top:14px; }
+.automation-settings h3 { font-size:14px; color:var(--energy); font-weight:400; }
+.automation-actions { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:14px; }
+#automation-settings-list small { display:block; color:var(--muted); font-size:10px; margin-top:3px; }
+#automation-settings-list input { flex-shrink:0; }
+.challenge-layout { display:grid; grid-template-columns:minmax(200px,.8fr) minmax(0,1.4fr); gap:28px; max-width:1060px; }
+#challenge-tracks { display:flex; flex-direction:column; gap:6px; align-self:start; }
+#challenge-tracks button { display:flex; gap:12px; align-items:center; text-align:left; padding:12px; }
+#challenge-tracks .cosmic-icon { width:25px; height:25px; flex-shrink:0; color:#a68cbe; }
+#challenge-tracks small { display:block; margin-top:4px; font-size:10px; color:var(--muted); }
+#challenge-tracks button[aria-pressed=true] { border-color:#a68cbe; background:#a68cbe12; color:#dfcbf0; }
+.challenge-detail { min-width:0; padding:24px; border:1px solid var(--border); background:radial-gradient(ellipse at 50% 35%,#ad8cce0a,transparent 70%),var(--field); align-self:start; }
+.challenge-detail h3 { color:#d5b9e9; font-weight:400; font-size:20px; line-height:1.4; margin:5px 0; }
+.challenge-reward { color:var(--energy); font-size:12px; }
+.challenge-levels { display:flex; gap:5px; margin:18px 0; }
+.challenge-levels span { flex:1; min-width:0; text-align:center; font-size:10px; border-bottom:2px solid var(--border); color:var(--muted); padding-bottom:4px; }
+.challenge-levels .is-complete { color:var(--energy); border-color:var(--energy); }
+.challenge-instructions { color:var(--muted); font-size:12px; line-height:1.85; }
+.challenge-instructions b { color:var(--text); font-weight:400; }
+.phase-grid { display:grid; grid-template-columns:repeat(var(--grid-size),1fr); gap:8px; max-width:350px; margin:24px auto; }
+.phase-grid button { padding:0; aspect-ratio:1; display:grid; place-items:center; color:#667d80; border:1px solid #3d555b; background:#101c21; font-size:22px; border-radius:4px; }
+.phase-grid button.is-lit { color:#dcc5ee; border-color:#aa86c4; background:#50345d; box-shadow:inset 0 0 18px #c096e817; }
+.phase-grid button:hover:not(:disabled) { border-color:var(--energy); background:#66503b; }
+.challenge-actions { display:flex; gap:12px; align-items:center; justify-content:space-between; font-size:11px; color:var(--muted); }
+.challenge-result { min-height:22px; font-size:12px; color:var(--energy); }
+.challenges-active .control-panel { display:none; }
+.challenges-active .game-layout { grid-template-columns:minmax(0,1fr); grid-template-rows:minmax(0,1fr); }
+@media(max-width:760px) {
+  .challenge-layout { grid-template-columns:minmax(0,1fr); gap:16px; }
+  #challenge-tracks { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:5px; }
+  #challenge-tracks button { padding:8px; font-size:10px; gap:6px; }
+  #challenge-tracks .cosmic-icon { width:17px; height:17px; }
+  #challenge-tracks small { font-size:9px; }
+  .challenge-detail { padding:15px; }
+  .phase-grid { gap:6px; }
+  .challenges-active .header-energy,.challenges-active .brand .subtitle { display:none; }
+}
 #respec-skills { color:#bc999a; font-size:10px; }
 @media(prefers-reduced-motion:reduce) { .perk-purchase-ring,.perk-purchase-fleck { display:none; }.perk-awakened { animation:none;outline:1px solid #d6bd80; } }
 
