@@ -72,6 +72,17 @@
     allowedGenerator: function (id) { const rule=this.definition();return !rule || !rule.blocked || !rule.blocked.includes(id); },
     addedAllowed: function (id) { return !this.active(7) && this.allowedGenerator(id); },
     purchaseLimit: function (id) { return this.active(7) ? Math.max(0,10-Game.player.generators[id].purchased.toNumber()) : Infinity; },
+    permanentBonusesDisabled: function () { return this.active(8); },
+    priceMultiplier: function () { return Game.D(this.active(5)?this.definition().purchasePriceMultiplier:1); },
+    purchaseQuantity: function () {
+      if(!this.active(5) || !Game.FieldDynamics.active()) return Game.D(1);
+      const current=Game.FieldDynamics.multiplier(),peak=Game.FieldDynamics.peak(),max=Game.D(this.definition().maxPurchaseQuantity);
+      if(Game.FieldDynamics.peakPaused()) return Game.D(1);
+      if(Game.player.fieldDynamics.elapsed.gte(Game.FieldDynamics.rules().rise)) return max;
+      if(current.lte(1) || peak.lte(1)) return Game.D(1);
+      if(current.gte(peak)) return max;
+      return Decimal.max(1,Decimal.min(max,Game.D(1).add(max.sub(1).mul(current.sub(1).div(peak.sub(1))).floor())));
+    },
     ready: function () { this.observe();return !!this.active() && Game.player.challenges.bestEnergy.gte(this.goal()); },
     enter: function (index) {
       if (this.active() || !Number.isInteger(index) || index<1 || index>8 || !Game.Automation.unlocked(this.buyer(index).id) || this.level(index)>=10) return false;
@@ -104,6 +115,11 @@
       // openings receive only the seed their stated restriction needs.
       if(index===1) fresh.generators.energyDisturbance.added=Game.D(1);
       if(index===2) { fresh.generators.quantumFluctuation.added=Game.D(1);fresh.fluctuation.positive=0; }
+      if(index===5) {
+        const rule=this.definition(5);
+        fresh.resources.energy=Game.D(rule.startingEnergy);fresh.challenges.bestEnergy=Game.D(rule.startingEnergy);
+        fresh.generators.fieldOscillation.added=Game.D(rule.startingOscillations);
+      }
       if(!index) {
         if(fresh.prestige.skills['3-2']) fresh.generators.fieldOscillation.added=Game.D(Game.CONFIG.PRESTIGE.skills['3-2'].startingOscillations);
         if(fresh.prestige.skills['3-4-2']) fresh.generators.fieldCoupling.added=Game.D(Game.CONFIG.PRESTIGE.skills['3-4-2'].startingCouplings);

@@ -61,6 +61,15 @@
       return defaults;
     }
     const player = merge(data, fresh);
+    const challengeVersion=data.challenges && data.challenges.rulesVersion;
+    if (challengeVersion!==undefined && ![1,2].includes(challengeVersion)) throw new Error('Unsupported challenge rules');
+    if(player.challenges.active===5 && challengeVersion!==2) {
+      const rule=Game.CONFIG.CHALLENGES[4];
+      player.resources.energy=Decimal.max(player.resources.energy,rule.startingEnergy);
+      player.challenges.bestEnergy=Decimal.max(player.challenges.bestEnergy,player.resources.energy);
+      player.generators.fieldOscillation.added=Decimal.max(player.generators.fieldOscillation.added,rule.startingOscillations);
+    }
+    player.challenges.rulesVersion=2;
     // Older saves have no real duration for the ongoing run. Track from load
     // and label it partial instead of inferring real time from accelerated time.
     if (data.time && data.time.currentEnergyRunReal===undefined) player.time.currentEnergyRunPartial=Number(player.time.realPlayed>0 || player.time.currentEnergyRun.gt(0));

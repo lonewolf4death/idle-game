@@ -43,7 +43,7 @@
       // Match the exponential at the boundary, then grow linearly in Quanta:
       // ten times the bonus basis gives ten times the capped multiplier.
       // Avoid evaluating the uncapped exponential for enormous balances.
-      if (Game.Challenges.active(8)) return {basis:basis,threshold:cached.threshold,cap:cached.cap,active:false,suppressed:true,multiplier:D(1)};
+      if (Game.Challenges.permanentBonusesDisabled()) return {basis:basis,threshold:cached.threshold,cap:cached.cap,active:false,suppressed:true,multiplier:D(1)};
       return { basis:basis, threshold:cached.threshold, cap:cached.cap, active:active, multiplier:active ? cached.cap.mul(basis.div(cached.threshold)) : cached.base.pow(basis) };
     },
     bonusQuanta: function () { return Decimal.max(Game.player.prestige.quanta, this.hasSkill("4-4-2") ? Game.player.prestige.totalQuanta.div(2) : 0); },
@@ -52,7 +52,7 @@
       return D(this.hasSkill("4-2") ? Game.CONFIG.PRESTIGE.skills["4-2"].energyMultiplier : 1);
     },
     condenseMemoryMultiplier: function () {
-      return this.hasSkill("0-0") && !Game.Challenges.active(8) ? D(Game.CONFIG.PRESTIGE.skills["0-0"].energyPerCondense).pow(this.effectiveCondenses()) : D(1);
+      return this.hasSkill("0-0") && !Game.Challenges.permanentBonusesDisabled() ? D(Game.CONFIG.PRESTIGE.skills["0-0"].energyPerCondense).pow(this.effectiveCondenses()) : D(1);
     },
     effectiveCondenses: function () { return Game.player.prestige.times.mul(this.hasSkill("4-3-1") ? Game.CONFIG.PRESTIGE.skills["4-3-1"].condenseCountMultiplier : 1); },
     productionInterval: function (base) { return Decimal.max(1, D(base).sub(this.hasSkill("4-3-2") ? Game.CONFIG.PRESTIGE.skills["4-3-2"].intervalReduction : 0)); },
@@ -123,29 +123,31 @@
     upgradeCost: function () {
       const pricing = this.upgradePricing();
       const level = Game.player.upgrades.clickPower.toNumber();
-      return pricing.costs[Math.min(level, pricing.rules.maxLevel)];
+      return pricing.costs[Math.min(level, pricing.rules.maxLevel)].mul(Game.Challenges.priceMultiplier());
     },
     affordableClickLevels: function () {
-      return this.quoteClickUpgrade("max").count.toNumber();
+      return this.quoteClickUpgrade("max").gain.toNumber();
     },
     quoteClickUpgrade: function (amount) {
       const pricing = this.upgradePricing();
       const start = Game.player.upgrades.clickPower.toNumber();
-      const limit = amount === "max" ? pricing.rules.maxLevel : Math.min(pricing.rules.maxLevel, start + Number(amount));
-      let cost = D(0), count = 0;
-      for (let level = start; level < limit; level++) {
-        const nextCost = cost.add(pricing.costs[level]);
+      const limit = amount === "max" ? pricing.rules.maxLevel : Math.min(pricing.rules.maxLevel, Number(amount));
+      const quantity=Game.Challenges.purchaseQuantity().toNumber(),price=Game.Challenges.priceMultiplier();
+      let cost = D(0), count = 0, gain=0;
+      while (count<limit && start+gain<pricing.rules.maxLevel) {
+        const nextCost = cost.add(pricing.costs[start+gain].mul(price));
         if (Game.player.resources.energy.lt(nextCost)) break;
         cost = nextCost;
         count++;
+        gain+=Math.min(quantity,pricing.rules.maxLevel-start-gain);
       }
-      return { count: D(count), cost: cost };
+      return { count: D(count), gain:D(gain), cost: cost };
     },
     buyClickUpgrade: function (amount) {
       const quote = this.quoteClickUpgrade(amount || 1);
       if (quote.count.lte(0)) return false;
       Game.player.resources.energy = Game.player.resources.energy.sub(quote.cost);
-      Game.player.upgrades.clickPower = Game.player.upgrades.clickPower.add(quote.count);
+      Game.player.upgrades.clickPower = Game.player.upgrades.clickPower.add(quote.gain);
       Game.Achievements.capture(Game.player, true);
       if (Game.Energy.getOwned("fieldCoupling").gt(0) && Game.UI) Game.UI.dynamicsFeedback("fieldCoupling");
       return true;

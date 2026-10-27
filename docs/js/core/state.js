@@ -19,7 +19,7 @@
     });
     return {
       automation: {buyers:buyers},
-      challenges: {active:0,bestEnergy:D(0)},
+      challenges: {active:0,bestEnergy:D(0),rulesVersion:2},
       unlocks: { fluctOdds: 0, fieldExcitation: 0 },
       ui: { collapsed: collapsed, skillTree2D: 0 },
       version: Game.CONFIG.VERSION,

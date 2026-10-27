@@ -360,7 +360,7 @@
           const description = "Base production: " + Game.Format.number(Game.Energy.getBaseRate(gen).mul(Game.Energy.burstInterval(gen)), 5) + " Energy every " + Game.Energy.burstInterval(gen).toString() + "s each · " + Game.Format.number(Game.Energy.getBaseRate(gen), 5) + " Energy/sec average";
           if (node.description.textContent !== description) node.description.textContent = description;
         }
-        setText(node.buy, quote.count.gt(0) ? "Buy " + Game.Format.number(quote.count, 0) + " — " + Game.Format.number(quote.cost) + " Energy" : "Buy 1 — " + Game.Format.number(Game.Energy.getGeneratorCost(gen)) + " Energy");
+        setText(node.buy, quote.count.gt(0) ? "Buy " + Game.Format.number(quote.count, 0) + (quote.gain && quote.gain.gt(quote.count)?" → "+Game.Format.number(quote.gain,0)+" units":"") + " — " + Game.Format.number(quote.cost) + " Energy" : "Buy 1 — " + Game.Format.number(Game.Energy.getGeneratorCost(gen)) + " Energy");
         if (Game.Challenges.active() && !Game.Challenges.allowedGenerator(gen.id)) setText(node.buy,"Unavailable in this challenge");
         else if(Game.Challenges.purchaseLimit(gen.id)===0) setText(node.buy,"Challenge limit · 10 purchased");
         node.buy.disabled = quote.count.lte(0);
@@ -385,7 +385,7 @@
       byId("auto-click-status").hidden = !Game.Progression.hasSkill("1-2-2");
       setText(byId("auto-click-status"), capped ? "Self-sustaining impulse · click in " + Game.Format.number(Game.Energy.autoClickRemaining(), 1) + " game seconds" : "Self-sustaining impulse · max Disturb to activate");
       const clickQuote = Game.Progression.quoteClickUpgrade(this.buyAmount);
-      setText(byId("buy-click-upgrade"), capped ? "Maxed" : clickQuote.count.gt(0) ? "Buy " + Game.Format.number(clickQuote.count, 0) + " — " + Game.Format.number(clickQuote.cost) + " Energy" : "Buy 1 — " + Game.Format.number(Game.Progression.upgradeCost()) + " Energy");
+      setText(byId("buy-click-upgrade"), capped ? "Maxed" : clickQuote.count.gt(0) ? "Buy " + Game.Format.number(clickQuote.count, 0) + (clickQuote.gain.gt(clickQuote.count)?" → +"+Game.Format.number(clickQuote.gain,0)+" levels":"") + " — " + Game.Format.number(clickQuote.cost) + " Energy" : "Buy 1 — " + Game.Format.number(Game.Progression.upgradeCost()) + " Energy");
       byId("buy-click-upgrade").disabled = capped || clickQuote.count.lte(0);
       this.updateCompactBuy(byId("buy-click-upgrade-collapsed"), byId("buy-click-upgrade"), "Disturb");
       const resonanceVisible = false || Game.Coherence.discovered();

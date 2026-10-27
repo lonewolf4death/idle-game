@@ -188,14 +188,14 @@
     ]
   };
   Game.CONFIG.CHALLENGES = [
-    {name:"Hands off",startExponent:10,exponentStep:4,description:"Clicks are disabled, including their Energy, time advance and peak release. Start with one added Gen 1 (Energy Disturbance) so the run can grow without clicking."},
-    {name:"Against the tide",startExponent:12,exponentStep:4,description:"Fluct is permanently negative. Start with one added Gen 2 (Quantum Fluctuation). Forced negative rolls do not earn Against the current streak rewards."},
-    {name:"Severed resonance",startExponent:10,exponentStep:4,blocked:["coherentEnergy"],description:"Gen 3 (Coherent Energy) is unavailable. No Quantum Resonance or Energy Resonance can be produced, including through clicks. Grow without Resonance or its triggered effects."},
-    {name:"Unexcited field",startExponent:10,exponentStep:4,blocked:["fieldExcitation","fieldCoupling"],description:"Gen 4 (Field Excitation) and Gen 7 (Field Coupling) are unavailable. Accumulated field growth and click-granted base growth are disabled. Gen 1 must grow through other bonuses."},
-    {name:"Broken rhythm",startExponent:12,exponentStep:4,blocked:["fieldOscillation","fieldResonance"],description:"Gen 5 (Field Oscillation) and Gen 6 (Field Resonance) are unavailable. There is no rising or peak multiplier. Use Fluct, fields and clicks instead."},
-    {name:"Chain reaction",startExponent:12,exponentStep:4,description:"Buying a generator erases the purchased and added counts of every lower-numbered generator. Rebuild them in the right order. Purchase prices restart for erased generators; accumulated resources, field growth and derived skill effects remain."},
-    {name:"Sparse universe",startExponent:8,exponentStep:4,description:"At most ten paid purchases of each generator per run. Added units from Energy Resonance, replication and other grants are disabled. Quantum Resonance, effective-count skills and Gen 7 coupling still work."},
-    {name:"Forgotten origin",startExponent:8,exponentStep:4,description:"The unspent/lifetime Quanta Energy bonus and Memory of condensation multiplier are disabled. Other skills, achievements and playtime bonuses remain. Build the run without those two permanent Energy multipliers."}
+    {name:"Hands off",startExponent:10,exponentStep:4,description:"Clicks and their Energy, resource payouts, time advances and peak release are disabled.",devDescription:"Starts with one added Gen 1 (Energy Disturbance)."},
+    {name:"Against the tide",startExponent:12,exponentStep:4,description:"Fluct is permanently negative. Forced rolls do not count toward fluct-streak achievements.",devDescription:"Starts with one added Gen 2 (Quantum Fluctuation)."},
+    {name:"Severed resonance",startExponent:10,exponentStep:4,blocked:["coherentEnergy"],description:"Gen 3 (Coherent Energy) is unavailable. Quantum Resonance and Energy Resonance production are disabled, including click grants."},
+    {name:"Unexcited field",startExponent:10,exponentStep:4,blocked:["fieldExcitation","fieldCoupling"],description:"Gen 4 (Field Excitation) and Gen 7 (Field Coupling) are unavailable. Field growth and click-granted base growth are disabled."},
+    {name:"Costly potential",startExponent:30,exponentStep:4,purchasePriceMultiplier:"1e6",maxPurchaseQuantity:"1000",startingEnergy:"1.1e10",startingOscillations:"1",description:"Generator and Disturb purchase prices are multiplied by ×1e6.",devDescription:"Starts with 1.1e10 Energy and one added Gen 5. Quantity = 1 + floor(999 × (current Oscillation multiplier − 1) / (peak multiplier − 1)), bounded from 1 to 1000. A paused negative-Fluct peak gives quantity 1. Snapshot before purchase; bonus generators are added units, so only paid purchases raise generator costs. Disturb grants extra levels up to its normal cap."},
+    {name:"Chain reaction",startExponent:12,exponentStep:4,description:"Buying a generator erases the purchased and added counts of every lower-numbered generator."},
+    {name:"Sparse universe",startExponent:8,exponentStep:4,description:"Each generator is limited to ten paid purchases per run. Added-unit grants and Energy Resonance production are disabled."},
+    {name:"Forgotten origin",startExponent:8,exponentStep:4,description:"Unspent and lifetime Quanta Energy bonuses and the Memory of condensation multiplier are disabled."}
   ];
   const automationParents=["1-5-1","2-4-1","2-4-2","4-4-1","3-2-3","3-5-1","3-5-2","4-4-2"];
   Game.CONFIG.AUTOMATION.buyers.forEach(function (buyer,index) {

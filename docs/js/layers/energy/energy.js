@@ -115,11 +115,11 @@
     getGeneratorCost: function (generator) {
       const owned = Game.player.generators[generator.id].purchased.toNumber();
       const step = (generator.scalingStepLevels || Game.CONFIG.GENERATOR_SCALING.stepLevels);
-      const key = [owned, generator.baseCost, generator.costScaling, step, generator.scalingStepIncrease || Game.CONFIG.GENERATOR_SCALING.stepIncrease].join("|");
+      const key = [owned, generator.baseCost, generator.costScaling, step, generator.scalingStepIncrease || Game.CONFIG.GENERATOR_SCALING.stepIncrease,Game.Challenges.priceMultiplier().toString()].join("|");
       const cache = this._costCache || (this._costCache = Object.create(null)), previous = cache[generator.id];
       const cacheable = this.getGeneratorScaling === originalScalingRule;
       if (cacheable && previous && previous.key === key) return previous.cost;
-      let cost = D(generator.baseCost);
+      let cost = D(generator.baseCost).mul(Game.Challenges.priceMultiplier());
       for (let start = 0; start < owned; start += step) {
         cost = cost.mul(this.getGeneratorScaling(generator, start).pow(Math.min(step, owned - start)));
       }
@@ -189,7 +189,7 @@
         next = next.mul(scale.pow(take));
         if (take < block) break;
       }
-      return { count: D(count), cost: cost };
+      return { count: D(count), gain:D(count).mul(Game.Challenges.purchaseQuantity()), cost: cost };
     },
     buyGenerator: function (id, amount) {
       if (!this.generatorEnabled(this.getGenerator(id))) return false;
@@ -206,6 +206,7 @@
       const oldBurstInterval = gen.burstInterval ? this.burstInterval(gen) : null;
       Game.player.resources.energy = Game.player.resources.energy.sub(quote.cost);
       state.purchased = state.purchased.add(quote.count);
+      if(quote.gain) state.added=state.added.add(quote.gain.sub(quote.count));
       if (id === "energyDisturbance" && Game.Progression.hasSkill("1-4-2")) this.rescaleBurstTimers(oldBurstInterval);
       Game.player.stats.generatorsBought = before.add(quote.count);
       Game.Achievements.capture(Game.player,true);
