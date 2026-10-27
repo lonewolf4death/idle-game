@@ -85,9 +85,12 @@ while (Game.player.time.realPlayed < end) {
   const longRun = Game.player.time.currentEnergyRunReal >= RUN_HOURS * 3600;
   if (skillCost && reward.gte(1) && Game.player.prestige.quanta.add(reward).gte(skillCost) && (longRun || Game.player.prestige.quanta.add(reward).gte(remaining))) {
     const n = Game.player.prestige.times.toNumber() + 1;
-    mark("c" + n, "Condense #" + n + " (+" + reward.toString() + " Quanta after " + fmt(Game.player.time.currentEnergyRunReal) + ")");
+    mark("c" + n, "Condense #" + n + " (+" + reward.toString() + " Quanta at " + e.toExponential(1) + " after " + fmt(Game.player.time.currentEnergyRunReal) + ")");
+    const before = skillIds.filter(function (id) { return Game.Progression.hasSkill(id); });
     Game.Prestige.condense(true);
     buySkills();
+    const bought = skillIds.filter(function (id) { return Game.Progression.hasSkill(id) && !before.includes(id); });
+    if (bought.length) log("    bought " + bought.join(" "));
   }
   const owned = ownedSkills();
   [10, 20, 30, skillIds.length].forEach(function (n) { if (owned >= n) mark("s" + n, n + " skills owned"); });

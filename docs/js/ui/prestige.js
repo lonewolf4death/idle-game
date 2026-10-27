@@ -139,7 +139,7 @@
       setText(byId("quanta-bonus"), "×" + Game.Format.number(quantaBonus.multiplier, 5) + " all Energy" + (quantaBonus.suppressed ? " · disabled in this challenge" : quantaBonus.active ? " · soft-capped" : "") + (Game.Progression.hasSkill("4-4-2") ? " · basis " + Game.Format.number(quantaBonus.basis, 1) + " Quanta" : ""));
       setText(byId("condense-earned"), number(p.prestige.totalQuanta) + " earned · " + number(p.prestige.times) + " condensations" + (Game.Progression.hasSkill("4-3-1") ? " · " + number(Game.Progression.effectiveCondenses()) + " effective" : ""));
       setText(byId("condense-reward"), "+" + number(reward) + " Primordial Quanta");
-      setText(byId("condense-next"), "Next reward: " + number(reward.add(1)) + " at " + number(Game.Prestige.nextRewardEnergy()) + " held Energy");
+      setText(byId("condense-next"), "Next reward: " + number(reward.add(Game.Symmetry.quantaMultiplier())) + " at " + number(Game.Prestige.nextRewardEnergy()) + " held Energy");
       setText(byId("condense-requirement"), Game.Challenges.active() ? "Condense is unavailable during a challenge. Complete its Energy goal or exit the challenge first." : ready ? "Ready to condense. Your current run will reset." : "Requires " + number(Game.CONFIG.PROGRESSION.prestigeEnergy) + " held Energy.");
       byId("condense-button").disabled = !ready;
       setText(byId("condense-button"), "Condense Energy · +" + number(reward) + " Quanta");

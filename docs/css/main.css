@@ -806,3 +806,19 @@ summary.contribution-row { cursor:pointer; }
 .skill-summary { color:var(--text); font-size:13px; line-height:1.7; margin:6px 0 8px; }
 .skill-rules summary { cursor:pointer; color:var(--muted); font-size:11px; }
 .skill-rules[open] summary { margin-bottom:6px; }
+
+/* Generators sit above the click upgrade so more of them fit on screen. */
+.control-panel { display:flex; flex-direction:column; }
+.control-panel>* { flex-shrink:0; }
+.control-panel>.buy-amounts { order:0; }
+.control-panel>#generators-panel { order:1; }
+.control-panel>[data-category=upgrades] { order:2; }
+@media (max-width:760px) {
+  /* Phones: one scrolling row of tabs and a one-line footer. */
+  .view-tabs { flex-wrap:nowrap; overflow-x:auto; scrollbar-width:none; }
+  .view-tabs::-webkit-scrollbar { display:none; }
+  .view-tabs [role=tab] { flex:none; }
+  .simulation-strip,#milestone-caption,.subtitle { display:none; }
+  .milestone { padding:8px 14px; }
+  .buy-amounts>p { display:none; }
+}

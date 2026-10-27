@@ -114,12 +114,22 @@ test("short absences do not trigger offline simulation", function () {
   assert.strictEqual(b.Game.Offline.resumeFromSave(), false);
 });
 
+test("first Condense opens at 1e10", function () {
+  const { Game: G } = createGame();
+  G.player.resources.energy = G.D("9e9");
+  assert.ok(G.Prestige.reward().eq(0));
+  G.player.resources.energy = G.D("1e10");
+  assert.strictEqual(G.Prestige.reward().toString(), "1");
+  G.player.resources.energy = G.D("1e30");
+  assert.strictEqual(G.Prestige.reward().toString(), "3");
+});
+
 test("Condense resets the run and grants Quanta", function () {
   const a = createGame();
   a.Game.player.resources.energy = a.Game.D("1e55");
-  assert.strictEqual(a.Game.Prestige.reward().toString(), "6");
+  assert.strictEqual(a.Game.Prestige.reward().toString(), "10", "5 by 1e50, then +1 per order of magnitude");
   assert.ok(a.Game.Prestige.condense(true));
-  assert.strictEqual(a.Game.player.prestige.quanta.toString(), "6");
+  assert.strictEqual(a.Game.player.prestige.quanta.toString(), "10");
   assert.ok(a.Game.player.resources.energy.eq(0));
 });
 

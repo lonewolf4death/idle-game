@@ -503,7 +503,7 @@
       setText(byId("resonance-fluct-growth"), "Fluct base: " + Game.Format.number(Game.Energy.fluctGrowth(), 6) + " · effective Resonance: " + Game.Format.number(quantumSoftcap.effective, 3) + " · exponent " + Game.Format.number(quantumSoftcap.power, 2) + (quantumSoftcap.next ? " · next at " + Game.Format.number(quantumSoftcap.next, 0) : " · final soft cap"));
       const fluct = Game.Energy.getOwned("quantumFluctuation");
       byId("fluct-display").hidden = fluct.lte(0);
-      setText(byId("fluct-display"), "Fluct " + (p.fluctuation.positive ? "+" : "−") + " · ×" + Game.Format.number(Game.Energy.fluctMultiplier(), 5));
+      setText(byId("fluct-display"), "Fluct " + (p.fluctuation.positive ? "+" : "−") + " · ×" + Game.Format.number(Game.Energy.fluctMultiplier(), 3));
       setText(byId("music-stage"), "Eventide · " + ["Unformed tones", "Pentatonic notes · 10 clicks", "Harmonic layers · 25 purchased generators", "Interwoven tones · Quantum Fluctuation", "Resonance chords · Coherent Energy", "Field harmonics · Field Excitation"][Game.Audio.musicStage()]);
       setText(byId("click-gain"), "+" + Game.Format.number(Game.Energy.manualGain()) + (Game.Progression.hasSkill("1-2-1") ? " direct / click · +0.33s all generators" : " / click"));
       const achieved = Game.Progression.achievementUnlocked();

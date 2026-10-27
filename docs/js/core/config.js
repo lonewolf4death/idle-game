@@ -65,7 +65,9 @@
       { id:"firstBreak", name:"The mirror cracks", kind:"symmetry", amount:"1", reward:"energy", multiplier:"1.05", icon:"symmetry", requirement:"Break Symmetry for the first time." },
       { id:"firstAtom", name:"Something that holds", kind:"atom", amount:"1", reward:"energy", multiplier:"1.1", icon:"symmetry", requirement:"Form the first stable atom." }
     ],
-    PROGRESSION: { prestigeEnergy: "1e50" },
+    // First Condense at 1e10 for 1 Quanta; +1 per ×1e10 up to 1e50 (5 Quanta),
+    // then +1 per order of magnitude, so late runs pay as before.
+    PROGRESSION: { prestigeEnergy: "1e10", earlyStep: 10, fullRateEnergy: "1e50" },
     PRESTIGE: {
       name: "Condense Energy", quantaEnergyBase: "1.03", quantaSoftcapMultiplier: "1e25", achievementMultiplier: "1.05",
       lore: "Persistent excitations emerge from the primordial field. For the first time, energy can exist in discrete states.",
@@ -189,9 +191,9 @@
         scalingStepIncrease: "0.3",
         production: "0"
       },
-      { id: "fieldOscillation", name: "Field Oscillation", type: "oscillation", unlockEnergy: "1e10", baseCost: "1e10", costScaling: "2", scalingStepLevels: 5, scalingStepIncrease: "0.25", production: "0" },
-      { id: "fieldResonance", name: "Field Resonance", type: "resonance", unlockEnergy: "1e15", baseCost: "1e15", costScaling: "1.5", scalingStepLevels: 5, scalingStepIncrease: "0.125", production: "0" },
-      { id: "fieldCoupling", name: "Field Coupling", type: "coupling", unlockEnergy: "1e30", baseCost: "1e30", costScaling: "2", scalingStepLevels: 5, scalingStepIncrease: "0.5", production: "0" }
+      { id: "fieldOscillation", name: "Field Oscillation", type: "oscillation", unlockEnergy: "1e7", baseCost: "1e7", costScaling: "2", scalingStepLevels: 5, scalingStepIncrease: "0.25", production: "0" },
+      { id: "fieldResonance", name: "Field Resonance", type: "resonance", unlockEnergy: "1e11", baseCost: "1e11", costScaling: "1.5", scalingStepLevels: 5, scalingStepIncrease: "0.125", production: "0" },
+      { id: "fieldCoupling", name: "Field Coupling", type: "coupling", unlockEnergy: "1e18", baseCost: "1e18", costScaling: "2", scalingStepLevels: 5, scalingStepIncrease: "0.5", production: "0" }
     ]
   };
   // Second layer. Breaking Symmetry resets the run, Quanta, Condenses and Mass
@@ -299,7 +301,7 @@
   Game.CONFIG.AUTOMATION.buyers.forEach(function (buyer,index) {
     buyer.title=Game.CONFIG.CHALLENGES[index].name;
     Game.CONFIG.PRESTIGE.skills[buyer.skill]={name:index===7 ? "Automatic condensation" : "Automatic "+Game.CONFIG.GENERATORS[index].name.toLowerCase(),cost:"100",requires:automationParents[index],summary:index===7 ? "Condense automatically at your chosen Quanta target." : "Automatically buy as many "+buyer.name+" as you can afford, every few seconds.",
-      description:(index===7 ? "Automatically Condense once the available reward reaches the Quanta target chosen in the Automation tab (default: 1). The normal 1e50 Energy minimum applies; each reset claims the full available reward. Resets the run as normal. Repeat automatic Condenses skip the cinematic." : "Automatically buy Max "+buyer.name+" using available Energy per activation. Respects unlock conditions and current costs; ignores the manual buy quantity.")+" Starts at one attempt every 5 real seconds. Its ten-level restricted-run challenge reduces the interval by 0.4 seconds per level, reaching 1 second. Configure individual buyers or all buyers in the Automation tab. Unlocked automation starts OFF. Timers continue while unfocused, do not bank failed purchases, and restart each run. Challenge progress is permanent."};
+      description:(index===7 ? "Automatically Condense once the available reward reaches the Quanta target chosen in the Automation tab (default: 1). The normal 1e10 Energy minimum applies; each reset claims the full available reward. Resets the run as normal. Repeat automatic Condenses skip the cinematic." : "Automatically buy Max "+buyer.name+" using available Energy per activation. Respects unlock conditions and current costs; ignores the manual buy quantity.")+" Starts at one attempt every 5 real seconds. Its ten-level restricted-run challenge reduces the interval by 0.4 seconds per level, reaching 1 second. Configure individual buyers or all buyers in the Automation tab. Unlocked automation starts OFF. Timers continue while unfocused, do not bank failed purchases, and restart each run. Challenge progress is permanent."};
     Game.CONFIG.PRESTIGE.branches.find(function (branch) { return branch.id===Number(buyer.skill[0]); }).nodes.push(buyer.skill);
   });
 })(window.CosmicIdle);
