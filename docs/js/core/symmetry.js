@@ -66,6 +66,7 @@
       return D(rules.baseCost).mul(starter).mul(D(rules.costScaling).pow(exponent));
     },
     quote:function (amount) {
+      if(amount==='pattern') amount=1;
       if(!this.unlocked()) return {count:D(0),cost:D(0)};
       const money=Game.player.resources.energy,start=Game.player.symmetry.alignment;
       const limit=amount==='max'?Infinity:Math.max(0,Math.floor(Number(amount)||0));

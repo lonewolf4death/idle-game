@@ -3,9 +3,11 @@
   Game.Automation = {
     editingCondenseTarget:false,
     definition: function (id) { return Game.CONFIG.AUTOMATION.buyers.find(function (buyer) { return buyer.id === id; }); },
-    unlocked: function (id) { const buyer=this.definition(id);return !!buyer && Game.Progression.hasSkill(buyer.skill); },
-    interval: function (id) { return (50 - 4 * Game.player.automation.buyers[id].level) / 10; },
-    active: function (id) { return !Game.Challenges.active() && !Game.Challenges.confirming && !(id==='condense' && this.editingCondenseTarget) && this.unlocked(id) && !!Game.player.settings.autoBuyers[id]; },
+    advanced: function (id) { const buyer=this.definition(id);return !!buyer && Game.Progression.hasSkill(buyer.skill); },
+    basic: function (id) { return id!=='condense' && !!this.definition(id) && (Game.player.prestige.times.gt(0) || Game.player.structure.stabilizations.gte(1) && Game.CONFIG.GENERATORS.findIndex(function (g) { return g.id===id; })<3); },
+    unlocked: function (id) { return this.advanced(id) || this.basic(id); },
+    interval: function (id) { return this.advanced(id) ? (50 - 4 * Game.player.automation.buyers[id].level) / 10 : Game.CONFIG.STRUCTURE.basicBuyerInterval; },
+    active: function (id) { return !Game.Challenges.active() && !Game.Challenges.confirming && !(Game.StructureUI && Game.StructureUI.confirming) && !(id==='condense' && this.editingCondenseTarget) && this.unlocked(id) && !!Game.player.settings.autoBuyers[id]; },
     parseCondenseTarget: function (input) {
       if (typeof input!=='string' && typeof input!=='number') return null;
       const value=String(input).trim();
@@ -50,7 +52,7 @@
         if (buyer.id === 'condense') {
           if(Game.Prestige.reward().gte(Game.player.settings.autoCondenseTarget)) Game.Prestige.condense(true);
         }
-        else Game.Energy.buyGenerator(buyer.id,'max');
+        else Game.Energy.buyGenerator(buyer.id,Game.Automation.advanced(buyer.id)?'max':'pattern');
       });
     },
     preserve: function (old,fresh) {
@@ -79,7 +81,7 @@
       c.bestEnergy=Decimal.max(c.bestEnergy,p.resources.energy);
       if(c.bestEnergy.gte(this.goal()) && (!this.active(1) || c.purchases>=this.definition().requiredPurchases)) c.qualified=1;
     },
-    unlocked: function (index) { this.observe();return Game.Automation.unlocked(this.buyer(index).id) && Game.player.challenges.highestEnergy.gte(this.definition(index).unlockEnergy); },
+    unlocked: function (index) { this.observe();return Game.Automation.advanced(this.buyer(index).id) && Game.player.challenges.highestEnergy.gte(this.definition(index).unlockEnergy); },
     clicksAllowed: function () { return true; },
     allowedGenerator: function (id) { const rule=this.definition();return !rule || !rule.blocked || !rule.blocked.includes(id); },
     produces: function (id) { return this.allowedGenerator(id) && (!this.active(6) || Game.CONFIG.GENERATORS[Game.player.challenges.latestGenerator-1]?.id===id); },
@@ -170,6 +172,7 @@
       fresh.fluctuation.positiveChanceMastery=old.fluctuation.positiveChanceMastery;
       Game.Automation.preserve(old,fresh);fresh.settings=old.settings;fresh.ui=old.ui;
       fresh.challenges.active=index;
+      Game.Structure.seed(fresh);
       if(index===5) {
         const rule=this.definition(5);
         fresh.resources.energy=Game.D(rule.startingEnergy);fresh.challenges.bestEnergy=Game.D(rule.startingEnergy);

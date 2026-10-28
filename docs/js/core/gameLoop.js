@@ -18,7 +18,12 @@
       while (remaining.gt(0)) {
         const eligible = Game.Energy.autoClickEligible();
         if (!eligible) Game.player.autoClick.elapsed = Game.D(0);
-        const untilTier = Game.Playtime.state().next.seconds.sub(Game.player.time.gamePlayed);
+        const nextTier = Game.Playtime.state().next.seconds;
+        const untilTier = nextTier.sub(Game.player.time.gamePlayed);
+        // At a one-ULP difference Decimal can compare below the tier while
+        // subtracting it rounds to zero. Snap that indistinguishable boundary
+        // so catch-up never loops forever on a zero-length segment.
+        if (untilTier.lte(0)) { Game.player.time.gamePlayed=nextTier;continue; }
         const segment = Decimal.min(remaining, Decimal.min(untilTier, Game.Energy.autoClickRemaining()));
         if (segment.gt(0)) {
           Game.Energy.tick(segment);
@@ -51,6 +56,7 @@
         if (step>0) {
           this.advanceGameTime(Game.Time.getGameDelta(step),step);
           Game.Time.advance(step, Game.D(0));
+          Game.Structure.advance(step);
           Game.Automation.advance(step);remaining=Math.max(0,remaining-step);
         }
         Game.Challenges.resolveClockEvents();

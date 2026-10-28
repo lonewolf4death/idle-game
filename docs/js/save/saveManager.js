@@ -61,6 +61,19 @@
       return defaults;
     }
     const player = merge(data, fresh);
+    if (!data.structure) {
+      // Economic migration never resets progress. Honor every previously
+      // reached generator stage, including stages earned in an earlier run.
+      let stage=player.prestige.times.gt(0)?4:0;
+      const high=Decimal.max(player.resources.energy,player.stats.totalEnergy,player.challenges.highestEnergy);
+      Game.CONFIG.GENERATORS.forEach(function (gen,index) {
+        if(index>=3 && (high.gte(gen.unlockEnergy) || player.generators[gen.id].purchased.add(player.generators[gen.id].added).gt(0))) stage=Math.max(stage,index-2);
+      });
+      player.structure.stabilizations=Game.D(stage);player.structure.bestEnergy=player.resources.energy;player.structure.migrated=1;
+      if(stage) player.lore.stabilizationSeen=1;
+    }
+    const structure=player.structure;
+    if(structure.economyVersion!==1 || !structure.stabilizations.eq(structure.stabilizations.floor()) || structure.stabilizations.gt(Game.CONFIG.STRUCTURE.maxStabilizations) || ![structure.recovered,structure.migrated].every(function (v) { return v===0 || v===1; }) || structure.recoverySeconds>structure.elapsed+1e-6) throw new Error('Invalid field structure');
     const challengeVersion=data.challenges && data.challenges.rulesVersion;
     if (challengeVersion!==undefined && ![1,2,3].includes(challengeVersion)) throw new Error('Unsupported challenge rules');
     if(player.challenges.active===5 && (challengeVersion===undefined || challengeVersion<2)) {
@@ -117,8 +130,9 @@
     if (![settings.sound, settings.muteUnfocused, settings.clickSound, settings.autoClickSound, settings.bubbleSound, settings.perkSound, settings.perkVisuals, settings.generatorSound, settings.fluctuationSound, settings.coherentSound, settings.fieldSound, settings.condenseSound, settings.condenseVisuals, settings.autoDismiss, player.lore.introductionSeen, player.lore.coherenceSeen, player.lore.fieldFirstSeen, player.lore.fieldSecondSeen].every(function (value) { return value === 0 || value === 1; }) || settings.volume > 1 || ![0, 1, 2].includes(settings.visuals)) throw new Error('Invalid settings');
     Game.CONFIG.AUTOMATION.buyers.forEach(function (buyer) {
       const state=player.automation.buyers[buyer.id], toggle=player.settings.autoBuyers[buyer.id];
-      if (![0,1].includes(toggle) || !Number.isInteger(state.level) || state.level>10 || state.elapsed>5 || state.elapsed<0) throw new Error('Invalid automation progress');
-      if (state.elapsed>=(50-4*state.level)/10+1e-9) throw new Error('Invalid automation timer');
+      if (![0,1].includes(toggle) || !Number.isInteger(state.level) || state.level>10 || state.elapsed>Game.CONFIG.STRUCTURE.basicBuyerInterval || state.elapsed<0) throw new Error('Invalid automation progress');
+      const interval=player.prestige.skills[buyer.skill]?(50-4*state.level)/10:Game.CONFIG.STRUCTURE.basicBuyerInterval;
+      if (state.elapsed>=interval+1e-9) throw new Error('Invalid automation timer');
     });
     const challenge=player.challenges;
     if (!Number.isInteger(challenge.active) || challenge.active<0 || challenge.active>8) throw new Error('Invalid challenge run');

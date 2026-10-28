@@ -95,10 +95,10 @@
         const change = s.fluct.multiplier.sub(1).mul(100);
         const changeLabel = (change.lt(0) ? "−" : "+") + number(change.abs(), 3) + "% Energy";
         note = strength.enabled ? "Shares build reinforcement strength " + multiplier(strength.magnitude) + ". Current roll: " + (s.fluct.positive ? "Reinforcement" : "Interference") + " · applied " + multiplier(s.fluct.multiplier) + " (" + changeLabel + "). Next roll in " + number(s.fluct.remaining) + "s." : "Fluct is inactive until at least one Gen 2 unit is owned.";
-        if (strength.enabled && !s.fluct.positive) note += " Interference applies the softened penalty to the combined strength below.";
+        if (strength.enabled) note += " Stable investments remain active during both signs. The roll adds +20% or −20% around that strength.";
       } else if (entry.childBasis === "oscillation") {
         note = "Cycle " + number(s.dynamics.phase, 1) + " / " + s.dynamics.rules.cycle + "s · current " + multiplier(s.dynamics.multiplier) + " · peak " + multiplier(s.dynamics.peak) + ". Both sources build the current all-Energy multiplier; the final " + number(Game.D(s.dynamics.rules.cycle).sub(s.dynamics.rules.rise), 0) + " seconds hold the peak.";
-        if (Game.Progression.hasSkill("3-2-2")) note += Game.FieldDynamics.peakPaused() ? " Peak bonus is off and its countdown is paused until Fluct is positive." : " Peak time is spent only while Fluct is positive.";
+        if (Game.Progression.hasSkill("3-2-2")) note += Game.FieldDynamics.peakPaused() ? " Peak countdown is paused until Fluct is positive; the baseline remains active." : " Peak time is spent only while Fluct is positive.";
       } else if (entry.childBasis === "resonance-growth") {
         note = number(s.coherence.quantum, 0) + " Resonance held. Raw Resonance strengthens Fluct; the soft cap reduces that potential. Shares compare effects within this boost.";
       } else if (entry.childBasis === "captured-production") {

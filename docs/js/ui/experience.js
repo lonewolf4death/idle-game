@@ -31,12 +31,13 @@
       if (this.context) this.master.gain.setTargetAtTime(Game.player.settings.sound && !this.shouldMute() ? Game.player.settings.volume : 0, this.context.currentTime, .03);
     },
     musicStage: function () {
+      const memory=Game.player.structure.stabilizations.gte(1)?Math.min(5,Game.player.structure.stabilizations.toNumber()+3):0;
       if (Game.FieldExcitation.discovered()) return 5;
-      if (Game.Coherence.discovered()) return 4;
-      if (Game.Energy.getOwned("quantumFluctuation").gt(0)) return 3;
-      if (Game.player.stats.generatorsBought.gte(Game.CONFIG.MUSIC.secondMilestone)) return 2;
-      if (Game.player.stats.manualClicks.gte(Game.CONFIG.MUSIC.firstMilestone) || Game.player.stats.generatorsBought.gte(1)) return 1;
-      return 0;
+      if (Game.Coherence.discovered()) return Math.max(memory,4);
+      if (Game.Energy.getOwned("quantumFluctuation").gt(0)) return Math.max(memory,3);
+      if (Game.player.stats.generatorsBought.gte(Game.CONFIG.MUSIC.secondMilestone)) return Math.max(memory,2);
+      if (Game.player.stats.manualClicks.gte(Game.CONFIG.MUSIC.firstMilestone) || Game.player.stats.generatorsBought.gte(1)) return Math.max(memory,1);
+      return memory;
     },
     fluctRate: function () {
       return Game.Energy.getOwned("quantumFluctuation").gt(0) && !Game.player.fluctuation.positive ? Game.CONFIG.AUDIO.negativeFluctRate : 1;
@@ -57,7 +58,7 @@
       const settings = Game.player.settings;
       const dynamics = ["fieldOscillation", "fieldResonance", "fieldCoupling", "alignment"].includes(kind);
       if (dynamics && !settings.fieldSound) return;
-      const enabled = kind === 'bubbleCollect' || kind === 'bubbleForm' ? settings.bubbleSound : kind === 'perk' ? settings.perkSound : kind === 'autoClick' ? settings.autoClickSound : kind === 'click' ? settings.clickSound : kind === 'fluctuation' ? settings.fluctuationSound : (kind === 'quantumResonance' || kind === 'energyResonance') ? settings.coherentSound : (kind === 'fieldExcitation' || dynamics) ? settings.fieldSound : settings.generatorSound;
+      const enabled = kind === 'bubbleCollect' || kind === 'bubbleForm' ? settings.bubbleSound : (kind === 'perk' || kind === 'stabilize') ? settings.perkSound : kind === 'autoClick' ? settings.autoClickSound : kind === 'click' ? settings.clickSound : kind === 'fluctuation' ? settings.fluctuationSound : (kind === 'quantumResonance' || kind === 'energyResonance') ? settings.coherentSound : (kind === 'fieldExcitation' || dynamics) ? settings.fieldSound : settings.generatorSound;
       if (!settings.sound || !settings.volume || !enabled || this.shouldMute() || (Game.Loop && Game.Loop.catchingUp)) return;
       this.start();
       if (!this.context || this.context.state !== 'running' || this.voices >= Game.CONFIG.AUDIO.maxVoices) return;
@@ -71,11 +72,11 @@
       const coherent = kind === "quantumResonance" || kind === "energyResonance";
       const field = kind === "fieldExcitation" || dynamics;
       const bubble = kind === "bubbleCollect", forming = kind === "bubbleForm";
-      const impulse = kind === "autoClick", perk = kind === "perk";
+      const impulse = kind === "autoClick", perk = kind === "perk" || kind === "stabilize", stabilization = kind === "stabilize";
       const strongClick = kind === "click" && Game.Progression.hasSkill("1-2-1");
       const evolved = tone.stage >= 5;
       const attack = (bubble ? .025 : forming ? .2 : impulse ? .018 : perk ? .035 : strongClick ? .009 : field ? .22 : coherent ? .12 : config.attack * (evolved ? 1.25 : 1)) / rate;
-      const release = (bubble ? 1.8 : forming ? .8 : impulse ? 2.2 : perk ? 1.6 : strongClick ? .9 : field ? 2.8 : coherent ? 1.9 : config.release * (evolved ? 1.2 : 1)) / rate;
+      const release = (bubble ? 1.8 : forming ? .8 : impulse ? 2.2 : perk ? (stabilization ? 3.4 : 1.6) : strongClick ? .9 : field ? 2.8 : coherent ? 1.9 : config.release * (evolved ? 1.2 : 1)) / rate;
       this.delay.delayTime.setTargetAtTime(config.echoSeconds / rate, now, .04);
       const filter = this.context.createBiquadFilter();
       filter.type = 'lowpass'; filter.frequency.value = (bubble ? 2200 : forming ? 950 : impulse ? 2400 : perk ? 2800 : strongClick ? 1900 : field ? 720 : coherent ? (kind === 'quantumResonance' ? 1300 : 650) : config.filterHz * (evolved ? .9 : 1)) * rate;
@@ -89,13 +90,13 @@
       envelope.connect(this.delay);
       this.voices++;
       const audio = this;
-      const ratios = bubble ? [1,1.25,1.5,2] : forming ? [1,2] : impulse ? [.5, 1, 1.5, 2, 3] : perk ? [1, 1.25, 1.5, 2] : strongClick ? [.5, 1, 2, 3] : kind === "alignment" ? [1,1.5,2,3] : kind === "fieldOscillation" ? [.5, 1, 1.5] : kind === "fieldResonance" ? [1, 1.25, 1.5] : kind === "fieldCoupling" ? [.5, 1.5, 2] : field ? [.5, 1, 1.5, 2] : coherent ? (kind === "quantumResonance" ? [1, 1.25, 1.5] : [1, 1.5, 2]) : tone.stage >= 2 ? [1, 1.5, 2] : [1, tone.ratio];
+      const ratios = stabilization ? [.5,1,1.25,1.5,2] : bubble ? [1,1.25,1.5,2] : forming ? [1,2] : impulse ? [.5, 1, 1.5, 2, 3] : perk ? [1, 1.25, 1.5, 2] : strongClick ? [.5, 1, 2, 3] : kind === "alignment" ? [1,1.5,2,3] : kind === "fieldOscillation" ? [.5, 1, 1.5] : kind === "fieldResonance" ? [1, 1.25, 1.5] : kind === "fieldCoupling" ? [.5, 1.5, 2] : field ? [.5, 1, 1.5, 2] : coherent ? (kind === "quantumResonance" ? [1, 1.25, 1.5] : [1, 1.5, 2]) : tone.stage >= 2 ? [1, 1.5, 2] : [1, tone.ratio];
       let ended = 0;
       ratios.forEach(function (ratio, index) {
         const osc = audio.context.createOscillator();
         const partial = audio.context.createGain();
         const amplitude = bubble || forming || impulse || perk || strongClick ? [ .44, .3, .13, .08, .035 ][index] : index === 0 ? .7 : index === 1 ? .16 : index === 2 ? .07 : .035;
-        const start = now + (bubble ? index * .035 : perk ? index * .045 : 0), frequency = tone.base * ratio * rate * (bubble ? 2 : forming ? 1.5 : perk ? 2 : impulse ? 1.5 : 1);
+        const start = now + (bubble ? index * .035 : perk ? index * (stabilization ? .11 : .045) : 0), frequency = tone.base * ratio * rate * (bubble ? 2 : forming ? 1.5 : perk ? (stabilization ? .75 : 2) : impulse ? 1.5 : 1);
         partial.gain.setValueAtTime(amplitude, start);
         if ((impulse || strongClick) && index >= 2) partial.gain.exponentialRampToValueAtTime(.0001, start + .16 / rate);
         osc.type = (bubble || forming || impulse || perk) && index > 0 ? 'sine' : config.waveform;
@@ -217,13 +218,14 @@
       const coherent = Game.Coherence.discovered();
       const field = Game.FieldExcitation.discovered() || Game.player.lore.fieldFirstSeen || Game.player.lore.fieldSecondSeen;
       const condensed = Game.player.prestige.times.gt(0);
-      const key = String(clicked) + String(generated) + String(coherent) + String(field) + String(condensed)+String(Game.Symmetry.unlocked());
+      const key = String(clicked) + String(generated) + String(coherent) + String(field) + String(condensed)+String(Game.Symmetry.unlocked())+String(Game.player.lore.stabilizationSeen);
       if (this.loreKey === key) return;
       this.loreKey = key;
       const entries = [{title:'01 · Before structure',text:this.introduction}];
       if (clicked) entries.push({title:'02 · A disturbance',text:'A faint difference interrupts the stillness. It has no shape, no boundary—only the possibility of becoming something.'});
       if (generated) entries.push({title:'03 · Returning potential',text:'The disturbance returns without your touch. A rhythm emerges, but rhythm is not yet structure. Nothing has learned to hold its form.'});
       if (coherent) entries.push({title:'04 · Coherent Energy',text:Game.CONFIG.COHERENCE.lore});
+      if (Game.player.lore.stabilizationSeen) entries.push({title:'A pattern remembered',text:Game.CONFIG.STRUCTURE.lore});
       if (field) {
         entries.push({title:'05 · Beyond Energy',text:Game.CONFIG.FIELD_EXCITATION.lore[0]});
         entries.push({title:'06 · Fields',text:Game.CONFIG.FIELD_EXCITATION.lore[1]});

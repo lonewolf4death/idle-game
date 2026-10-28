@@ -22,24 +22,24 @@
 
     fluctBreakdown: function (s) {
       const enabled = Game.Challenges.produces('quantumFluctuation') && s.fluct.owned.gt(0), rules = s.fluct.rules;
-      const growth = D(rules.growth), increment = D(Game.CONFIG.COHERENCE.quantumFluctGrowth);
-      const rawGrowth = growth.add(s.coherence.quantum.mul(increment));
-      const effectiveGrowth = growth.add(s.coherence.softcap.effective.mul(increment));
+      const rawGrowth = D(1).add(s.coherence.quantum.add(1).log10()*.1);
+      const effectiveGrowth = Game.Energy.fluctGrowth();
       const resonance = [
-        { id: "raw-resonance", label: "Raw Resonance potential", factor: enabled ? rawGrowth.div(growth).pow(s.fluct.owned) : D(1) },
-        { id: "resonance-softcap", label: "Soft-cap reduction", factor: enabled ? effectiveGrowth.div(rawGrowth).pow(s.fluct.owned) : D(1), tip: "quantumSoftcap" }
+        { id: "raw-resonance", label: "Raw Resonance potential", factor: enabled ? rawGrowth : D(1) },
+        { id: "resonance-softcap", label: "Soft-cap reduction", factor: enabled ? effectiveGrowth.div(rawGrowth) : D(1), tip: "quantumSoftcap" }
       ];
       const entries = [
-        { id: "fluct-base", label: "Starting Fluct strength", factor: enabled ? D(rules.base) : D(1) },
-        { id: "fluct-units", label: "Gen 2 · Quantum Fluctuation", factor: enabled ? growth.pow(s.fluct.owned) : D(1), owned: s.fluct.owned },
+        { id: "fluct-base", label: "Stable purchased strength", factor: enabled ? D(1.25).add(s.fluct.owned.mul(.02)) : D(1) },
+        { id: "fluct-units", label: "Purchased resonance patterns", factor: enabled ? Game.Patterns.multiplier('quantumFluctuation') : D(1), owned: s.fluct.owned },
         {
           id: "fluct-resonance", label: "Quantum Resonance", tip: "quantumResonance",
-          factor: enabled ? effectiveGrowth.div(growth).pow(s.fluct.owned) : D(1),
+          factor: enabled ? effectiveGrowth : D(1),
           children: this.withShares(resonance, enabled), childBasis: "resonance-growth"
         }
       ];
       entries.push({id:"fluct-symmetry-coupling",label:"75% Symmetry · cross-generator coupling",factor:enabled?Game.Symmetry.crossMultiplier("quantumFluctuation"):D(1)});
       entries.push({ id: "fluct-focus", label: "3-3 · Wandering rhythm", factor: enabled ? s.fluct.focus : D(1) });
+      entries.push({id:'fluct-roll',label:s.fluct.positive?'Positive roll · +20%':'Negative roll · −20%',factor:enabled?Game.Energy.fluctRollFactor():D(1)});
       // These factors build M. A negative roll transforms the combined M using
       // the softened penalty; the individual strength sources are not penalties.
       return { enabled: enabled, magnitude: enabled ? s.fluct.magnitude : D(1), entries: this.withShares(entries, enabled) };
@@ -82,6 +82,7 @@
         color: "base", base: true, children: children, childBasis: "output"
       }];
       if (generator) {
+        entries.push({id:'resonance-patterns',label:'Purchased Gen 1 patterns and echoes',factor:Game.Patterns.multiplier('energyDisturbance'),color:'field'});
         entries.push({ id: "purchased-base", label: "1-3-1 · Accumulated disturbance", factor: amount.purchasedMultiplier, color: "quanta" });
         entries.push({ id: "field", label: "Gen 4 · Field Excitation", factor: amount.baseRate.add(amount.fieldBonus).div(amount.baseRate), color: "field" });
         entries.push({ id: "shorter-intervals", label: "Production cycle bonuses · 4-3-2 / 1-4-2", factor: amount.cadence, color: "quanta" });
@@ -92,6 +93,10 @@
       entries.push({ id: "quanta", label: Game.Progression.hasSkill("4-4-2") ? "Quanta · higher of unspent or half lifetime" : "Unspent Primordial Quanta", factor: s.prestige.multiplier, color: "quanta" });
       entries.push({ id: "continuum", label: "4-2 · Boundless potential", factor: s.prestige.energyMultiplier, color: "quanta" });
       entries.push({ id: "condense-memory", label: "0-0 · Memory of condensation", factor: s.prestige.condenseMemory, color: "quanta" });
+      entries.push({id:'stabilizations',label:'Stabilized field',factor:Game.Structure.multiplier(),color:'field'});
+      entries.push({id:'condense-rebuild',label:'Condense history · faster rebuilding',factor:Game.Structure.condenseMemory(),color:'quanta'});
+      entries.push({id:'first-quanta',label:'First Quanta · foundation perks',factor:D(Game.Progression.hasSkill('1-1')?Game.CONFIG.PRESTIGE.skills['1-1'].foundationMultiplier:1).mul(Game.Progression.hasSkill('2-1')?Game.CONFIG.PRESTIGE.skills['2-1'].foundationMultiplier:1),color:'quanta'});
+      if(!generator) entries.push({id:'disturb-patterns',label:'Disturb resonance patterns',factor:D(Game.CONFIG.STRUCTURE.clickStrength).pow(Game.Patterns.state(Game.player.upgrades.clickPower).index),color:'field'});
       if (!generator) entries.push({ id: "skills", label: "1-1 · Focused disturbance", factor: s.prestige.clickMultiplier, color: "quanta" });
       if (!generator && !Game.Challenges.clicksAllowed()) entries.push({id:"challenge",label:"Hands off · clicks disabled",factor:D(0),color:"slowdown"});
       const strength = this.fluctBreakdown(s);
@@ -140,7 +145,7 @@
       const baseRate = D(disturbance.burstProduction).div(disturbance.burstInterval);
       const owned = Game.Energy.getOwned(disturbance.id), coherenceOwned = Game.Energy.getOwned("coherentEnergy");
       const oscillation = Game.FieldDynamics.multiplier();
-      const clickBonus = Game.Challenges.clicksAllowed() ? Game.Progression.clickMultiplier().mul(Game.Progression.clickSkillMultiplier()).mul(fluct).mul(Game.Progression.energyMultiplier()).mul(oscillation) : D(0);
+      const clickBonus = Game.Challenges.clicksAllowed() ? Game.Progression.clickMultiplier().mul(Game.Progression.clickSkillMultiplier()).mul(fluct).mul(Game.Progression.energyMultiplier()).mul(oscillation).mul(D(Game.CONFIG.STRUCTURE.clickStrength).pow(Game.Patterns.state(p.upgrades.clickPower).index)) : D(0);
       const focus = Game.Progression.generatorFocusMultiplier(disturbance.id), countMultiplier = Game.Energy.getCountMultiplier(disturbance.id);
       const generatorBonus = Game.Symmetry.crossMultiplier("energyDisturbance").mul(generatorAchievements).mul(fluct).mul(Game.Progression.energyMultiplier()).mul(oscillation).mul(focus).mul(countMultiplier);
       const generatorRate = Game.Energy.getProductionPerSecond();
@@ -149,8 +154,8 @@
           rules: Game.FieldDynamics.rules(),
           owned5: Game.Energy.getOwned("fieldOscillation"), owned6: Game.Energy.getOwned("fieldResonance"), owned7: Game.Energy.getOwned("fieldCoupling"),
           multiplier: oscillation, peak: Game.FieldDynamics.peak(), phase: p.fieldDynamics.elapsed,
-          baseCurrent: Game.FieldDynamics.active() && !Game.FieldDynamics.peakPaused() ? Game.FieldDynamics.basePeak().pow(Game.FieldDynamics.progress()) : D(1),
-          resonanceCurrent: Game.FieldDynamics.active() && !Game.FieldDynamics.peakPaused() ? Game.FieldDynamics.resonance().pow(Game.FieldDynamics.progress()) : D(1),
+          baseCurrent: Game.FieldDynamics.multiplier().div(Game.FieldDynamics.active()?Game.FieldDynamics.resonance().pow(Game.FieldDynamics.peakPaused()?.25:.25+.75*Game.FieldDynamics.progress()):1),
+          resonanceCurrent: Game.FieldDynamics.active()?Game.FieldDynamics.resonance().pow(Game.FieldDynamics.peakPaused()?.25:.25+.75*Game.FieldDynamics.progress()):D(1),
           resonance: Game.FieldDynamics.resonance(), coupled: Game.Energy.getCoupledFields()
         },
         time: time, speed: speed,
@@ -160,7 +165,7 @@
         achievements: { firstSparks: firstSparks, firstGenerator: firstGenerator, growingEngine: growingEngine, coherentBeginning: coherentBeginning, condense: Game.Progression.condenseMultiplier(), discoveryClicks:Game.Achievements.multiplier("clicks"), discoveryGenerators:Game.Achievements.multiplier("generators"), discoveryEnergy:Game.Achievements.multiplier("energy") },
         clicks: {
           base: D(Game.CONFIG.ENERGY.manualGain), disturb: p.upgrades.clickPower.mul(rules.gainPerLevel),
-          baseTotal: Game.Progression.clickBaseGain(), bonus: clickBonus,
+          baseTotal: D(Game.CONFIG.ENERGY.manualGain).add(p.upgrades.clickPower.mul(rules.gainPerLevel)), bonus: clickBonus,
           ordinary: Game.Energy.baseManualGain(), captured: Game.Energy.capturedProductionGain(), echo: Game.Energy.clickOutputBonus(),
           total: Game.Energy.manualGain()
         },

@@ -820,5 +820,48 @@ summary.contribution-row { cursor:pointer; }
 @keyframes potential-window { 0%,72.726% { border-color:#766888; opacity:.6; } 72.727%,81.818% { border-color:#9ed0ad; opacity:1; } 81.819%,100% { border-color:#766888; opacity:.6; } }
 @media(prefers-reduced-motion:reduce) { .bubble-core { animation:none; transform:scale(.7); }.potential-bubble.is-ready .bubble-core { transform:scale(1); } }
 
+/* Resonance patterns and the field's remembered structure. */
+.buy-amounts > div { display:flex; flex-wrap:wrap; gap:4px; }
+.buy-amounts [data-buy-amount] { flex:1 0 auto; min-width:30px; }
+.pattern-summary { margin:12px 0; padding:10px 0 0; border-top:1px solid #254046; }
+.pattern-pips { display:flex; flex-wrap:wrap; gap:4px; }
+.pattern-pips i { width:9px; height:9px; border:1px solid #45676d; transform:rotate(45deg); margin:2px; }
+.pattern-pips i.filled { background:#9bc8cc; border-color:#bfe8e5; box-shadow:0 0 5px #86afb544; }
+.pattern-status { color:#bed5d6; font-size:11px; margin:8px 0 4px; }
+.pattern-echo { font-size:10px; line-height:1.6; }
+.stabilization-panel { padding:14px 0 16px; margin-bottom:16px; border-bottom:1px solid #416264; }
+.stabilization-panel h2 { font-size:14px; color:#c8dad7; margin:6px 0; }
+.stabilization-panel p { font-size:10px; line-height:1.7; margin:6px 0; }
+.stabilization-heading { display:flex; justify-content:space-between; gap:8px; color:#a5c6c2; }
+.stabilization-track { height:3px; background:#233638; margin:10px 0; }
+.stabilization-track span { display:block; height:100%; background:#a6c8b6; transition:width .2s; }
+#open-stabilization { width:100%; }
+#open-stabilization:not(:disabled) { border-color:#bed3a8; color:#d1dcb8; background:#253329; }
+#stabilization-dialog { max-width:500px; width:calc(100% - 36px); padding:28px; color:#c7d6d4; border:1px solid #5a7a77; background:#0c1418; }
+#stabilization-dialog p { font-size:12px; line-height:1.8; }
+#stabilization-dialog::backdrop { background:#020609bb; }
+#stabilization-dialog.is-dismissing { animation:stabilization-dismiss 2s forwards; pointer-events:none; }
+.stabilization-trace { position:absolute; inset:12%; pointer-events:none; opacity:.16; z-index:0; }
+.stabilization-trace i { position:absolute; inset:12%; border:1px solid #8ebbc2; border-radius:50%; transform:rotate(-25deg) scaleY(.48); }
+.stabilization-trace i:nth-child(2) { transform:rotate(35deg) scaleY(.48); }
+.stabilization-trace i:nth-child(3) { transform:rotate(95deg) scaleY(.48); }
+.stabilization-trace i:nth-child(4) { transform:rotate(155deg) scaleY(.48); border-color:#cabb9a; }
+.is-pattern-complete { animation:resonance-pattern .9s ease-out; }
+@keyframes resonance-pattern { from { box-shadow:inset 3px 0 #b5ddd3; background:#25423d77; } to { box-shadow:inset 0 0 transparent; background:transparent; } }
+@keyframes stabilization-dismiss { to { opacity:0; transform:scale(.97); } }
+@media(prefers-reduced-motion:reduce) { .is-pattern-complete { animation:none; }.stabilization-track span { transition:none; } }
+
+.first-quanta-choices { margin:0 0 12px; }
+.first-quanta-choices > div { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+.first-quanta-choices button { text-align:left; padding:10px 12px; border-color:#394950; }
+.first-quanta-choices button strong { display:block; color:#d5c194; font-size:11px; }
+.first-quanta-choices button span { display:block; font-size:10px; color:#9db8bd; margin-top:6px; line-height:1.6; }
+.first-quanta-choices .is-owned { border-color:#789a88; opacity:.65; }
+@media(max-width:600px) { .first-quanta-choices > div { grid-template-columns:1fr; }.first-quanta-choices button span { margin-top:3px; } }
+
+.stabilization-heading { align-items:center; }.stabilization-heading h2 { margin:0; font-size:12px; }.stabilization-heading strong { font-size:10px; text-align:right; }.stabilization-details { margin-top:10px; }.stabilization-details summary { font-size:10px; color:#9cb9bd; cursor:pointer; }
+
+.sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
 /* Public edition: the third desktop column balances the centered resource. */
 @media(min-width:761px){.topbar{min-height:110px}}

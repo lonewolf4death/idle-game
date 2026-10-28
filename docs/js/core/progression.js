@@ -173,6 +173,8 @@
   Game.Achievements = {
     matches: function (definition, player) {
       const p=player||Game.player;
+      if(definition.kind==='patterns') return Game.Patterns.total(p)>=Number(definition.amount);
+      if(definition.kind==='stabilizations') return p.structure.stabilizations.gte(definition.amount);
       if(definition.kind==='challenge') return p.automation.buyers[Game.CONFIG.AUTOMATION.buyers[definition.track-1].id].level>=1;
       if(definition.kind==='allChallenges') return Game.CONFIG.AUTOMATION.buyers.every(function (b) { return p.automation.buyers[b.id].level>=1; });
       const amount=definition.kind==="purchased" ? p.generators[definition.generator].purchased : definition.kind==="clicks" ? p.stats.manualClicks : definition.kind==="autoClicks" ? p.stats.autoClicks : p.upgrades.clickPower;

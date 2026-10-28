@@ -335,7 +335,7 @@
         const gen=Game.CONFIG.GENERATORS[0],smooth=this.getOwned(gen.id).gte(gen.smoothAt);
         const raw=late && smooth?this.preProductionRate(this.rawGeneratorProduction(gen)):gain.div(gameDelta);
         const rising=Game.FieldDynamics.active() && !Game.FieldDynamics.held() && !Game.FieldDynamics.peakPaused() && Game.player.fieldDynamics.elapsed.lt(Game.FieldDynamics.rules().rise);
-        const slope=late && smooth ? (rising?Game.FieldDynamics.peak().log10()*power/Number(Game.FieldDynamics.rules().rise):0)+Game.Challenges.energySlope()*(Game.Challenges.realRate||0) : 0;
+        const slope=late && smooth ? (rising?Game.FieldDynamics.riseLogSlope()*power:0)+Game.Challenges.energySlope()*(Game.Challenges.realRate||0) : 0;
         Game.LateEnergy.grantProduction(raw,gameDelta,slope);
       }
       else this.addEnergy(gain);

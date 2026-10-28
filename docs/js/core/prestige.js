@@ -22,6 +22,9 @@
       const burstGen = Game.Energy.getGenerator("energyDisturbance"), oldBurstInterval = Game.Energy.burstInterval(burstGen), oldFieldInterval = Game.FieldExcitation.interval();
       Game.player.prestige.quanta = Game.player.prestige.quanta.sub(definition.cost);
       Game.player.prestige.skills[id] = 1;
+      const buyer=Game.CONFIG.AUTOMATION.buyers.find(function (entry) { return entry.skill===id; });
+      if(buyer) Game.player.automation.buyers[buyer.id].elapsed=0;
+      if (id === "3-1" && Game.player.structure.stabilizations.lt(4)) Game.player.structure.stabilizations=Game.player.structure.stabilizations.add(1);
       if (id === "1-4-2") Game.Energy.rescaleBurstTimers(oldBurstInterval);
       if (id === "3-2-3") {
         const state=Game.player.fieldDynamics, rules=Game.FieldDynamics.rules();
@@ -71,6 +74,7 @@
       fresh.prestige.history = old.prestige.history;fresh.prestige.symmetry=old.prestige.symmetry;
       Game.Automation.preserve(old,fresh);
       fresh.settings = old.settings;fresh.ui = old.ui;
+      Game.Structure.seed(fresh);
       Game.player = fresh;
       if (Game.Loop) { Game.Loop.accumulator = 0;Game.Loop.lastTime = performance.now(); }
       if (Game.UI) Game.UI.generatorSparkBudget = 0;
@@ -122,6 +126,7 @@
       Game.Automation.preserve(old,fresh);
       fresh.settings = old.settings;
       fresh.ui = old.ui;
+      Game.Structure.seed(fresh);
       Game.player = fresh;
       if (Game.Loop && !automated) { Game.Loop.accumulator = 0; Game.Loop.lastTime = performance.now(); }
       if (Game.UI) Game.UI.generatorSparkBudget = 0;

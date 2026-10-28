@@ -100,7 +100,7 @@
       }
     },
 
-    FLUCTUATION: { positiveChance: 0.54, base: "1.05", growth: "1.001", rollInterval: "10", negativePenaltyScale: "0.95" },
+    FLUCTUATION: { positiveChance: 0.54, base: "1.05", growth: "1.001", rollInterval: "10", negativePenaltyScale: "0.20" },
     COHERENCE: {
       quantumInterval: "15", quantumSlowdownEvery: "10", quantumSlowdownSeconds: "1",
       quantumFluctGrowth: "0.000025", energyInterval: "30",
@@ -200,7 +200,7 @@
     {name:"Fading momentum",unlockEnergy:"1e125",startExponent:15,exponentStep:6,description:"Energy production falls continuously to 85% of its previous strength each real second. Any successful generator or Disturb purchase resets this suppression."}
   ];
   Game.CONFIG.CHALLENGES[4].unlockEnergy="1e95";
-  Game.CONFIG.SYMMETRY={cost:"10000",baseCost:"1e1000",costScaling:"1e10",costExponentGrowth:"2",starterPurchases:8,starterCostScaling:"1.1",production:"0.0003",unitProductionLimit:"0.000125",totalProductionLimit:"0.0006",upgradeCostAnchorFloor:1200,alignmentEnergyBase:"1e3",
+  Game.CONFIG.SYMMETRY={cost:"10000",baseCost:"1e1000",costScaling:"1e10",costExponentGrowth:"2",starterPurchases:8,starterCostScaling:"1.1",production:"0.0003",unitProductionLimit:"0.00015",totalProductionLimit:"0.0006",upgradeCostAnchorFloor:1200,alignmentEnergyBase:"1e3",
     lore:"The laws of physics are still indistinguishable from one another.",
     milestones:[
       {at:.1,type:'Aligned fields',reward:'Double raw Field Alignment generation. Alignment resistance still applies.'},
@@ -227,7 +227,30 @@
   Game.CONFIG.AUTOMATION.buyers.forEach(function (buyer,index) {
     buyer.title=Game.CONFIG.CHALLENGES[index].name;
     Game.CONFIG.PRESTIGE.skills[buyer.skill]={name:index===7 ? "Automatic condensation" : "Automatic "+Game.CONFIG.GENERATORS[index].name.toLowerCase(),cost:"100",requires:automationParents[index],
-      description:(index===7 ? "Automatically Condense once the available reward reaches the Quanta target chosen in the Automation tab (default: 1). The normal 1e50 Energy minimum applies; each reset claims the full available reward. Resets the run as normal. Repeat automatic Condenses skip the cinematic." : "Automatically buy Max "+buyer.name+" using available Energy per activation. Respects unlock conditions and current costs; ignores the manual buy quantity.")+" Starts at one attempt every 5 real seconds. Its ten-level restricted-run challenge reduces the interval by 0.4 seconds per level, reaching 1 second. Configure individual buyers or all buyers in the Automation tab. Unlocked automation starts OFF. Timers continue while unfocused, do not bank failed purchases, and restart each run. Challenge progress is permanent."};
+      description:(index===7 ? "Automatically Condense once the available reward reaches the Quanta target chosen in the Automation tab (default: 1). The normal 1e50 Energy minimum applies; each reset claims the full available reward. Resets the run as normal. Repeat automatic Condenses skip the cinematic." : "Automatically buy Max "+buyer.name+" using available Energy per activation. Respects unlock conditions and current costs; ignores the manual buy quantity.")+" Starts at one attempt every 5 real seconds. Its ten-level restricted-run challenge reduces the interval by 0.4 seconds per level, reaching 1 second. Configure individual buyers or all buyers in the Automation tab. Basic buyers start enabled when unlocked; advanced skills use your saved toggle. Timers continue while unfocused, do not bank failed purchases, and restart each run. Challenge progress is permanent."};
     Game.CONFIG.PRESTIGE.branches.find(function (branch) { return branch.id===Number(buyer.skill[0]); }).nodes.push(buyer.skill);
   });
+  Game.CONFIG.STRUCTURE = {
+    economyVersion: 1, patterns: [4, 6, 8, 12], echoStrength: "1.10", pricePower:1.455, latePatternStart:32, latePatternResistance:.18, clickStrength:"1.15", clickPriceGrowth:4,
+    strengthPerStabilization: "12", maxStabilizations: 12,
+    lore: "The field releases its accumulated energy. A pattern survives. What once emerged by chance can now be formed again.",
+    basicBuyerInterval: 15
+  };
+  Game.CONFIG.GENERATORS.forEach(function (gen,index) {
+    gen.patternCostGrowth=gen.patternCostGrowth || ["4","6","10","15","25","40","100"][index] || "100";
+    gen.patternStrength=gen.patternStrength || ["2","1.5","2","2","1.5","1.5","2"][index] || "2";
+  });
+  // Energy begins flowing with the very first unit. Its audiovisual pulse is
+  // still streamed separately, without scheduling one timer per owned unit.
+  Game.CONFIG.GENERATORS[0].smoothAt=1;
+  Game.CONFIG.DISCOVERY_ACHIEVEMENTS.push(
+    {id:"firstPattern",name:"A phrase completed",kind:"patterns",amount:"1",reward:"energy",multiplier:"1.02",icon:"coherent",requirement:"Complete your first purchased resonance pattern."},
+    {id:"firstStabilization",name:"Something remains",kind:"stabilizations",amount:"1",reward:"energy",multiplier:"1.02",icon:"condense",requirement:"Stabilize the Field once."},
+    {id:"fourStabilizations",name:"A field with memory",kind:"stabilizations",amount:"4",reward:"energy",multiplier:"1.05",icon:"fieldExcitation",requirement:"Establish all four Stabilizations in one Condense run."}
+  );
+  Game.CONFIG.PRESTIGE.skills["1-1"].foundationMultiplier="4";
+  Game.CONFIG.PRESTIGE.skills["1-1"].description="Double click Energy and multiply all Energy by ×4. A stronger foundation makes the next run noticeably faster. Both effects combine.";
+  Game.CONFIG.PRESTIGE.skills["2-1"].foundationMultiplier="3";
+  Game.CONFIG.PRESTIGE.skills["2-1"].description="Add 5 percentage points to positive Fluct chance and multiply all Energy by ×3. Reveals positive and negative probabilities. Other chance bonuses combine normally.";
+  Game.CONFIG.PRESTIGE.skills["3-1"].description="Hold Field Oscillation's peak for 10 seconds in its 60-second cycle. Start future runs with one extra Stabilization (up to four), shortening the early rebuild. Applies immediately when unlocked.";
 })(window.CosmicIdle);

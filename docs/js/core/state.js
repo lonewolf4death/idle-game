@@ -15,10 +15,11 @@
     Game.CONFIG.DISCOVERY_ACHIEVEMENTS.forEach(function (definition) { achievements[definition.id]=0; });
     const buyers={}, autoBuyers={};
     Game.CONFIG.AUTOMATION.buyers.forEach(function (buyer) {
-      buyers[buyer.id]={level:0,elapsed:0};autoBuyers[buyer.id]=0;
+      buyers[buyer.id]={level:0,elapsed:0};autoBuyers[buyer.id]=Number(buyer.id!=='condense');
     });
     return {
       automation: {buyers:buyers},
+      structure: {economyVersion:1,stabilizations:D(0),bestEnergy:D(0),recoveryTarget:D(0),elapsed:0,recovered:0,recoverySeconds:0,migrated:0},
       symmetry:{amount:D(0),best:D(0),alignment:D(0),alignmentAdded:D(0),pulseElapsed:D(0),upgradeCostAnchor:D(0),upgrades:{unifiedField1:0,unifiedField2:0,quantumCoupling:0,fieldResonance:0,perfectInteraction:0}},
       lateEnergy:{highest:D(0)},
       challenges: {active:0,bestEnergy:D(0),highestEnergy:D(0),rulesVersion:3,elapsed:0,purchases:0,failed:0,qualified:0,resetArmed:0,resetAt:0,resets:0,lastPurchase:0,latestGenerator:0},
@@ -43,7 +44,7 @@
       fieldDynamics: { elapsed: D(0), held: 0 },
       upgrades: { clickPower: D(0) },
       settings: { autoBuyers:autoBuyers, autoCondenseTarget:D(1), sound: 1, muteUnfocused: 1, clickSound: 1, autoClickSound: 1, bubbleSound: 1, perkSound: 1, perkVisuals: 1, generatorSound: 1, fluctuationSound: 1, coherentSound: 1, fieldSound: 1, condenseSound: 1, condenseVisuals: 1, volume: 0.3, visuals: 1, autoDismiss: 0, oscillationFreeze: 0 },
-      lore: { introductionSeen: 0, clickSeen: 0, generatorSeen: 0, coherenceSeen: 0, fieldFirstSeen: 0, fieldSecondSeen: 0, condenseSeen: 0, symmetrySeen:0 },
+      lore: { introductionSeen: 0, clickSeen: 0, generatorSeen: 0, coherenceSeen: 0, fieldFirstSeen: 0, fieldSecondSeen: 0, condenseSeen: 0, symmetrySeen:0, stabilizationSeen:0 },
       meta: {
         gameSpeedMultiplier: D(1)
       },

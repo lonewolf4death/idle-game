@@ -31,7 +31,7 @@
     },
     checkUnlock: function () {
       const owned = Game.Energy.getOwned("fieldExcitation").gt(0);
-      if (!this.discovered() && (owned || Game.player.fieldExcitation.baseRateBonus.gt(0) || Game.player.resources.energy.gte(Game.Energy.getGenerator("fieldExcitation").unlockEnergy))) {
+      if (!this.discovered() && (owned || Game.player.fieldExcitation.baseRateBonus.gt(0) || Game.Energy.generatorEnabled(Game.Energy.getGenerator("fieldExcitation")) && Game.player.resources.energy.gte(Game.Energy.getGenerator("fieldExcitation").unlockEnergy))) {
         Game.player.unlocks.fieldExcitation = 1;
         Game.Save.save();
       }

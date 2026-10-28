@@ -116,7 +116,7 @@
         const state=Game.player.automation.buyers[buyer.id],unlocked=Game.Automation.unlocked(buyer.id),interval=Game.Automation.interval(buyer.id).toFixed(1);
         if(automationVisible) {
           const row=view.rows[buyer.id],input=row.querySelector('input');input.disabled=!unlocked;input.checked=!!Game.player.settings.autoBuyers[buyer.id];
-          text(row.querySelector('small'),unlocked ? (active?'Paused in challenge · ':buyer.id==='condense' && Game.Automation.editingCondenseTarget?'Paused while editing · ':'')+'Every '+interval+'s · '+(buyer.id==='condense'?'Target reward':'Buy Max')+' · challenge '+state.level+'/10' : 'Unlock skill '+buyer.skill+' · 100 Quanta');
+          text(row.querySelector('small'),unlocked ? (active?'Paused in challenge · ':buyer.id==='condense' && Game.Automation.editingCondenseTarget?'Paused while editing · ':'')+'Every '+interval+'s · '+(buyer.id==='condense'?'Target reward':Game.Automation.advanced(buyer.id)?'Buy Max · challenge '+state.level+'/10':'Basic · next pattern; upgrade with skill '+buyer.skill) : buyer.id==='condense'?'Unlock skill '+buyer.skill+' · 100 Quanta':'Basic buyer: Stabilize once for Gen 1–3; Condense once for all seven. Advanced: skill '+buyer.skill+' · 100 Quanta');
         }
         if(challengesVisible) {
           const track=view.tracks[buyer.id];track.setAttribute('aria-pressed',String(view.selected===buyer.id));
