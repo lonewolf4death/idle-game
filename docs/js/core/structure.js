@@ -128,7 +128,7 @@
     Game.Patterns.completed(gen,pattern);return true;
   };
   const output=Game.Coherence.outputPerCycle,fieldOutput=Game.FieldExcitation.boostPerCycle,resonance=F.resonance;
-  Game.Coherence.outputPerCycle=function () { return output.call(this).mul(Game.Patterns.multiplier('coherentEnergy')); };
+  Game.Coherence.outputPerCycle=function () { return output.call(this).mul(Game.Patterns.multiplier('coherentEnergy')).mul(P.hasSkill('4-1')?Game.CONFIG.PRESTIGE.skills['4-1'].coherenceMultiplier:1); };
   Game.FieldExcitation.boostPerCycle=function () { return fieldOutput.call(this).mul(Game.Patterns.multiplier('fieldExcitation')); };
   F.resonance=function () { return resonance.call(this).mul(Game.Patterns.multiplier('fieldResonance')); };
   const basePeak=F.basePeak;
@@ -144,7 +144,7 @@
   };
   const energyMultiplier=P.energyMultiplier,clickBase=P.clickBaseGain;
   P.energyMultiplier=function () {
-    return energyMultiplier.call(this).mul(Game.Structure.multiplier()).mul(Game.Structure.condenseMemory()).mul(this.hasSkill('1-1')?Game.CONFIG.PRESTIGE.skills['1-1'].foundationMultiplier:1).mul(this.hasSkill('2-1')?Game.CONFIG.PRESTIGE.skills['2-1'].foundationMultiplier:1);
+    return energyMultiplier.call(this).mul(Game.Structure.multiplier()).mul(Game.Structure.condenseMemory()).mul(this.hasSkill('1-1')?Game.CONFIG.PRESTIGE.skills['1-1'].foundationMultiplier:1).mul(this.hasSkill('2-1')?Game.CONFIG.PRESTIGE.skills['2-1'].foundationMultiplier:1).mul(this.hasSkill('4-1')?Game.CONFIG.PRESTIGE.skills['4-1'].foundationMultiplier:1);
   };
   P.clickBaseGain=function () { return clickBase.call(this).mul(D(Game.CONFIG.STRUCTURE.clickStrength||1.5).pow(Game.Patterns.state(Game.player.upgrades.clickPower).index)); };
   P.upgradePricing=function () {

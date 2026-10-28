@@ -61,6 +61,7 @@
       return defaults;
     }
     const player = merge(data, fresh);
+    player.ui.skillTree2D=1; // Legacy 3D preferences now use the readable map.
     if (!data.structure) {
       // Economic migration never resets progress. Honor every previously
       // reached generator stage, including stages earned in an earlier run.

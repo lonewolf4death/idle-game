@@ -88,8 +88,8 @@
     renderBanner: function () {
       const active=Game.Challenges.active(),banner=element('active-challenge-banner'),ready=active && Game.Challenges.ready();
       banner.hidden=!active;
-      text(element('milestone-title'),active?'Challenge goal':'Condense Energy');
-      element('milestone-bar').setAttribute('aria-label',active?'Logarithmic progress to the challenge goal':'Logarithmic progress to Condense Energy');
+      text(element('milestone-title'),active?'Challenge goal':false?'Condense Energy':'Progress');
+      element('milestone-bar').setAttribute('aria-label',active?'Challenge progress':'Progress');
       const clicks=Game.Challenges.clicksAllowed();element('energy-field').setAttribute('aria-disabled',String(!clicks));
       element('energy-field').setAttribute('aria-label',clicks?'Generate Energy. Click anywhere in this field, or press Enter or Space.':'Clicks are disabled during Hands off. Generators continue producing Energy.');
       text(document.querySelector('.field-footnote'),clicks?'Click anywhere to stir the potential.':'Hands off · Let the field grow on its own.');
@@ -103,23 +103,29 @@
       element('milestone-fill').style.width=percent+'%';element('milestone-bar').setAttribute('aria-valuenow',percent.toFixed(2));
       element('milestone-bar').setAttribute('aria-valuetext',percent.toFixed(1)+'% to the challenge Energy goal');
       text(element('milestone-value'),number(best)+' / '+number(goal)+' best held Energy');
-      text(element('milestone-caption'),ready?'Goal reached · Complete the challenge to earn its reward':rule.name+' · '+percent.toFixed(1)+'% · Logarithmic scale');
+      text(element('milestone-caption'),ready?'Goal reached · Complete the challenge to earn its reward':rule.name+' · '+percent.toFixed(1)+'%');
       element('milestone-condense-summary').hidden=true;
     },
     render: function () {
       if(!this.rows.energyDisturbance) return;
       const challengesVisible=!element('challenges-view').hidden,automationVisible=!element('automation-view').hidden;
       if(!automationVisible) Game.Automation.editingCondenseTarget=false;
+      element('automation-challenges').hidden=!Game.Discovery.view('challenges');
+      element('auto-condense-target-form').hidden=!(false || Game.Automation.unlocked('condense'));
       if(!challengesVisible && !automationVisible) return;
+      if(!Game.Discovery.challenge(Game.CONFIG.AUTOMATION.buyers.findIndex(function (buyer) { return buyer.id===Game.AutomationUI.selected; })+1)) {
+        const first=Game.CONFIG.AUTOMATION.buyers.find(function (_,i) { return Game.Discovery.challenge(i+1); });
+        if(first) this.selected=first.id;
+      }
       const view=this,active=Game.Challenges.active();Game.Challenges.observe();
       Game.CONFIG.AUTOMATION.buyers.forEach(function (buyer,index) {
         const state=Game.player.automation.buyers[buyer.id],unlocked=Game.Automation.unlocked(buyer.id),interval=Game.Automation.interval(buyer.id).toFixed(1);
         if(automationVisible) {
-          const row=view.rows[buyer.id],input=row.querySelector('input');input.disabled=!unlocked;input.checked=!!Game.player.settings.autoBuyers[buyer.id];
-          text(row.querySelector('small'),unlocked ? (active?'Paused in challenge · ':buyer.id==='condense' && Game.Automation.editingCondenseTarget?'Paused while editing · ':'')+'Every '+interval+'s · '+(buyer.id==='condense'?'Target reward':Game.Automation.advanced(buyer.id)?'Buy Max · challenge '+state.level+'/10':'Basic · next pattern; upgrade with skill '+buyer.skill) : buyer.id==='condense'?'Unlock skill '+buyer.skill+' · 100 Quanta':'Basic buyer: Stabilize once for Gen 1–3; Condense once for all seven. Advanced: skill '+buyer.skill+' · 100 Quanta');
+          const row=view.rows[buyer.id],input=row.querySelector('input');row.hidden=!(unlocked||false);input.disabled=!unlocked;input.checked=!!Game.player.settings.autoBuyers[buyer.id];
+          text(row.querySelector('small'),unlocked ? (active?'Paused in challenge · ':buyer.id==='condense' && Game.Automation.editingCondenseTarget?'Paused while editing · ':'')+'Every '+interval+'s · '+(buyer.id==='condense'?'Target reward':Game.Automation.advanced(buyer.id)?'Buy max · challenge '+state.level+'/10':'Basic · next pattern; upgrade with skill '+buyer.skill) : buyer.id==='condense'?'Unlock skill '+buyer.skill+' · 100 Quanta':'Basic buyer: Stabilize once for Gen 1–3; Condense once for all seven. Advanced: skill '+buyer.skill+' · 100 Quanta');
         }
         if(challengesVisible) {
-          const track=view.tracks[buyer.id];track.setAttribute('aria-pressed',String(view.selected===buyer.id));
+          const track=view.tracks[buyer.id];track.hidden=!Game.Discovery.challenge(index+1);track.setAttribute('aria-pressed',String(view.selected===buyer.id));
           text(track.querySelector('small'),unlocked ? (active===index+1?'Running · ':'')+state.level+'/10 · '+interval+'s · '+buyer.name+(Game.Challenges.unlocked(index+1)?'':' · Requires '+number(Game.Challenges.definition(index+1).unlockEnergy)+' Energy') : 'Locked · '+number(Game.Challenges.definition(index+1).unlockEnergy)+' Energy + skill '+buyer.skill+' · 100 Quanta');
         }
       });

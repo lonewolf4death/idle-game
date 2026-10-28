@@ -9,6 +9,7 @@
     buyAmount: 1,
 
     selectView: function (name, focusTab) {
+      if(!this.views.includes(name) || !Game.Discovery.view(name)) name="energy";
       document.body.classList.toggle("condense-active", name === "prestige");
       document.body.classList.toggle("achievements-active", name === "achievements");
       document.body.classList.toggle("stats-active", name === "stats");
@@ -25,7 +26,7 @@
       });
       Game.Tooltips.hide();
       Game.PrestigeUI.hideDetails();
-      Game.TreeCamera.setActive(name === "prestige" && !Game.player.ui.skillTree2D);
+      if(name === "prestige") { Game.TreeMap.layoutKey=null;Game.TreeMap.entering=true; }
       if(name==='settings')this.updateSaveRecovery();
       this.render();
     },
@@ -148,7 +149,7 @@
         tab.addEventListener("keydown", function (event) {
           if (["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
             event.preventDefault();
-            const views = Game.UI.views;
+            const views = Game.UI.views.filter(function (name) { return Game.Discovery.view(name); });
             const index = views.indexOf(view);
             const target = event.key === "Home" ? views[0] : event.key === "End" ? views[views.length - 1] : views[(index + (event.key === "ArrowRight" ? 1 : views.length - 1)) % views.length];
             Game.UI.selectView(target, true);
@@ -313,6 +314,7 @@
 
     render: function () {
       const p = Game.player;
+      Game.Discovery.sync();
       if (Game.PotentialBubble) Game.PotentialBubble.update();
       Game.AutomationUI.render();
       Game.FieldExcitation.checkUnlock();
@@ -348,7 +350,7 @@
         setText(node.scaling, "Cost scaling ×" + Game.Format.number(Game.Energy.getGeneratorScaling(gen), 5) + " · +" + (gen.scalingStepIncrease || Game.CONFIG.GENERATOR_SCALING.stepIncrease) + " every " + (gen.scalingStepLevels || Game.CONFIG.GENERATOR_SCALING.stepLevels) + " purchased");
         if (gen.type === "oscillation") {
           const dynamics = Game.FieldDynamics.rules();
-          const description = "Exponentially strengthens all Energy over " + dynamics.rise + "s, holds its peak for " + Game.D(dynamics.cycle).sub(dynamics.rise).toString() + "s, then restarts." + (Game.Progression.hasSkill("3-2-2") ? " Peak bonus and countdown pause during negative Fluct." : " Total cycle: " + dynamics.cycle + "s.");
+          const description = "Builds from a dependable baseline to a larger peak. Purchased patterns strengthen both. Peak timing remains available.";
           if (node.description.textContent !== description) node.description.textContent = description;
           const oscillationText = Game.FieldDynamics.peakPaused() ? "All Energy ×1 · peak paused during negative Fluct · " + Game.Format.number(Game.D(dynamics.cycle).sub(p.fieldDynamics.elapsed), 2) + "s peak time remaining" : Game.FieldDynamics.held() ? "All Energy ×" + Game.Format.number(Game.FieldDynamics.multiplier(), 5) + " · frozen 0.25s before peak · click the field or Release peak when ready" : "All Energy ×" + Game.Format.number(Game.FieldDynamics.multiplier(), 5) + " · peak ×" + Game.Format.number(Game.FieldDynamics.peak(), 5) + " · " + (p.fieldDynamics.elapsed.lt(dynamics.rise) ? "rising · peak in " : "holding · restart in ") + Game.Format.number(Game.FieldDynamics.nextEventIn()) + "s";
           setText(node.production, oscillationText);
@@ -463,9 +465,9 @@
       const percent = Game.Progression.milestoneProgress() * 100;
       byId("milestone-fill").style.width = percent + "%";
       byId("milestone-bar").setAttribute("aria-valuenow", percent.toFixed(2));
-      byId("milestone-bar").setAttribute("aria-valuetext", percent.toFixed(1) + "% on a logarithmic scale");
-      setText(byId("milestone-value"), Game.Format.number(p.resources.energy) + " / " + Game.Format.number(Game.CONFIG.PROGRESSION.prestigeEnergy) + " held Energy");
-      setText(byId("milestone-caption"), percent >= 100 ? "Condense Energy available · +" + Game.Format.number(Game.Prestige.reward(), 0) + " Primordial Quanta" : percent.toFixed(1) + "% · Logarithmic scale");
+      byId("milestone-bar").setAttribute("aria-valuetext", percent.toFixed(1) + "%");
+      setText(byId("milestone-value"), false ? Game.Format.number(p.resources.energy) + " / " + Game.Format.number(Game.CONFIG.PROGRESSION.prestigeEnergy) + " held Energy" : "");
+      setText(byId("milestone-caption"), percent >= 100 ? "Condense Energy available · +" + Game.Format.number(Game.Prestige.reward(), 0) + " Primordial Quanta" : percent.toFixed(1) + "%");
       Game.PrestigeUI.render(false);
       setText(byId("tps-display"), Game.CONFIG.SIMULATION_TPS);
       const timeRelevant = !Game.Time.getGameSpeed().eq(1) || p.time.gamePlayed.sub(p.time.realPlayed).abs().gt(.01);

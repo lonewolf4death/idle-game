@@ -1,18 +1,19 @@
 (function (Game) {
   const byId=function (id) { return document.getElementById(id); };
   const text=function (node,value) { if(node.textContent!==String(value)) node.textContent=String(value); };
+  const describe=function (node,value) { if(node.description.textContent!==value) { text(node.description,value);Game.Tooltips.enrich(node.description); } };
   const number=function (n,places) { return Game.Format.number(n,places===undefined?2:places); };
   Game.StructureUI = {
     confirming:false,owner:null,
     init:function () {
       const ui=this;
       const choices=document.createElement('div');choices.id='first-quanta-choices';choices.className='first-quanta-choices';
-      choices.innerHTML='<p class="label">Your first Quanta · choose a new beginning</p><div><button data-first-skill="1-1"><strong>Impulse · 1 Quanta</strong><span>×4 all Energy · ×2 click Energy</span></button><button data-first-skill="2-1"><strong>Probability · 1 Quanta</strong><span>×3 all Energy · positive chance +5 points</span></button><button data-first-skill="3-1"><strong>Rhythm · 1 Quanta</strong><span>Remember an extra Stabilization · longer peak</span></button></div>';
+      choices.innerHTML='<p class="label">Your first Quanta · choose a new beginning</p><div><button data-first-skill="1-1"><strong>Impulse · 1 Quanta</strong><span>×4 all Energy · ×2 click Energy</span></button><button data-first-skill="2-1"><strong>Probability · 1 Quanta</strong><span>×3 all Energy · positive chance +5 points</span></button><button data-first-skill="3-1"><strong>Rhythm · 1 Quanta</strong><span>Remember an extra Stabilization · longer peak</span></button><button data-first-skill="4-1"><strong>Continuum · 1 Quanta</strong><span>×2 all Energy · ×2 Resonance output</span></button></div>';
       byId('prestige-view').insertBefore(choices,byId('prestige-view').firstChild);
       choices.querySelectorAll('button').forEach(function (button) { button.addEventListener('click',function (event) { Game.PrestigeUI.activateNode(button.dataset.firstSkill,event); }); });
       Game.CONFIG.GENERATORS.forEach(function (gen) {
         const node=Game.UI.generatorNodes[gen.id],status=document.createElement('div');status.className='pattern-summary';
-        status.innerHTML='<div class="pattern-pips" aria-hidden="true"></div><p class="pattern-status"></p><p class="pattern-echo muted"></p>';
+        status.innerHTML='<div class="pattern-pips" aria-hidden="true"></div><p class="pattern-status"></p><p class="pattern-echo muted"><span data-pattern-strength></span> · <button class="info-term" data-tip="echoes">Echoes</button> <span data-echo-strength></span><span data-echo-target></span></p>';
         node.card.insertBefore(status,node.card.querySelector('.generator-meta'));node.pattern=status;
       });
       const trace=document.createElement('div');trace.className='stabilization-trace';trace.setAttribute('aria-hidden','true');
@@ -76,16 +77,18 @@
         if(pips.childElementCount!==state.size) { pips.replaceChildren();for(let i=0;i<state.size;i++) pips.appendChild(document.createElement('i')); }
         Array.from(pips.children).forEach(function (pip,i) { pip.classList.toggle('filled',i<state.position); });
         text(node.pattern.querySelector('.pattern-status'),'Pattern '+(state.index+1)+' · '+state.position+' / '+state.size+' purchased · next ×'+gen.patternStrength+' strength');
-        text(node.pattern.querySelector('.pattern-echo'),'Pattern strength ×'+number(Game.Patterns.ownMultiplier(gen.id))+' · incoming echoes ×'+number(Game.Patterns.echoMultiplier(gen.id))+(index>0?' · completion echoes ×1.10 to '+Game.CONFIG.GENERATORS[index-1].name:''));
+        text(node.pattern.querySelector('[data-pattern-strength]'),'Pattern strength ×'+number(Game.Patterns.ownMultiplier(gen.id)));
+        text(node.pattern.querySelector('[data-echo-strength]'),'×'+number(Game.Patterns.echoMultiplier(gen.id)));
+        text(node.pattern.querySelector('[data-echo-target]'),index>0?' · completion sends ×1.10 to '+Game.CONFIG.GENERATORS[index-1].name:'');
         node.pattern.title='The unit price stays fixed for this pattern. Only purchased units fill it. Patterns repeat 4 → 6 → 8 → 12. Completing a pattern strengthens this generator and reinforces the previous generator.';
         text(node.scaling,'Next pattern raises the unit price ×'+number(Game.Energy.getGeneratorScaling(gen),3)+'. Constant price inside each 4 / 6 / 8 / 12 pattern. Later pattern price jumps grow.');
-        if(gen.id==='energyDisturbance') { text(node.description,'Each unit produces Energy immediately. Pattern bonuses strengthen purchased and added units together.');text(node.production,'Producing '+number(Game.Energy.getGeneratorProduction(gen).mul(Game.Time.getGameSpeed()))+' Energy/sec · continuous flow'); }
+        if(gen.id==='energyDisturbance') { describe(node,'Each unit produces Energy immediately. Pattern bonuses strengthen purchased and added units together.');text(node.production,'Producing '+number(Game.Energy.getGeneratorProduction(gen).mul(Game.Time.getGameSpeed()))+' Energy/sec · continuous flow'); }
         if(gen.type==='oscillation') {
-          text(node.description,'Builds from a dependable baseline to a larger peak. Purchased patterns strengthen both. Peak timing remains available.');
+          describe(node,'Builds from a dependable baseline to a larger peak. Purchased patterns strengthen both. Peak timing remains available.');
           const rules=Game.FieldDynamics.rules();text(node.production,'All Energy ×'+number(Game.FieldDynamics.multiplier(),5)+' · baseline ×'+number(Game.FieldDynamics.baseline(),5)+' · peak ×'+number(Game.FieldDynamics.peak(),5)+(Game.FieldDynamics.peakPaused()?' · peak held during negative Fluct':Game.FieldDynamics.held()?' · waiting for release':' · '+number(Game.FieldDynamics.nextEventIn(),1)+'s to '+(p.fieldDynamics.elapsed.lt(rules.rise)?'peak':'restart')));
         }
-        if(gen.type==='fluctuation') text(node.description,'Purchased patterns build dependable strength. Positive and negative Fluct vary that strength by +20% or −20%; Quantum Resonance reinforces it with diminishing returns.');
-        if(gen.type==='field') text(node.description,'Purchasing immediately adds base Energy output. Every cycle adds more; purchased patterns strengthen future growth.');
+        if(gen.type==='fluctuation') describe(node,'Purchased patterns build dependable strength. Positive and negative Fluct vary that strength by +20% or −20%; Quantum Resonance reinforces it with diminishing returns.');
+        if(gen.type==='field') describe(node,'Purchasing immediately adds base Energy output. Every cycle adds more; purchased patterns strengthen future growth.');
       });
       const disturb=Game.Patterns.state(p.upgrades.clickPower);
       text(byId('disturb-pattern'),'Pattern '+(disturb.index+1)+' · '+disturb.position+' / '+disturb.size+' · whole click ×'+number(Game.D(Game.CONFIG.STRUCTURE.clickStrength).pow(disturb.index)));

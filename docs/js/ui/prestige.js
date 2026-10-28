@@ -19,7 +19,7 @@
     showDetails: function (id, pin) {
       clearTimeout(this.showTimer);clearTimeout(this.hideTimer);
       const node = this.nodes[id];
-      if (!node || byId("prestige-view").hidden) return;
+      if (!node || node.hidden || !Game.Discovery.skill(id) || byId("prestige-view").hidden) return;
       if (id !== this.selected) byId("skill-purchase-status").textContent = "";
       this.selected = id;this.pinned = Boolean(pin);
       byId("skill-detail").hidden = false;
@@ -60,7 +60,7 @@
     init: function () {
       Game.CondenseFX.init();
       byId('unlock-symmetry').addEventListener('click',function () { Game.Loop.pump(performance.now());Game.Prestige.unlockSymmetry(); });
-      const tree = byId("skill-world");
+      const tree = byId("skill-map-world");
       Game.CONFIG.PRESTIGE.branches.forEach(function (branch) {
         branch.nodes.forEach(function (id, index) {
           const node = document.createElement("button");
@@ -78,8 +78,7 @@
             // Moving the camera during a touch focus can move the label away
             // before its click lands. Reframe only for keyboard navigation.
             if (node.matches(":focus-visible")) {
-              if (Game.player.ui.skillTree2D) node.scrollIntoView({block:"nearest",inline:"nearest"});
-              else Game.TreeCamera.reveal(id);
+              node.scrollIntoView({block:"nearest",inline:"nearest"});
             }
             Game.PrestigeUI.scheduleDetails(id);
           });
@@ -89,7 +88,6 @@
           tree.appendChild(node);
         });
       });
-      Game.TreeCamera.init();
       Game.TreeMap.init();
       byId("buy-skill").addEventListener("click", function () {
         if (Game.Prestige.buySkill(Game.PrestigeUI.selected)) byId("skill-purchase-status").textContent = "Skill " + Game.PrestigeUI.selected + " unlocked.";
@@ -116,7 +114,12 @@
         Game.Loop.pump(performance.now());
         Game.Prestige.condense();
       });
-      byId("milestone-condense").addEventListener("click", function () { Game.UI.selectView("prestige", true);byId("condense-button").scrollIntoView({block:"center"}); });
+      byId("milestone-condense").addEventListener("click", function () {
+        Game.Loop.pump(performance.now());
+        if(Game.player.prestige.times.eq(0) && !false) {
+          if(Game.Prestige.condense()) Game.UI.selectView("prestige",true);
+        } else { Game.UI.selectView("prestige",true);byId("condense-button").scrollIntoView({block:"center"}); }
+      });
       byId("respec-skills").addEventListener("click", function () {
         if (!Game.Prestige.canRespec()) return;
         const dialog=byId("respec-dialog");
@@ -151,7 +154,7 @@
       setText(byId("condense-earned"), number(p.prestige.totalQuanta) + " earned · " + number(p.prestige.times) + " condensations" + (Game.Progression.hasSkill("4-3-1") ? " · " + number(Game.Progression.effectiveCondenses()) + " effective" : ""));
       setText(byId("condense-reward"), "+" + number(reward) + " Primordial Quanta");
       setText(byId("condense-next"), "Next reward: " + number(reward.add(Game.Symmetry.quantaMultiplier())) + " at " + number(Game.Prestige.nextRewardEnergy()) + " held Energy");
-      setText(byId("condense-rebuild-note"),"Condense history: ×"+Game.Format.number(Game.Structure.condenseMemory(),2)+" Energy; next run starts with "+Math.min(4,p.prestige.times.add(1).toNumber()+(Game.Progression.hasSkill('3-1')?1:0))+" Stabilization(s). The first four Condenses progressively skip learned opening resets.");
+      setText(byId("condense-rebuild-note"),"Condense history: ×"+Game.Format.number(Game.Structure.condenseMemory(),2)+" Energy; next run starts with "+Math.min(4,p.prestige.times.add(1).toNumber()+(Game.Progression.hasSkill('3-1')?1:0))+" Stabilizations. The first four Condenses progressively skip learned opening resets.");
       setText(byId("condense-requirement"), Game.Challenges.active() ? "Condense is unavailable during a challenge. Complete its Energy goal or exit the challenge first." : ready ? "Ready to condense. Your current run will reset." : "Requires " + number(Game.CONFIG.PROGRESSION.prestigeEnergy) + " held Energy.");
       byId("condense-button").disabled = !ready;
       setText(byId("condense-button"), "Condense Energy · +" + number(reward) + " Quanta");
@@ -163,10 +166,12 @@
       setText(byId("milestone-condense"), ready ? "Condense · +" + number(reward) + " Quanta" : "Condense Energy");
       byId("condense-achievement").classList.toggle("unlocked", Game.Progression.condenseAchievementUnlocked());
       setText(byId("condense-achievement-status"), Game.Progression.condenseAchievementUnlocked() ? "Unlocked" : "0 / 1 condensations");
+      byId("symmetry-placeholder").hidden=!(reveal || symOwned || p.prestige.totalQuanta.gte(Game.CONFIG.SYMMETRY.cost));
       if (byId("prestige-view").hidden) return;
       setText(byId("respec-skills"), "Respec · " + number(Game.Prestige.respecRefund()) + " Q");
       byId("respec-skills").title = Game.Challenges.active()?"Exit the challenge before changing skills":"Refund " + number(Game.Prestige.respecRefund()) + " Quanta" + " and restart this run";
       byId("respec-skills").disabled = !Game.Prestige.canRespec();
+      Game.TreeMap.updateState();
       const selected = this.selected, definition = Game.CONFIG.PRESTIGE.skills[selected];
       Object.keys(this.nodes).forEach(function (id) {
         const node = Game.PrestigeUI.nodes[id], owned = Game.Progression.hasSkill(id), available = Game.Prestige.canBuySkill(id), designed = Boolean(Game.CONFIG.PRESTIGE.skills[id]);
@@ -192,7 +197,7 @@
       setText(byId("buy-skill"), owned ? "Owned" : Game.Challenges.active()?"Exit challenge to unlock skills":definition.requires && !Game.Progression.hasSkill(definition.requires) ? "Requires " + definition.requires : affordable ? "Unlock · " + definition.cost + " Quanta" : "Need " + definition.cost + " Quanta");
       const detailKey = selected + String(owned) + String(reveal) + p.prestige.quanta.toString();
       if (this.detailKey !== detailKey) { this.detailKey = detailKey;this.positionDetails(); }
-      if (p.ui.skillTree2D) Game.TreeMap.updateState();else Game.TreeCamera.updateState();
+      Game.TreeMap.updateState();
     }
   };
 })(window.CosmicIdle);

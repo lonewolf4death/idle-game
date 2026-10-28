@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cosmic Idle — Energy</title>
-  <link rel="stylesheet" href="css/main.css?v=e54901924c9d" />
+  <link rel="stylesheet" href="css/main.css?v=d2197c8276ae" />
 </head>
 <body>
   <main class="game-shell">
@@ -78,12 +78,12 @@
       <section id="active-challenge-banner" class="active-challenge-banner" aria-label="Active challenge" hidden><div><strong id="active-challenge-name"></strong><p id="active-challenge-progress"></p></div><div><button id="active-challenge-view">View rules</button><button id="active-challenge-complete">Complete challenge</button><button id="active-challenge-exit">Exit challenge</button></div></section>
       <div class="view-tabs" role="tablist" aria-label="Game views">
         <button id="energy-tab" role="tab" aria-selected="true" aria-controls="energy-view" tabindex="0">Energy</button>
-        <button id="prestige-tab" role="tab" aria-selected="false" aria-controls="prestige-view" tabindex="-1">Condense</button>
-        <button id="achievements-tab" role="tab" aria-selected="false" aria-controls="achievements-view" tabindex="-1">Achievements <span id="achievement-count">0 / 7</span></button>
+        <button id="prestige-tab" hidden role="tab" aria-selected="false" aria-controls="prestige-view" tabindex="-1">Condense</button>
+        <button id="achievements-tab" role="tab" aria-selected="false" aria-controls="achievements-view" tabindex="-1">Achievements <span id="achievement-count">0 / 2</span></button>
         <button id="stats-tab" role="tab" aria-selected="false" aria-controls="stats-view" tabindex="-1">Stats</button>
         <button id="lore-tab" role="tab" aria-selected="false" aria-controls="lore-view" tabindex="-1">Lore</button>
-        <button id="challenges-tab" role="tab" aria-selected="false" aria-controls="challenges-view" tabindex="-1">Challenges</button>
-        <button id="automation-tab" role="tab" aria-selected="false" aria-controls="automation-view" tabindex="-1">Automation</button>
+        <button id="challenges-tab" hidden role="tab" aria-selected="false" aria-controls="challenges-view" tabindex="-1">Challenges</button>
+        <button id="automation-tab" hidden role="tab" aria-selected="false" aria-controls="automation-view" tabindex="-1">Automation</button>
         <button id="settings-tab" role="tab" aria-selected="false" aria-controls="settings-view" tabindex="-1">Settings</button>
       </div>
       <div id="energy-view" role="tabpanel" aria-labelledby="energy-tab">
@@ -93,7 +93,7 @@
         </section>
     <div id="energy-field" class="energy-field" role="button" tabindex="0" aria-label="Generate Energy. Click anywhere in this field, or press Enter or Space.">
       <svg class="potential-contours" viewBox="0 0 700 500" preserveAspectRatio="none" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="0.6"><path d="M-40 290 C140 130 210 410 370 240 S570 170 740 235"/><path d="M-40 302 C140 142 210 422 370 252 S570 182 740 247"/><path d="M-40 314 C140 154 210 434 370 264 S570 194 740 259"/><path d="M-40 326 C140 166 210 446 370 276 S570 206 740 271"/><path d="M-40 338 C140 178 210 458 370 288 S570 218 740 283"/></g></svg>
-      <div class="field-caption"><span class="label">PRIMORDIAL ENERGY</span><strong id="center-energy">0.00</strong><div class="existence-state"><p><span>State:</span><b id="existence-state">Dormant</b></p><p><span>Structure:</span><b id="existence-structure">None</b></p><p><span>Time:</span><b>Undefined</b></p><div id="symmetry-counter" class="symmetry-counter" hidden><span><button class="info-term" data-tip="symmetry">Symmetry</button></span><strong id="symmetry-amount">0.000%</strong><small id="symmetry-type">Indistinguishable laws</small></div></div></div>
+      <div class="field-caption"><span class="label">Primordial Energy</span><strong id="center-energy">0.00</strong><div class="existence-state"><p><span>State:</span><b id="existence-state">Dormant</b></p><p><span>Structure:</span><b id="existence-structure">None</b></p><p><span>Time:</span><b>Undefined</b></p><div id="symmetry-counter" class="symmetry-counter" hidden><span><button class="info-term" data-tip="symmetry">Symmetry</button></span><strong id="symmetry-amount">0.000%</strong><small id="symmetry-type">Indistinguishable laws</small></div></div></div>
       <svg class="symmetry-mandala" viewBox="0 0 500 500" aria-hidden="true"><defs><linearGradient id="symmetry-colors" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#b093e4"/><stop offset=".5" stop-color="#72d9d4"/><stop offset="1" stop-color="#ead39b"/></linearGradient></defs><g fill="none" stroke="url(#symmetry-colors)" stroke-width=".7"><circle cx="250" cy="250" r="186"/><circle cx="250" cy="250" r="134"/><path d="M250 64L411 157V343L250 436L89 343V157Z M250 116L366 317H134Z M250 384L134 183H366Z M64 250H436M250 64V436"/><ellipse cx="250" cy="250" rx="186" ry="70"/><ellipse cx="250" cy="250" rx="186" ry="70" transform="rotate(60 250 250)"/><ellipse cx="250" cy="250" rx="186" ry="70" transform="rotate(120 250 250)"/></g></svg>
       <canvas id="field-waves" aria-hidden="true"></canvas>
       <div id="energy-effects" class="energy-effects" aria-hidden="true"></div>
@@ -102,7 +102,7 @@
       </div>
       <section id="achievements-view" class="achievements-view" role="tabpanel" aria-labelledby="achievements-tab" tabindex="0" hidden>
         <div class="achievements-heading"><span class="label">Milestones of creation</span><h2>Achievements</h2><p>Small discoveries. Permanent rewards.</p></div>
-        <div class="achievement-table" role="table" aria-label="All achievements">
+        <div class="achievement-table" role="table" aria-label="Discovered achievements">
           <div class="achievement-row achievement-columns" role="row"><span role="columnheader">Achievement</span><span role="columnheader">Requirement</span><span role="columnheader">Reward</span><span role="columnheader">Status</span></div>
           <div id="click-achievement" class="achievement-row" role="row">
             <div role="cell" class="achievement-name"><span class="achievement-emblem" aria-hidden="true">✦</span><div><span class="achievement-number">01</span><h3>First sparks</h3></div></div>
@@ -126,17 +126,9 @@
       <section id="prestige-view" class="achievements-view prestige-view" role="tabpanel" aria-labelledby="prestige-tab" tabindex="0" hidden>
         <div class="prestige-heading"><div class="achievements-heading"><span class="label">First prestige</span><h2>Condense Energy</h2></div><p id="condense-earned" class="stats-note">0 earned · 0 condensations</p></div>
         <section class="primordial-skills" aria-labelledby="skill-tree-title">
-          <div class="skill-tree-heading"><h3 id="skill-tree-title">The first constellation</h3><p id="tree-view-help">Drag to orbit · Shift / right-drag to pan · Scroll or pinch to zoom</p><div class="tree-view-switch" role="group" aria-label="Skill tree view"><button id="respec-skills" title="Refund all skill costs and restart this run" disabled>Respec</button><button id="tree-view-3d" aria-pressed="true">3D constellation</button><button id="tree-view-2d" aria-pressed="false">2D map</button></div></div>
-          <div id="skill-tree" class="constellation-tree" role="region" tabindex="0" aria-label="3D skill constellation. Drag to orbit, Shift or right-drag to pan, scroll or pinch to zoom. Arrow keys orbit, plus and minus zoom, zero fits the constellation. Focus a skill to inspect or use arrows to navigate skills.">
-            <canvas id="skill-scene" aria-hidden="true"></canvas>
-            <div id="skill-world" class="skill-labels"><svg id="skill-label-links" aria-hidden="true"></svg></div>
-            <span id="tree-core-label" class="tree-core-label" aria-hidden="true">PRIMORDIAL FIELD</span>
-            <p id="tree-render-status" class="tree-render-status" role="status" hidden></p>
-            <div class="tree-branch-nav" role="group" aria-label="Jump to a skill branch"><button data-tree-branch="1">Impulse</button><button data-tree-branch="2">Probability</button><button data-tree-branch="3">Rhythm</button><button data-tree-branch="4">Continuum</button></div>
-            <div class="tree-camera-controls" role="group" aria-label="Skill tree camera"><button id="tree-zoom-out" aria-label="Zoom out">−</button><span id="tree-zoom-level" aria-live="off">100%</span><button id="tree-zoom-in" aria-label="Zoom in">+</button><button id="tree-fit">Fit constellation</button></div>
-            <div class="tree-legend"><span><i class="available"></i>Available</span><span><i class="owned"></i>Owned</span><span><i class="locked"></i>Requires parent</span></div>
-          </div>
-          <div id="skill-map" class="skill-map" role="region" tabindex="0" aria-label="2D skill map. Scroll to explore. Click a node to inspect its effect and cost." hidden><div id="skill-map-world"><svg id="skill-map-links" viewBox="0 0 1350 925" aria-hidden="true"></svg><div class="map-branch-title" style="left:180px">01 · Impulse</div><div class="map-branch-title" style="left:510px">02 · Probability</div><div class="map-branch-title" style="left:840px">03 · Rhythm</div><div class="map-branch-title" style="left:1170px">04 · Continuum</div><div id="symmetry-placeholder" class="symmetry-placeholder" role="note"><span class="symmetry-mark">◇</span><strong>Symmetry</strong><span id="symmetry-state">Disconnected · future tree</span><button id="unlock-symmetry">Unlock · 10,000 Quanta</button><small>Discover the laws of the fields</small></div></div></div>
+          <div class="skill-tree-heading"><h3 id="skill-tree-title">The first constellation</h3><p id="tree-view-help">Scroll to explore · Hover for details · Shift-click to buy</p><div class="tree-view-switch" role="group" aria-label="Skill tree view"><button id="respec-skills" title="Refund all skill costs and restart this run" disabled>Respec</button></div></div>
+          <div class="tree-branch-nav" role="group" aria-label="Jump to a branch"><button data-tree-branch="1">Impulse</button><button data-tree-branch="2">Probability</button><button data-tree-branch="3">Rhythm</button><button data-tree-branch="4">Continuum</button></div>
+          <div id="skill-map" class="skill-map" role="region" tabindex="0" aria-label="Skill map. Scroll to explore. Click a node to inspect its effect and cost."><div id="skill-map-world"><svg id="skill-map-links" viewBox="0 0 1350 925" aria-hidden="true"></svg><div id="symmetry-placeholder" hidden class="symmetry-placeholder" role="note"><span class="symmetry-mark">◇</span><strong>Symmetry</strong><span id="symmetry-state">Disconnected · future tree</span><button id="unlock-symmetry">Unlock · 10,000 Quanta</button><small>Discover the laws of the fields</small></div></div></div>
         </section>
         <section id="perfect-alignment-tree" class="perfect-alignment-tree" hidden><div><span class="label">90% discovery · persistent reveal</span><h3>Perfect Alignment</h3><p>This part of the perk tree is unlocked. Its perks are awaiting formation.</p></div><span class="perfect-perk-stub" aria-label="Future Perfect Alignment perk">◇</span><span class="perfect-perk-stub" aria-label="Future Perfect Alignment perk">◇</span></section>
         <section class="condense-panel" aria-label="Condensation preview">
@@ -232,7 +224,7 @@
             <h3 id="stats-coherence-title">Gen 3 · Coherent Energy</h3>
             <dl>
               <div><dt>Total owned</dt><dd id="stats-coherence-owned"></dd></div>
-              <div><dt>Generator achievement bonus</dt><dd id="stats-coherence-bonus"></dd></div>
+              <div><dt>Resonance production bonuses</dt><dd id="stats-coherence-bonus"></dd></div>
               <div class="stats-result"><dt><button class="info-term" data-tip="quantumResonance">Quantum Resonance</button> / cycle</dt><dd id="stats-quantum-output"></dd></div>
               <div><dt>Quantum Resonance cycle</dt><dd id="stats-quantum-interval"></dd></div>
               <div><dt>Quantum Resonance held</dt><dd id="stats-quantum-held"></dd></div>
@@ -339,16 +331,16 @@
     </section>
     </div>
     <section class="milestone" aria-label="Next major milestone">
-      <div class="milestone-heading"><span id="milestone-title">Condense Energy</span><span id="milestone-value"></span><div id="milestone-condense-summary" class="milestone-condense-summary" hidden><span id="milestone-quanta-rate" title="Quanta available if you Condense now, divided by this run's real elapsed minutes.">0 Quanta/min</span><button id="milestone-condense" hidden>Condense Energy</button></div></div>
-      <div id="milestone-bar" class="milestone-track" role="progressbar" aria-label="Logarithmic progress to Condense Energy" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="milestone-fill"></div></div>
+      <div class="milestone-heading"><span id="milestone-title">Progress</span><span id="milestone-value"></span><div id="milestone-condense-summary" class="milestone-condense-summary" hidden><span id="milestone-quanta-rate" title="Quanta available if you Condense now, divided by this run's real elapsed minutes.">0 Quanta/min</span><button id="milestone-condense" hidden>Condense Energy</button></div></div>
+      <div id="milestone-bar" class="milestone-track" role="progressbar" aria-label="Progress" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div id="milestone-fill"></div></div>
       <span id="milestone-caption" class="muted"></span>
     <section class="simulation-strip">
       <h2>Simulation</h2>
       <div class="sim-grid">
         <div><span class="label">Simulation TPS</span><strong id="tps-display">20</strong></div>
         <div id="game-speed-stat" hidden><span class="label">Game Speed</span><strong id="game-speed-display">1×</strong></div>
-        <div><span class="label">Real Time Played</span><strong id="real-time-display">0s</strong></div>
-        <div id="game-time-stat" hidden><span class="label">Game Time Experienced</span><strong id="game-time-display">0s</strong></div>
+        <div><span class="label">Real time played</span><strong id="real-time-display">0s</strong></div>
+        <div id="game-time-stat" hidden><span class="label">Game time experienced</span><strong id="game-time-display">0s</strong></div>
       </div>
     </section>
     </section>
@@ -371,9 +363,9 @@
 
   <!-- Load order matters because this version works directly from file:// -->
   <script src="js/core/namespace.js?v=2be15fd41d03"></script>
-  <script src="js/core/config.js?v=f05840fcb0d6"></script>
+  <script src="js/core/config.js?v=c6a344a744ea"></script>
   <script src="js/numbers/decimal.js?v=072eb6e5da4d"></script>
-  <script src="js/core/state.js?v=624b2307804e"></script>
+  <script src="js/core/state.js?v=7e8b98d754a0"></script>
   <script src="js/core/automation.js?v=a9b17adabc3d"></script>
   <script src="js/core/symmetry.js?v=e56cf78aa19b"></script>
   <script src="js/time/gameTime.js?v=a3b9af0ff87e"></script>
@@ -385,27 +377,26 @@
   <script src="js/layers/energy/coherence.js?v=be5e46fdf999"></script>
   <script src="js/layers/energy/fieldExcitation.js?v=abb01bc2d45d"></script>
   <script src="js/layers/energy/fieldDynamics.js?v=76632361444f"></script>
-  <script src="js/core/structure.js?v=210f1d656f44"></script>
-  <script src="js/core/productionStats.js?v=b0437ff2f9d7"></script>
-  <script src="js/save/saveManager.js?v=cdc790dc323b"></script>
+  <script src="js/core/structure.js?v=5ea015523925"></script>
+  <script src="js/core/productionStats.js?v=0b2666a1e0b8"></script>
+  <script src="js/save/saveManager.js?v=cfbba6c59430"></script>
   <script src="js/ui/format.js?v=18b24fb44594"></script>
   <script src="js/ui/icons.js?v=80b1b0ea0822"></script>
   <script src="js/ui/experience.js?v=c27d3a3935fe"></script>
   <script src="js/ui/perkFX.js?v=6b1f5cb7c69e"></script>
   <script src="js/ui/potentialBubble.js?v=a912eb2bf7fa"></script>
   <script src="js/ui/condenseFX.js?v=a3923dd5d810"></script>
-  <script src="js/ui/tooltips.js?v=e5066dcbae27"></script>
+  <script src="js/ui/tooltips.js?v=67bdcdfe222b"></script>
   <script src="js/ui/fieldWaves.js?v=c4d67537032d"></script>
-  <script src="js/ui/stats.js?v=058c4f715e8f"></script>
-  <script src="js/ui/achievements.js?v=63dbdb261617"></script>
-  <script src="js/ui/prestige.js?v=06b40f8f5eec"></script>
-  <script src="js/vendor/three.min.js?v=170c6789f432"></script>
-  <script src="js/ui/treeCamera.js?v=e042f2436cbe"></script>
-  <script src="js/ui/treeMap.js?v=cbfab2c4e32c"></script>
-  <script src="js/ui/automation.js?v=ae92d53d593e"></script>
+  <script src="js/ui/stats.js?v=d7f05badb7c4"></script>
+  <script src="js/ui/achievements.js?v=17c5f1700e67"></script>
+  <script src="js/ui/prestige.js?v=d256e807a866"></script>
+  <script src="js/ui/discovery.js?v=3e4e32b7c3ba"></script>
+  <script src="js/ui/treeMap.js?v=a5c9deae5458"></script>
+  <script src="js/ui/automation.js?v=bff34d280b27"></script>
   <script src="js/ui/symmetry.js?v=3d62625d2f83"></script>
-  <script src="js/ui/render.js?v=a19962326dda"></script>
-  <script src="js/ui/structure.js?v=fa370756c1db"></script>
+  <script src="js/ui/render.js?v=34b495441fb3"></script>
+  <script src="js/ui/structure.js?v=53d2d078cede"></script>
   <script src="js/core/gameLoop.js?v=d62712038f0b"></script>
   <script src="js/main.js?v=bc63880a417f"></script>
 </body>

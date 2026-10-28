@@ -50,12 +50,13 @@
         button.addEventListener("click",function () { Game.StatsUI.selectPage(page); });
         button.addEventListener("keydown",function (event) {
           if (!["ArrowLeft","ArrowRight","Home","End"].includes(event.key)) return;
-          event.preventDefault();const next=event.key==="Home"?pages[0]:event.key==="End"?pages[1]:pages[1-index];Game.StatsUI.selectPage(next,true);
+          event.preventDefault();const visible=pages.filter(function (name) { return !document.getElementById("stats-"+name+"-tab").hidden; });const next=visible.length===1?visible[0]:event.key==="Home"?pages[0]:event.key==="End"?pages[1]:pages[1-index];Game.StatsUI.selectPage(next,true);
         });
       });
     },
     selectPage: function (page,focus) {
       if (!["production","condense"].includes(page)) return;
+      if(page==="condense" && !Game.Discovery.view("prestige")) page="production";
       this.page=page;
       ["production","condense"].forEach(function (name) {
         const selected=name===page, button=document.getElementById("stats-"+name+"-tab");

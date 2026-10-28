@@ -95,7 +95,7 @@
       entries.push({ id: "condense-memory", label: "0-0 · Memory of condensation", factor: s.prestige.condenseMemory, color: "quanta" });
       entries.push({id:'stabilizations',label:'Stabilized field',factor:Game.Structure.multiplier(),color:'field'});
       entries.push({id:'condense-rebuild',label:'Condense history · faster rebuilding',factor:Game.Structure.condenseMemory(),color:'quanta'});
-      entries.push({id:'first-quanta',label:'First Quanta · foundation perks',factor:D(Game.Progression.hasSkill('1-1')?Game.CONFIG.PRESTIGE.skills['1-1'].foundationMultiplier:1).mul(Game.Progression.hasSkill('2-1')?Game.CONFIG.PRESTIGE.skills['2-1'].foundationMultiplier:1),color:'quanta'});
+      entries.push({id:'first-quanta',label:'First Quanta · foundation perks',factor:D(Game.Progression.hasSkill('1-1')?Game.CONFIG.PRESTIGE.skills['1-1'].foundationMultiplier:1).mul(Game.Progression.hasSkill('2-1')?Game.CONFIG.PRESTIGE.skills['2-1'].foundationMultiplier:1).mul(Game.Progression.hasSkill('4-1')?Game.CONFIG.PRESTIGE.skills['4-1'].foundationMultiplier:1),color:'quanta'});
       if(!generator) entries.push({id:'disturb-patterns',label:'Disturb resonance patterns',factor:D(Game.CONFIG.STRUCTURE.clickStrength).pow(Game.Patterns.state(Game.player.upgrades.clickPower).index),color:'field'});
       if (!generator) entries.push({ id: "skills", label: "1-1 · Focused disturbance", factor: s.prestige.clickMultiplier, color: "quanta" });
       if (!generator && !Game.Challenges.clicksAllowed()) entries.push({id:"challenge",label:"Hands off · clicks disabled",factor:D(0),color:"slowdown"});
@@ -188,7 +188,7 @@
           focus: Game.Progression.generatorFocusMultiplier("quantumFluctuation")
         },
         coherence: {
-          owned: coherenceOwned, bonus: generatorAchievements,
+          owned: coherenceOwned, bonus: generatorAchievements.mul(Game.Progression.hasSkill("4-1")?Game.CONFIG.PRESTIGE.skills["4-1"].coherenceMultiplier:1),
           perCycle: Game.Coherence.outputPerCycle(),
           quantum: p.resources.quantumResonance, energy: p.resources.energyResonance,
           quantumInterval: Game.Coherence.quantumInterval(), energyInterval: Game.Coherence.energyInterval(),

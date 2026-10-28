@@ -17,11 +17,25 @@
     },
     render:function (reveal) {
       const P=Game.Progression, A=Game.Achievements, p=Game.player, level=A.fluctLevel(), rules=Game.CONFIG.FLUCT_STREAK_ACHIEVEMENT;
-      const discoveries=Game.CONFIG.DISCOVERY_ACHIEVEMENTS.filter(function (definition) { return p.achievements[definition.id]; }).length;
-      const base=[P.achievementUnlocked(),P.firstGeneratorAchievementUnlocked(),P.growingEngineAchievementUnlocked(),P.playtimeAchievementUnlocked(),P.coherentAchievementUnlocked(),P.condenseAchievementUnlocked()].filter(Boolean).length;
-      const total=6+Number(level>0||reveal)+Game.CONFIG.DISCOVERY_ACHIEVEMENTS.length;
-      set(document.getElementById("achievement-count"),(base+Number(level>0)+discoveries)+" / "+total);
-      if(document.getElementById("achievements-view").hidden) return;
+      const baseRows=[
+        ['click-achievement',P.achievementUnlocked(),true],
+        ['first-generator-achievement',P.firstGeneratorAchievementUnlocked(),Game.Discovery.generator('energyDisturbance')],
+        ['twenty-five-achievement',P.growingEngineAchievementUnlocked(),Game.Discovery.generator('energyDisturbance')],
+        ['five-minutes-achievement',P.playtimeAchievementUnlocked(),true],
+        ['coherent-achievement',P.coherentAchievementUnlocked(),Game.Discovery.generator('coherentEnergy')],
+        ['condense-achievement',P.condenseAchievementUnlocked(),Game.Prestige.reward().gt(0)]
+      ];
+      let earned=Number(level>0),total=Number(level>0||reveal);
+      baseRows.forEach(function (item) {
+        const shown=Boolean(reveal||item[1]||item[2]);document.getElementById(item[0]).hidden=!shown;
+        if(shown) { total++;earned+=Number(item[1]); }
+      });
+      Game.CONFIG.DISCOVERY_ACHIEVEMENTS.forEach(function (definition) {
+        const item=Game.AchievementsUI.rows[definition.id],owned=Boolean(p.achievements[definition.id]),shown=Game.Discovery.achievement(definition);
+        item.row.hidden=!shown;if(shown) { total++;earned+=Number(owned); }
+      });
+      set(document.getElementById('achievement-count'),earned+' / '+total);
+      if(document.getElementById('achievements-view').hidden) return;
       const row=document.getElementById("fluct-streak-achievement");row.hidden=!(level||reveal);row.classList.toggle("unlocked",level>0);
       set(document.getElementById("fluct-streak-name"),rules.name);
       set(document.getElementById("fluct-streak-condition"),p.fluctuation.positiveChanceMastery?"Probability mastery · all levels unlocked":level?"Roll "+rules.tiers[level-1].rolls+" negative Flucts in a row":"Roll 3 negative Flucts in a row");
@@ -31,7 +45,7 @@
       this.tierRows.forEach(function (tier,index) { tier.hidden=!(index<level||reveal);tier.classList.toggle("earned",index<level); });
       Game.CONFIG.DISCOVERY_ACHIEVEMENTS.forEach(function (definition) {
         const item=Game.AchievementsUI.rows[definition.id], owned=Boolean(p.achievements[definition.id]);
-        item.row.hidden=false;item.row.classList.toggle("unlocked",owned);set(item.status,definition.kind==='challenge' ? (function () { const n=p.automation.buyers[Game.CONFIG.AUTOMATION.buyers[definition.track-1].id].level;return (n>=10?'Mastered':n>=5?'Established':n>=1?'Initiated':'Locked')+' · '+n+'/10'; })() : owned?"Unlocked":"Locked");
+        item.row.hidden=!Game.Discovery.achievement(definition);item.row.classList.toggle("unlocked",owned);set(item.status,definition.kind==='challenge' ? (function () { const n=p.automation.buyers[Game.CONFIG.AUTOMATION.buyers[definition.track-1].id].level;return (n>=10?'Mastered':n>=5?'Established':n>=1?'Initiated':'Locked')+' · '+n+'/10'; })() : owned?"Unlocked":"Locked");
       });
     }
   };

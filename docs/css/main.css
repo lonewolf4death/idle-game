@@ -852,7 +852,7 @@ summary.contribution-row { cursor:pointer; }
 @media(prefers-reduced-motion:reduce) { .is-pattern-complete { animation:none; }.stabilization-track span { transition:none; } }
 
 .first-quanta-choices { margin:0 0 12px; }
-.first-quanta-choices > div { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:8px; }
+.first-quanta-choices > div { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
 .first-quanta-choices button { text-align:left; padding:10px 12px; border-color:#394950; }
 .first-quanta-choices button strong { display:block; color:#d5c194; font-size:11px; }
 .first-quanta-choices button span { display:block; font-size:10px; color:#9db8bd; margin-top:6px; line-height:1.6; }
@@ -862,6 +862,22 @@ summary.contribution-row { cursor:pointer; }
 .stabilization-heading { align-items:center; }.stabilization-heading h2 { margin:0; font-size:12px; }.stabilization-heading strong { font-size:10px; text-align:right; }.stabilization-details { margin-top:10px; }.stabilization-details summary { font-size:10px; color:#9cb9bd; cursor:pointer; }
 
 .sr-only { position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
+
+/* The perk map is static and grows only as connected choices are discovered. */
+.skill-map [hidden], .achievement-table [hidden], .challenge-tracks [hidden], .automation-list [hidden] { display:none !important; }
+.skill-tree-heading + .tree-branch-nav { position:static; display:flex; flex-wrap:wrap; gap:6px; margin:8px 0; transform:none; }
+.skill-map .constellation-node { width:150px; }
+.skill-map .skill-label-title>span { max-width:150px; font-size:12px; min-height:32px; }
+.skill-map .skill-node-state { width:150px; }
+.skill-map .symmetry-placeholder { position:sticky; left:12px; bottom:12px; margin:20px 12px; width:190px; }
+@media(min-width:700px) { .condense-active .primordial-skills { min-height:360px; } }
+
+.label, .panel h2, .achievement-columns, .mobile-cell-label, .contribution-columns, .symmetry-placeholder strong { text-transform:none; letter-spacing:.04em; }
+
+.condense-active #prestige-view:has(#skill-map) { overflow-y:auto; }
+.condense-active .primordial-skills:has(#skill-map:not([hidden])) { flex:1 0 460px; min-height:460px; }
+.condense-active #skill-map { flex:1 0 300px; min-height:300px; }
+.skill-tree-heading + .tree-branch-nav { flex-shrink:0; }
 
 /* Public edition: the third desktop column balances the centered resource. */
 @media(min-width:761px){.topbar{min-height:110px}}

@@ -253,4 +253,24 @@
   Game.CONFIG.PRESTIGE.skills["2-1"].foundationMultiplier="3";
   Game.CONFIG.PRESTIGE.skills["2-1"].description="Add 5 percentage points to positive Fluct chance and multiply all Energy by ×3. Reveals positive and negative probabilities. Other chance bonuses combine normally.";
   Game.CONFIG.PRESTIGE.skills["3-1"].description="Hold Field Oscillation's peak for 10 seconds in its 60-second cycle. Start future runs with one extra Stabilization (up to four), shortening the early rebuild. Applies immediately when unlocked.";
+  // Early routes match the pattern-and-Stabilization economy.
+  const newCosts={"1-2":3,"1-2-2":25,"1-3-1":8,"1-3-2":8,"1-4-1":10,"1-4-2":8,
+    "2-1-2":5,"2-2":2,"2-3-1":5,"2-3-2":5,"2-3-3":3,"2-4-1":10,"2-4-2":10,
+    "3-2":5,"3-2-1":3,"3-2-2":15,"3-3":5,"3-4-1":5,"3-4-2":25,"3-4-3":10,"3-2-3":10,
+    "4-1":1,"4-2":3,"4-3-1":8,"4-3-2":5,"4-3-3":10,"4-4-1":10};
+  Object.entries(newCosts).forEach(function (entry) {
+    const skill=Game.CONFIG.PRESTIGE.skills[entry[0]];
+    skill.cost=String(entry[1]);
+  });
+  const skills=Game.CONFIG.PRESTIGE.skills;
+  skills["2-3-1"].requires="2-1";
+  skills["2-3-2"].requires="2-1";
+  skills["2-3-3"].requires="2-3-1";
+  skills["3-3"].requires="3-1";
+  skills["4-3-2"].requires="4-1";
+  skills["4-4-1"].requires="4-3-2";
+  skills["4-1"].foundationMultiplier="2";skills["4-1"].coherenceMultiplier="2";
+  skills["4-1"].description="Multiply all Energy by ×2 and both Coherent Energy Resonance outputs by ×2. Space Quantum Resonance soft-cap thresholds ×3.3 apart instead of ×3; the first remains at 100. A stronger foundation for rebuilding and Stabilizing.";
+  skills["4-2"].energyMultiplier="2";
+  skills["4-2"].description="Multiply all Energy gained by ×2. Combines multiplicatively with other Energy bonuses.";
 })(window.CosmicIdle);
