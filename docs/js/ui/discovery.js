@@ -10,6 +10,7 @@
       if(stabilizing && (reveal || Game.CONFIG.AUTOMATION.buyers.some(function (b) { return p.automation.buyers[b.id].level>0; })))keep.push('automation mastery');
       if(reveal || Game.Symmetry.unlocked()) {reset.push('Symmetry','Field Alignment');keep.push('Symmetry access and discoveries');}
       if(reveal || Game.Symmetry.discovered(.5))keep.push('purchased Unified Interaction upgrades');
+      if(reveal || Game.Asymmetry.discovered())keep.push('Asymmetry and its upgrades');
       keep.push('settings');
       return {reset:'Resets '+reset.join(', ')+'.',keep:'Keeps '+keep.join(', ')+'.'};
     },
@@ -21,6 +22,7 @@
     view: function (name) {
       if(false) return true;
       if(name==='prestige') return Game.player.prestige.times.gt(0);
+      if(name==='asymmetry') return Game.Asymmetry.discovered();
       if(name==='automation') return Game.CONFIG.AUTOMATION.buyers.some(function (buyer) { return Game.Automation.unlocked(buyer.id); });
       if(name==='challenges') return Game.CONFIG.AUTOMATION.buyers.some(function (_,i) { return Game.Discovery.challenge(i+1); });
       return true;
@@ -28,6 +30,7 @@
     skill: function (id) {
       if(false || Game.Progression.hasSkill(id)) return true;
       const skill=Game.CONFIG.PRESTIGE.skills[id];
+      if(skill.perfect && !Game.Symmetry.discovered(.9)) return false;
       if(!skill.requires || Game.Progression.hasSkill(skill.requires)) return true;
       return Object.keys(Game.CONFIG.PRESTIGE.skills).some(function (owned) {
         if(!Game.Progression.hasSkill(owned)) return false;

@@ -10,6 +10,7 @@
     canBuySkill: function (id) {
       const definition = Game.CONFIG.PRESTIGE.skills[id];
       if (Game.Challenges.active() || !definition || Game.Progression.hasSkill(id)) return false;
+      if (definition.perfect && !Game.Symmetry.discovered(.9)) return false;
       if (definition.requires && !Game.Progression.hasSkill(definition.requires)) return false;
       return Game.player.prestige.quanta.gte(definition.cost);
     },
@@ -85,10 +86,11 @@
       const energy = Game.player.resources.energy, minimum = D(Game.CONFIG.PROGRESSION.prestigeEnergy);
       if (energy.lt(minimum)) return D(0);
       // Decimal's normalized exponent is floor(log10(E)), including exact powers of ten.
-      return D(energy.exponent - minimum.exponent + 1).mul(Game.Symmetry.quantaMultiplier());
+      return D(energy.exponent - minimum.exponent + 1).mul(Game.Symmetry.quantaMultiplier()).floor();
     },
     nextRewardEnergy: function () {
-      return D(10).pow(D(Game.CONFIG.PROGRESSION.prestigeEnergy).exponent + this.reward().div(Game.Symmetry.quantaMultiplier()).toNumber());
+      const nextBase=this.reward().add(1).div(Game.Symmetry.quantaMultiplier()).ceil();
+      return D(10).pow(D(Game.CONFIG.PROGRESSION.prestigeEnergy).exponent + nextBase.toNumber()-1);
     },
     quantaRate: function (quanta, realSeconds, unitSeconds) {
       if (D(quanta).eq(0)) return D(0);

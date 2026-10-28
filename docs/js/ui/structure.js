@@ -45,7 +45,7 @@
       text(byId('pattern-announcement'),gen.name+' completed '+crossed+' resonance '+(crossed===1?'pattern':'patterns')+'. Production strengthened.');
       if(Game.Audio) Game.Audio.play('perk');
     },
-    stabilizationFeedback:function () { if(Game.Audio) Game.Audio.play('stabilize'); },
+    stabilizationFeedback:function (automated) { if(Game.Audio) Game.Audio.play('stabilize');if(!automated && Game.Presentation)Game.Presentation.reset('stabilize'); },
     render:function () {
       const p=Game.player,level=p.structure.stabilizations.toNumber(),reveal=false;
       text(byId('stabilization-keeps'),Game.Discovery.resetSummary(true).keep);

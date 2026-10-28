@@ -166,7 +166,7 @@
       setText(byId("milestone-condense"), ready ? "Condense · +" + number(reward) + " Quanta" : "Condense Energy");
       byId("condense-achievement").classList.toggle("unlocked", Game.Progression.condenseAchievementUnlocked());
       setText(byId("condense-achievement-status"), Game.Progression.condenseAchievementUnlocked() ? "Unlocked" : "0 / 1 condensations");
-      byId("symmetry-placeholder").hidden=!(reveal || symOwned || p.prestige.totalQuanta.gte(Game.CONFIG.SYMMETRY.cost));
+      byId("symmetry-placeholder").hidden=!(reveal || !symOwned && p.prestige.totalQuanta.gte(Game.CONFIG.SYMMETRY.cost));
       if (byId("prestige-view").hidden) return;
       setText(byId("respec-skills"), "Respec · " + number(Game.Prestige.respecRefund()) + " Q");
       byId("respec-skills").title = Game.Challenges.active()?"Exit the challenge before changing skills":"Refund " + number(Game.Prestige.respecRefund()) + " Quanta" + " and restart this run";

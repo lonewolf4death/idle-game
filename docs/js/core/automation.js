@@ -15,7 +15,7 @@
       const interval=this.advanced(id) ? (50 - 4 * Game.player.automation.buyers[id].level) / 10 : Game.CONFIG.STRUCTURE.basicBuyerInterval;
       return Game.Offline && Game.Offline.fastRealStep ? Math.max(interval,Game.Offline.fastRealStep) : interval;
     },
-    active: function (id) { return !Game.Challenges.active() && !Game.Challenges.confirming && !(Game.StructureUI && Game.StructureUI.confirming) && !((id==='condense'||id==='stabilize') && this.editingCondenseTarget) && this.unlocked(id) && !!Game.player.settings.autoBuyers[id]; },
+    active: function (id) { return !Game.Challenges.active() && !Game.Challenges.confirming && !Game.Asymmetry.confirming && !(Game.StructureUI && Game.StructureUI.confirming) && !((id==='condense'||id==='stabilize') && this.editingCondenseTarget) && this.unlocked(id) && !!Game.player.settings.autoBuyers[id]; },
     parseCondenseTarget: function (input) {
       if (typeof input!=='string' && typeof input!=='number') return null;
       const value=String(input).trim();

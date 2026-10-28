@@ -128,11 +128,12 @@
         entries.push({id:'energy-transformation',label:'Energy gains · power '+Game.Challenges.gainPower().toFixed(3)+(Game.Challenges.active()?' · '+Game.Challenges.definition().name:''),factor:powerFactor,color:'quanta'});product=product.mul(powerFactor);
       }
       const symmetryBonus=Game.Symmetry.energyMultiplier();
-      if(Game.Symmetry.unlocked()) {
+      if(Game.Symmetry.unlocked() || !symmetryBonus.eq(1)) {
         entries.push({id:'symmetry-energy',label:'Symmetry and Unified Interaction',factor:symmetryBonus,color:'field',children:this.withShares([
           {id:'symmetry-formula',label:'Symmetry strength'+(Game.Symmetry.has('perfectInteraction')?' · Perfect Interaction':''),tip:'symmetry',factor:Game.Symmetry.multiplier()},
           {id:'unified-field',label:'Unified Field I',factor:Game.Symmetry.unifiedEnergyMultiplier()},
-          {id:'alignment-levels',label:'Field Resonance · Field Alignment levels',factor:Game.Symmetry.alignmentEnergy()}
+          {id:'alignment-levels',label:'Field Resonance · Field Alignment levels',factor:Game.Symmetry.alignmentEnergy()},
+          {id:'symmetry-meta',label:'Perfect Alignment and Asymmetry upgrades',factor:Game.Symmetry.metaEnergyMultiplier()}
         ],active),childBasis:'growth'});product=product.mul(symmetryBonus);
       }
       if(Game.player.lateEnergy.highest.gte('1e1000')) entries.push({id:'late-resistance',label:'Late Energy resistance · 1e1000+',tip:'lateEnergy',factor:product.gt(0)?output.div(product):D(1),color:'slowdown'});

@@ -125,6 +125,11 @@
     if (!player.fluctuation.rollReductionStacks.eq(player.fluctuation.rollReductionStacks.floor())) throw new Error('Invalid Fluct reduction stack');
     if (player.generatorFocus.elapsed.gte(Game.D(Game.CONFIG.PRESTIGE.skills["3-3"].focusSeconds).mul(Game.CONFIG.GENERATORS.length))) throw new Error('Invalid generator focus timer');
     const settings = player.settings;
+    if(![0,1].includes(settings.audioTheme) || ![0,1].includes(settings.visualTheme) || ![0,1].includes(settings.resetVisuals)) throw new Error('Invalid presentation settings');
+    if(!Object.values(player.ui.attention).every(function (value) { return Number.isSafeInteger(value) && value>=0; })) throw new Error('Invalid discovery acknowledgement');
+    const asymmetry=player.asymmetry;
+    if(![asymmetry.amount,asymmetry.total,asymmetry.times].every(function (value) { return value.eq(value.floor()); }) || asymmetry.amount.gt(asymmetry.total)) throw new Error('Invalid Asymmetry');
+    Object.keys(asymmetry.upgrades).forEach(function (id) { const level=asymmetry.upgrades[id];if(!Number.isInteger(level) || level>Game.CONFIG.ASYMMETRY.upgrades[id].max) throw new Error('Invalid Asymmetry upgrade'); });
     if (settings.autoCondenseTarget.lt(1) || !settings.autoCondenseTarget.eq(settings.autoCondenseTarget.floor())) throw new Error('Invalid auto-Condense target');
     if (!Object.values(player.achievements).concat(Object.values(player.lore)).every(function (value) { return value === 0 || value === 1; })) throw new Error('Invalid permanent progress');
     if (![player.prestige.quanta, player.prestige.totalQuanta, player.prestige.times].every(function (value) { return value.eq(value.floor()); }) || player.prestige.totalQuanta.lt(player.prestige.quanta)) throw new Error('Invalid Primordial Quanta');

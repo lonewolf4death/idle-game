@@ -72,6 +72,7 @@
       this.frame = requestAnimationFrame(animate);
     },
     draw: function (now) {
+      if(Game.player.settings.visualTheme===1 && Game.Presentation) { Game.Presentation.drawWaves(this,now);return; }
       const ctx = this.context, w = this.width, h = this.height, config = Game.CONFIG.FIELD_EXCITATION;
       ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);

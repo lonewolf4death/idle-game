@@ -61,6 +61,7 @@
       if (dynamics && !settings.fieldSound) return;
       const enabled = kind === 'bubbleCollect' || kind === 'bubbleForm' ? settings.bubbleSound : (kind === 'perk' || kind === 'stabilize') ? settings.perkSound : kind === 'autoClick' ? settings.autoClickSound : kind === 'click' ? settings.clickSound : kind === 'fluctuation' ? settings.fluctuationSound : (kind === 'quantumResonance' || kind === 'energyResonance') ? settings.coherentSound : (kind === 'fieldExcitation' || dynamics) ? settings.fieldSound : settings.generatorSound;
       if (!settings.sound || !settings.volume || !enabled || this.shouldMute() || (Game.Loop && Game.Loop.catchingUp)) return;
+      if(settings.audioTheme===1 && Game.Presentation) { Game.Presentation.playTone(kind);return; }
       this.start();
       if (!this.context || this.context.state !== 'running' || this.voices >= Game.CONFIG.AUDIO.maxVoices) return;
       const now = this.context.currentTime;
@@ -213,6 +214,9 @@
       if (Game.UI.syncCollapseState) Game.UI.syncCollapseState();
       const settings = Game.player.settings;
       ['sound', 'muteUnfocused', 'perkSound', 'perkVisuals', 'generatorSound', 'fluctuationSound', 'coherentSound', 'fieldSound', 'condenseSound', 'condenseVisuals', 'autoDismiss'].forEach(function (key) { byId('setting-' + key).checked = !!settings[key]; });
+      ['audioTheme','visualTheme'].forEach(function (key) { byId('setting-'+key).value=settings[key]; });
+      byId('setting-resetVisuals').checked=!!settings.resetVisuals;
+      if(Game.Presentation)Game.Presentation.apply();
       byId('setting-volume').value = settings.volume;
       byId('setting-visuals').value = settings.visuals;
       Game.Audio.updateVolume(); this.loreKey = ''; this.updateLore();

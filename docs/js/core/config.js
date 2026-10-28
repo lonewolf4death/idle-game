@@ -209,14 +209,14 @@
       {at:.5,type:'Unified interaction',reward:'Unified Interaction upgrades are available. These Energy purchases survive Condense.'},
       {at:.75,type:'Coupled fields',reward:'Each Primordial generator strengthens the other generators using their owned counts.'},
       {at:.9,type:'Near-perfect alignment',reward:'The Perfect Alignment section of the perk tree has been revealed.'},
-      {at:.99,type:'Symmetry breaking',reward:'Symmetry Breaking is discovered. Its future mechanics are still unformed.'},
-      {at:1,type:'Perfect Symmetry',reward:'Perfect Symmetry reached. Symmetry generation stops at 100%. Perfect Interaction is available.'}
+      {at:.95,type:'Symmetry breaking',reward:'Break Symmetry to gain Asymmetry. Resets Field Alignment, current Symmetry and Unified Interaction purchases.'},
+      {at:1,type:'Perfect Symmetry',reward:'Perfect Symmetry reached. Condense gains an additional ×100 Quanta while at 100%. Perfect Interaction is available.'}
     ],
     upgrades:{
       unifiedField1:{name:'Unified Field I',costOffset:25,energyMultiplier:'1e40',description:'Multiply all Energy by ×1e40. Applies after late Energy resistance.'},
       unifiedField2:{name:'Unified Field II',costOffset:175,unitLimitMultiplier:'2',description:'Double raw Symmetry generation and each Field Alignment level’s alignment capacity. Shared field resistance still applies.'},
       quantumCoupling:{name:'Quantum Coupling',costOffset:350,description:'Unspent Primordial Quanta strengthen Symmetry generation with diminishing returns. Hover the name for details.'},
-      fieldResonance:{name:'Field Resonance',costOffset:550,description:'Every owned SGen1 (Field Alignment) multiplies Energy by ×1e3. Applies after late Energy resistance.'},
+      fieldResonance:{name:'Field Resonance',costOffset:550,description:'Every owned Field Alignment multiplies Energy by ×1e3. Applies after late Energy resistance.'},
       perfectInteraction:{name:'Perfect Interaction',costOffset:850,perfect:true,description:'Raise the Symmetry Energy multiplier to the power of 1.15. Unlocked by reaching Perfect Symmetry once.'}
     }
   };
@@ -315,4 +315,28 @@
   replaceAchievement("firstImpulse",{name:"A field that persists",kind:"passive",reward:"energy",multiplier:"1.02",requirement:"Receive the first added generator from Living field or Patient formation."});
   Object.values(Game.CONFIG.PRESTIGE.skills).forEach(function (skill) { skill.description=skill.description.replace(/manually purchased/gi,"purchased"); });
   Game.CONFIG.CHALLENGES.forEach(function (rule) { rule.description=rule.description.replace(/; click payouts are transformed once\./,".").replace(/, Disturb/g,"").replace(/ and Disturb/g,"").replace(/ or Disturb/g,"");if(rule.devDescription)rule.devDescription=rule.devDescription.replace(/ Disturb grants extra levels up to its normal cap\./,""); });
+  // 95→96 through 99.9→99.99 double in duration. The finite final
+  // approach closes the curve at exactly 30 minutes of work at capacity.
+  Game.CONFIG.SYMMETRY.convergence={seconds:1800,bounds:[.94,.95,.96,.97,.98,.99,.999,.9999,1],durations:[20,20,40,80,160,320,640,520]};
+  const perfectSkills=[
+    ['5-1','Clear harmonics','1e5','3-5-2',{symmetrySpeed:1.5},'Symmetry forms ×1.5 faster, including the final convergence.'],
+    ['5-2','Ordered currents','3e5','5-1',{symmetrySpeed:2},'Multiply all Symmetry formation speed by ×2.'],
+    ['5-3','Gentle convergence','1e6','5-2',{lateSymmetrySpeed:2},'Symmetry forms ×2 faster from 94% onward.'],
+    ['5-4','Coherent geometry','3e6','5-3',{unifiedSymmetrySpeed:2.5},'Symmetry forms ×2.5 faster while at or above 50%.'],
+    ['5-5','Perfect cadence','1e7','5-4',{symmetrySpeed:3},'Multiply all Symmetry formation speed by ×3.'],
+    ['5-6','Quantized geometry','1e5','4-4-2',{quantaMultiplier:2},'Multiply all Condense Quanta rewards by ×2.'],
+    ['5-7','Unbound geometry','5e5','5-6',{energyMultiplier:'1e20'},'Multiply all Energy by ×1e20, after late Energy resistance.'],
+    ['5-8','Discrete abundance','2e6','5-7',{perfectQuantaMultiplier:2},'Double Quanta gained while at Perfect Symmetry. Combines with the ×100 Perfect Symmetry bonus.'],
+    ['5-9','Fault potential','5e6','5-8',{asymmetryMultiplier:1.5},'Gain ×1.5 Asymmetry when breaking Symmetry. The final reward rounds down to a whole amount.'],
+    ['5-10','A richer vacuum','2e7','5-9',{quantaMultiplier:5},'Multiply all Condense Quanta rewards by ×5.']
+  ];
+  perfectSkills.forEach(function (entry) { Game.CONFIG.PRESTIGE.skills[entry[0]]=Object.assign({name:entry[1],cost:entry[2],requires:entry[3],perfect:true,description:entry[5]},entry[4]); });
+  Game.CONFIG.PRESTIGE.branches.push({id:5,name:'Perfect alignment',nodes:perfectSkills.map(function (entry) { return entry[0]; })});
+  Game.CONFIG.ASYMMETRY={upgrades:{
+    brokenHarmonics:{name:'Broken harmonics',cost:1,scaling:3,max:10,effect:1.2,description:'Each level makes Symmetry form ×1.2 faster, including convergence.'},
+    faultMemory:{name:'Fault memory',cost:2,scaling:4,max:8,effect:1.5,description:'Each level multiplies all Condense Quanta rewards by ×1.5.'},
+    unboundPotential:{name:'Unbound potential',cost:3,scaling:5,max:10,effect:'1e5',description:'Each level multiplies Energy by ×1e5, after late Energy resistance.'},
+    alignedRemnants:{name:'Aligned remnants',cost:5,scaling:5,max:6,effect:.85,description:'Each level reduces accelerating Field Alignment price exponents by 15%. Its opening prices are unchanged.'},
+    fracturedPerfection:{name:'Fractured perfection',cost:10,scaling:6,max:5,effect:1.25,description:'Each level multiplies Asymmetry gained by ×1.25. Rewards round down after all bonuses.'}
+  }};
 })(window.CosmicIdle);

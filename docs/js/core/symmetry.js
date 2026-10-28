@@ -13,20 +13,51 @@
     alignmentOwned:function () { return Game.player.symmetry.alignment.add(Game.player.symmetry.alignmentAdded); },
     alignmentEnergy:function () { return this.has('fieldResonance')?D(Game.CONFIG.SYMMETRY.alignmentEnergyBase).pow(this.alignmentOwned()):D(1); },
     unifiedEnergyMultiplier:function () { return D(this.has('unifiedField1')?Game.CONFIG.SYMMETRY.upgrades.unifiedField1.energyMultiplier:1); },
-    energyMultiplier:function () { return this.multiplier().mul(this.unifiedEnergyMultiplier()).mul(this.alignmentEnergy()); },
-    quantaMultiplier:function () { return this.reached(.25)?D(2):D(1); },
-    generationMultiplier:function () {
-      return D(this.reached(.1)?2:1).mul(this.has('unifiedField2')?2:1).mul(this.has('quantumCoupling')?D(1+Game.player.prestige.quanta.add(1).log10()/4):1);
+    perfectFactor:function (property) {
+      return Game.CONFIG.PRESTIGE.branches.find(function (b) { return b.id===5; }).nodes.reduce(function (factor,id) {
+        const rule=Game.CONFIG.PRESTIGE.skills[id];return Game.Progression.hasSkill(id) && rule[property]!==undefined?factor.mul(rule[property]):factor;
+      },D(1));
+    },
+    metaEnergyMultiplier:function () { return this.perfectFactor('energyMultiplier').mul(Game.Asymmetry.effect('unboundPotential')); },
+    energyMultiplier:function () { return this.multiplier().mul(this.unifiedEnergyMultiplier()).mul(this.alignmentEnergy()).mul(this.metaEnergyMultiplier()); },
+    quantaMultiplier:function () { return D(this.reached(.25)?2:1).mul(this.reached(1)?D(100).mul(this.perfectFactor('perfectQuantaMultiplier')):1).mul(this.perfectFactor('quantaMultiplier')).mul(Game.Asymmetry.effect('faultMemory')); },
+    generationMultiplier:function (amount) {
+      return D((amount===undefined?this.amount():amount)>=.1-1e-12?2:1).mul(this.has('unifiedField2')?2:1).mul(this.has('quantumCoupling')?D(1+Game.player.prestige.quanta.add(1).log10()/4):1);
     },
     alignmentLimit:function (rate,limit) { const cap=D(limit);return cap.mul(-Math.expm1(-D(rate).div(cap).toNumber())); },
-    unitProduction:function () {
-      const rules=Game.CONFIG.SYMMETRY,raw=D(rules.production).mul(this.generationMultiplier());
+    unitProduction:function (amount) {
+      const rules=Game.CONFIG.SYMMETRY,raw=D(rules.production).mul(this.generationMultiplier(amount));
       const limit=D(rules.unitProductionLimit).mul(this.has('unifiedField2')?rules.upgrades.unifiedField2.unitLimitMultiplier:1);
       return this.alignmentLimit(raw,limit);
     },
-    perSecond:function () { return this.unlocked() && !this.reached(1)?this.alignmentLimit(this.alignmentOwned().mul(this.unitProduction()),Game.CONFIG.SYMMETRY.totalProductionLimit):D(0); },
+    convergenceBand:function (amount) { const bounds=Game.CONFIG.SYMMETRY.convergence.bounds;return bounds.findIndex(function (end,i) { return i>0 && amount<end-1e-12; })-1; },
+    speedMultiplier:function (amount) {
+      return this.perfectFactor('symmetrySpeed').mul(amount>=.94-1e-12?this.perfectFactor('lateSymmetrySpeed'):1).mul(amount>=.5-1e-12?this.perfectFactor('unifiedSymmetrySpeed'):1).mul(Game.Asymmetry.effect('brokenHarmonics'));
+    },
+    rateAt:function (amount) {
+      if(!this.unlocked() || amount>=1-1e-12) return D(0);
+      const rules=Game.CONFIG.SYMMETRY,base=this.alignmentLimit(this.alignmentOwned().mul(this.unitProduction(amount)),rules.totalProductionLimit),speed=this.speedMultiplier(amount);
+      if(amount<.94-1e-12) return base.mul(speed);
+      const band=this.convergenceBand(amount),bounds=rules.convergence.bounds;
+      const duration=rules.convergence.durations[band];
+      return base.div(rules.totalProductionLimit).mul((bounds[band+1]-bounds[band])/duration).mul(speed);
+    },
+    perSecond:function () { return this.rateAt(this.amount()); },
+    boundaries:function () { return Array.from(new Set(Game.CONFIG.SYMMETRY.milestones.map(function (m) { return m.at; }).concat(Game.CONFIG.SYMMETRY.convergence.bounds))).sort(function (a,b) { return a-b; }); },
+    project:function (seconds,start) {
+      let amount=start===undefined?this.amount():start,left=D(seconds).toNumber();
+      const bounds=this.boundaries();
+      for(let i=0;i<bounds.length && left>0;i++) {
+        const end=bounds[i];if(end<=amount+1e-12) continue;
+        const rate=this.rateAt(amount).toNumber();if(rate<=0) break;
+        const duration=(end-amount)/rate;
+        if(left+1e-10<duration) { amount+=rate*left;break; }
+        amount=end;left=Math.max(0,left-duration);
+      }
+      return Math.min(1,amount);
+    },
     nextMilestone:function () { return Game.CONFIG.SYMMETRY.milestones.find(function (m) { return Game.player.symmetry.amount.add(1e-12).lt(m.at); }); },
-    nextEventIn:function () { const rate=this.perSecond(),next=this.nextMilestone();return rate.gt(0)&&next?Decimal.max(0,D(next.at).sub(Game.player.symmetry.amount)).div(rate):D(Infinity); },
+    nextEventIn:function () { const rate=this.perSecond(),amount=this.amount(),next=this.boundaries().find(function (b) { return b>amount+1e-12; });return rate.gt(0)&&next?Decimal.max(0,D(next).sub(Game.player.symmetry.amount)).div(rate):D(Infinity); },
     type:function () { let name='Indistinguishable laws';Game.CONFIG.SYMMETRY.milestones.forEach(function (m) { if(Game.Symmetry.reached(m.at)) name=m.type; });return name; },
     add:function (amount) {
       if(!this.unlocked() || D(amount).lte(0)) return;
@@ -41,7 +72,7 @@
     },
     advance:function (seconds) {
       if(this.perSecond().lte(0)) return;
-      const p=Game.player.symmetry;p.pulseElapsed=p.pulseElapsed.add(seconds);this.add(this.perSecond().mul(seconds));
+      const p=Game.player.symmetry;p.pulseElapsed=p.pulseElapsed.add(seconds);this.add(D(this.project(seconds)).sub(p.amount));
       if(p.pulseElapsed.gte(8)) {
         p.pulseElapsed=p.pulseElapsed.sub(p.pulseElapsed.div(8).floor().mul(8));
         if(Game.UI && !(Game.Loop && Game.Loop.catchingUp)) { if(Game.Audio) Game.Audio.play('alignment');if(Game.UI.symmetryFeedback) Game.UI.symmetryFeedback(); }
@@ -63,7 +94,7 @@
       // A short, affordable opening precedes the accelerating exponent jumps.
       const exponent=growth.pow(n.sub(rules.starterPurchases).add(1)).sub(1).div(growth.sub(1));
       if(!Number.isFinite(exponent.toNumber())) return D(Infinity);
-      return D(rules.baseCost).mul(starter).mul(D(rules.costScaling).pow(exponent));
+      return D(rules.baseCost).mul(starter).mul(D(rules.costScaling).pow(exponent.mul(Game.Asymmetry.effect('alignedRemnants'))));
     },
     quote:function (amount) {
       if(amount==='pattern') amount=1;
@@ -111,6 +142,7 @@
     },
     preserve:function (old,fresh) {
       fresh.symmetry.best=old.symmetry.best;fresh.symmetry.upgrades=old.symmetry.upgrades;fresh.symmetry.upgradeCostAnchor=old.symmetry.upgradeCostAnchor;
+      fresh.asymmetry=old.asymmetry;
       // Current Symmetry and Field Alignment reset with the Energy run.
     },
     showLore:function () {
@@ -119,12 +151,12 @@
     },
     averageEnergyMultiplier:function (seconds,offset,logSlope) {
       if(!this.unlocked()) return D(1);
-      const rate=this.perSecond(),a=Decimal.min(1,Game.player.symmetry.amount.add(rate.mul(offset||0))).toNumber(),b=Decimal.min(1,Game.player.symmetry.amount.add(rate.mul(D(seconds).add(offset||0)))).toNumber(),power=this.expression(),slope=Number(logSlope||0)*D(seconds).toNumber();
+      const a=this.project(offset||0),span=D(seconds).toNumber(),b=this.project(span,a),power=this.expression(),slope=Number(logSlope||0)*span;
       const start=100*Math.pow(a,4)*power,end=100*Math.pow(b,4)*power+slope,peak=Math.max(start,end);
       let average;
       if(Math.abs(end-start)<1e-6 && Math.abs(b-a)<1e-4) average=this.multiplierAt((a+b)/2).mul(D(10).pow(slope/2));
       else {
-        const f=function (u) { return Math.pow(10,100*Math.pow(a+(b-a)*u,4)*power+slope*u-peak); };
+        const symmetry=this,f=function (u) { return Math.pow(10,100*Math.pow(symmetry.project(span*u,a),4)*power+slope*u-peak); };
         function integrate(l,r,fl,fm,fr,whole,tolerance,depth) {
           const m=(l+r)/2,lm=f((l+m)/2),rm=f((m+r)/2),left=(m-l)*(fl+4*lm+fm)/6,right=(r-m)*(fm+4*rm+fr)/6;
           if(!depth || Math.abs(left+right-whole)<15*tolerance) return left+right+(left+right-whole)/15;
@@ -132,8 +164,33 @@
         }
         const fl=f(0),fm=f(.5),fr=f(1);average=D(10).pow(peak).mul(integrate(0,1,fl,fm,fr,(fl+4*fm+fr)/6,1e-10,12));
       }
-      return average.mul(this.unifiedEnergyMultiplier()).mul(this.alignmentEnergy());
+      return average.mul(this.unifiedEnergyMultiplier()).mul(this.alignmentEnergy()).mul(this.metaEnergyMultiplier());
     }
+  };
+
+  Game.Asymmetry={
+    discovered:function () { return Game.Symmetry.discovered(.95) || Game.player.asymmetry.times.gt(0); },
+    effect:function (id) { const rule=Game.CONFIG.ASYMMETRY.upgrades[id];return rule?D(rule.effect).pow(Game.player.asymmetry.upgrades[id]):D(1); },
+    reward:function () {
+      if(!Game.Symmetry.unlocked() || Game.Challenges.active() || !Game.Symmetry.reached(.95)) return D(0);
+      const base=Math.pow(20,Math.min(1,Math.max(0,(Game.Symmetry.amount()-.95)/.05)));
+      return D(base).mul(Game.Symmetry.perfectFactor('asymmetryMultiplier')).mul(this.effect('fracturedPerfection')).add(1e-10).floor();
+    },
+    breakSymmetry:function () {
+      const reward=this.reward();if(reward.lte(0)) return false;
+      const p=Game.player,s=p.symmetry;
+      p.asymmetry.amount=p.asymmetry.amount.add(reward);p.asymmetry.total=p.asymmetry.total.add(reward);p.asymmetry.times=p.asymmetry.times.add(1);
+      s.amount=D(0);s.alignment=D(0);s.alignmentAdded=D(0);s.pulseElapsed=D(0);s.upgradeCostAnchor=D(0);
+      Object.keys(s.upgrades).forEach(function (id) { s.upgrades[id]=0; });
+      Game.Symmetry.captureUpgradePricing(p);
+      if(Game.Loop) { Game.Loop.accumulator=0;Game.Loop.lastTime=performance.now(); }
+      Game.Save.save();if(Game.UI)Game.UI.render();
+      if(Game.Presentation)Game.Presentation.reset('break');
+      return true;
+    },
+    cost:function (id) { const rule=Game.CONFIG.ASYMMETRY.upgrades[id];return rule?D(rule.cost).mul(D(rule.scaling).pow(Game.player.asymmetry.upgrades[id])):D(Infinity); },
+    canBuy:function (id) { const rule=Game.CONFIG.ASYMMETRY.upgrades[id];return !!rule && this.discovered() && !Game.Challenges.active() && Game.player.asymmetry.upgrades[id]<rule.max && Game.player.asymmetry.amount.gte(this.cost(id)); },
+    buy:function (id) { if(!this.canBuy(id))return false;Game.player.asymmetry.amount=Game.player.asymmetry.amount.sub(this.cost(id));Game.player.asymmetry.upgrades[id]++;Game.Save.save();if(Game.Audio)Game.Audio.play('perk');if(Game.UI)Game.UI.render();return true; }
   };
 
   Game.LateEnergy={
@@ -209,7 +266,7 @@
     },
     grantProduction:function (raw,seconds,logSlope) {
       if(D(raw).lte(0)) return D(0);
-      const delta=D(seconds).toNumber(),rate=Game.Symmetry.perSecond(),a=Game.Symmetry.amount(),end=Decimal.min(1,Game.player.symmetry.amount.add(rate.mul(seconds))).toNumber();
+      const delta=D(seconds).toNumber(),a=Game.Symmetry.amount(),end=Game.Symmetry.project(seconds);
       const shift=Math.abs(100*(Math.pow(end,4)-Math.pow(a,4))*Game.Symmetry.expression()),boost=Game.Symmetry.averageEnergyMultiplier(seconds);
       const upper=this.seconds*Math.pow(Math.max(0,(D(raw).log10()+boost.log10()+Math.abs(logSlope||0)*delta-this.start)/this.width)+2,2);
       if(boost.mul(delta).gt(D(upper).mul(1e10))) {

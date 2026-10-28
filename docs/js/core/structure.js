@@ -109,7 +109,7 @@
       const first=!fresh.lore.stabilizationSeen;fresh.lore.stabilizationSeen=1;
       if(first && Game.Experience) Game.Experience.enqueue({kind:'Lore · Stabilization',title:'A pattern remembered',text:Game.CONFIG.STRUCTURE.lore});
       Game.Save.save();
-      if(Game.StructureUI) Game.StructureUI.stabilizationFeedback();
+      if(Game.StructureUI) Game.StructureUI.stabilizationFeedback(automated);
       if(Game.UI) Game.UI.render();
       return true;
     }
