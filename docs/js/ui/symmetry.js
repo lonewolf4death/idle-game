@@ -42,6 +42,8 @@
       el('energy-field').style.setProperty('--symmetry-hue',String(268-110*amount));
       text(el('symmetry-total'),pct);text(el('symmetry-energy-bonus'),'×'+number(S.multiplier(),5)+' Energy');
       text(el('symmetry-production'),S.reached(1)?'Perfect Symmetry · generation capped':number(S.perSecond().mul(100),5)+'% / game second');
+      const starting=S.startingAmount();el('symmetry-starting').hidden=starting.eq(0)&&!reveal;
+      text(el('symmetry-starting'),'Starting Symmetry: '+number(starting.mul(100),2)+'% · applies on reset');
       text(el('field-alignment-owned'),'Purchased: '+number(p.symmetry.alignment,0)+' + '+number(p.symmetry.alignmentAdded,0)+' added · Total: '+number(S.alignmentOwned(),0));
       el('alignment-dev-label').hidden=!reveal;
       text(el('field-alignment-output'),number(S.unitProduction().mul(100),5)+'% per level / game second before shared field resistance'+(S.reached(.1)?' · Aligned fields active':''));
@@ -62,7 +64,7 @@
       const asymmetryReward=Game.Asymmetry.reward();
       el('break-symmetry').disabled=asymmetryReward.lte(0);text(el('break-symmetry'),'Break Symmetry · +'+number(asymmetryReward,0)+' Asymmetry');
       text(el('break-symmetry-reward'),asymmetryReward.gt(0)?'Available: '+number(asymmetryReward,0)+' Asymmetry. Holding closer to 100% increases the reward.':'Reach 95% current Symmetry to break again.');
-      text(el('symmetry-reset-note'),'Condense resets Symmetry and Field Alignment. Purchased Unified Interaction upgrades remain. Discovered features stay revealed.');
+      text(el('symmetry-reset-note'),'Condense resets Field Alignment and returns Symmetry to '+number(starting.mul(100),2)+'%. Purchased Unified Interaction upgrades remain. Discovered features stay revealed.');
       if(!Game.Challenges.active() && open) {
         text(el('milestone-title'),'Symmetry');text(el('milestone-value'),pct+' · '+S.type());
         el('milestone-fill').style.width=percent+'%';el('milestone-bar').setAttribute('aria-valuenow',String(percent));el('milestone-bar').setAttribute('aria-label',S.discovered(1)||reveal?'Symmetry progress to Perfect Symmetry':'Symmetry progress');el('milestone-bar').setAttribute('aria-valuetext',pct+' · '+S.type());

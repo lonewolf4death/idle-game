@@ -53,14 +53,14 @@
 
     </div>
     <div id="symmetry-controls" hidden>
-      <section class="symmetry-overview"><span class="label">The emerging laws</span><strong id="symmetry-total">0.000%</strong><span id="symmetry-energy-bonus">×1 Energy</span><span id="symmetry-production">0% / game second</span></section>
+      <section class="symmetry-overview"><span class="label">The emerging laws</span><strong id="symmetry-total">0.000%</strong><span id="symmetry-energy-bonus">×1 Energy</span><span id="symmetry-production">0% / game second</span><span id="symmetry-starting" hidden></span></section>
       <p id="symmetry-locked-note" class="muted">Unlock Symmetry in the Condense tree for 10,000 Quanta.</p>
       <section class="panel symmetry-generator-panel"><h2>Symmetry generators</h2>
         <article class="generator-card symmetry-generator"><h3><span class="alignment-symbol" aria-hidden="true">◈</span> <span id="alignment-dev-label" hidden>SGen1 · </span>Field Alignment</h3><p>Bring the fields into alignment. Each level contributes to Symmetry, with diminishing returns from alignment capacity and shared field resistance. Symmetry cannot exceed 100%.</p><div class="generator-meta"><strong id="field-alignment-owned">Purchased: 0</strong><span id="field-alignment-output"></span><span id="field-alignment-scaling" class="muted" hidden></span><button id="buy-field-alignment">Buy 1 — 1e1000 Energy</button></div></article>
       </section>
       <section id="unified-interaction" class="panel" hidden><h2>Unified Interaction</h2><p class="muted">Permanent Energy purchases · retained through Condense.</p><div id="unified-upgrades"></div></section>
       <details class="symmetry-milestones"><summary>Symmetry milestones</summary><ol id="symmetry-milestones"></ol></details>
-      <section id="symmetry-breaking" class="symmetry-future" hidden><span class="label">Beyond alignment</span><h3>Break Symmetry</h3><p id="break-symmetry-reward"></p><p class="muted">Resets Field Alignment, current Symmetry and Unified Interaction purchases. Keeps Energy, Primordial progress and permanent discoveries.</p><button id="break-symmetry" disabled>Break Symmetry</button><button id="view-asymmetry">Asymmetry upgrades</button></section>
+      <section id="symmetry-breaking" class="symmetry-future" hidden><span class="label">Beyond alignment</span><h3>Break Symmetry</h3><p id="break-symmetry-reward"></p><p class="muted">Resets Field Alignment and Unified Interaction purchases, and returns Symmetry to your starting amount. Keeps Energy, Primordial progress and permanent discoveries.</p><button id="break-symmetry" disabled>Break Symmetry</button><button id="view-asymmetry">Asymmetry upgrades</button></section>
       <p id="symmetry-reset-note" class="muted"></p>
     </div>
     </aside>
@@ -324,7 +324,7 @@
   <dialog id="respec-dialog" aria-labelledby="respec-title" aria-describedby="respec-description"><span class="label">Reform the constellation</span><h2 id="respec-title">Respec skills?</h2><strong id="respec-refund"></strong><p id="respec-description"></p><div class="respec-choices"><button id="cancel-respec">Keep my skills</button><button id="confirm-respec">Respec · restart run</button></div></dialog>
   <dialog id="stabilization-dialog" aria-labelledby="stabilization-dialog-title"><span class="label">Release the Energy · retain the pattern</span><h2 id="stabilization-dialog-title">Stabilize the Field?</h2><p id="stabilization-dialog-reward"></p><p>Restart Energy, generators and Resonance in a stronger field.</p><p id="stabilization-keeps"></p><div class="respec-choices"><button id="cancel-stabilization">Keep building</button><button id="confirm-stabilization">Stabilize</button></div></dialog>
   <p id="pattern-announcement" class="sr-only" role="status" aria-live="polite"></p>
-  <dialog id="break-dialog" aria-labelledby="break-dialog-title"><h2 id="break-dialog-title">Break Symmetry?</h2><p id="break-dialog-reward"></p><p>Resets Field Alignment, current Symmetry and every Unified Interaction purchase. Keeps Energy, Primordial generators, Quanta, skills, achievements, lore, playtime, Asymmetry and its upgrades.</p><div class="dialog-actions"><button id="cancel-break">Keep aligning</button><button id="confirm-break">Break Symmetry</button></div></dialog>
+  <dialog id="break-dialog" aria-labelledby="break-dialog-title"><h2 id="break-dialog-title">Break Symmetry?</h2><p id="break-dialog-reward"></p><p>Resets Field Alignment and every Unified Interaction purchase. Symmetry returns to your starting amount. Keeps Energy, Primordial generators, Quanta, skills, achievements, lore, playtime, Asymmetry and its upgrades.</p><div class="dialog-actions"><button id="cancel-break">Keep aligning</button><button id="confirm-break">Break Symmetry</button></div></dialog>
   <div id="reset-presentation" hidden aria-hidden="true"><div class="reset-geometry"></div><div class="reset-blackout"></div><p class="reset-caption"></p></div>
   <div id="discovery-flair" aria-hidden="true" hidden></div>
   <aside id="achievement-notice" class="achievement-notice" role="button" tabindex="0" aria-label="Dismiss notification" hidden>
@@ -345,11 +345,11 @@
 
   <!-- Load order matters because this version works directly from file:// -->
   <script src="js/core/namespace.js?v=2be15fd41d03"></script>
-  <script src="js/core/config.js?v=1bb9510b3e87"></script>
+  <script src="js/core/config.js?v=1f994a4ee88d"></script>
   <script src="js/numbers/decimal.js?v=072eb6e5da4d"></script>
   <script src="js/core/state.js?v=b77891d3374e"></script>
   <script src="js/core/automation.js?v=b58f0ed9d0a8"></script>
-  <script src="js/core/symmetry.js?v=f975cb38b60a"></script>
+  <script src="js/core/symmetry.js?v=0724e8f1a677"></script>
   <script src="js/time/gameTime.js?v=a3b9af0ff87e"></script>
   <script src="js/core/modifiers.js?v=368e702616dc"></script>
   <script src="js/core/playtime.js?v=e3322b01d6fb"></script>
@@ -373,15 +373,15 @@
   <script src="js/ui/stats.js?v=914dfd00bf46"></script>
   <script src="js/ui/achievements.js?v=17c5f1700e67"></script>
   <script src="js/ui/prestige.js?v=f57351f4cb58"></script>
-  <script src="js/ui/discovery.js?v=d24523541e34"></script>
+  <script src="js/ui/discovery.js?v=091b40b5cb5e"></script>
   <script src="js/ui/treeMap.js?v=63e38f61743f"></script>
   <script src="js/ui/automation.js?v=07c4d24a8ad4"></script>
-  <script src="js/ui/symmetry.js?v=8a54c1030982"></script>
+  <script src="js/ui/symmetry.js?v=94919d7728e3"></script>
   <script src="js/ui/render.js?v=647f7e967ea3"></script>
   <script src="js/ui/structure.js?v=9cbe2a9105a3"></script>
   <script src="js/core/gameLoop.js?v=4522cc2858ab"></script>
   <script src="js/core/offline.js?v=a51364542072"></script>
-  <script src="js/ui/asymmetry.js?v=f3a5b0f8e306"></script>
+  <script src="js/ui/asymmetry.js?v=4c9fb123a561"></script>
   <script src="js/ui/presentation.js?v=771af84bfcd6"></script>
   <script src="js/main.js?v=e46e63cb9fc1"></script>
 </body>

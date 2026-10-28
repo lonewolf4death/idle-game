@@ -8,7 +8,7 @@
       else {reset.push('Stabilizations','run timers');keep.push('Primordial Quanta','purchased skills');}
       if(stabilizing && (reveal || p.prestige.times.gt(0)))keep.push('Primordial Quanta','purchased skills');
       if(stabilizing && (reveal || Game.CONFIG.AUTOMATION.buyers.some(function (b) { return p.automation.buyers[b.id].level>0; })))keep.push('automation mastery');
-      if(reveal || Game.Symmetry.unlocked()) {reset.push('Symmetry','Field Alignment');keep.push('Symmetry access and discoveries');}
+      if(reveal || Game.Symmetry.unlocked()) {const starting=Game.Symmetry.startingAmount();reset.push(starting.gt(0)?'Symmetry (returns to '+Game.Format.number(starting.mul(100),2)+'%)':'Symmetry','Field Alignment');keep.push('Symmetry access and discoveries');}
       if(reveal || Game.Symmetry.discovered(.5))keep.push('purchased Unified Interaction upgrades');
       if(reveal || Game.Asymmetry.discovered())keep.push('Asymmetry and its upgrades');
       keep.push('settings');

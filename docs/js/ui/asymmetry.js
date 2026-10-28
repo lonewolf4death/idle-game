@@ -38,7 +38,7 @@
       el('confirm-break').disabled=el('break-dialog').classList.contains('is-dismissing') || this.owner!==p || Game.Asymmetry.reward().lte(0);
       Object.entries(this.cards).forEach(function (entry) {
         const id=entry[0],card=entry[1],level=a.upgrades[id],rule=Game.CONFIG.ASYMMETRY.upgrades[id],cost=Game.Asymmetry.cost(id);
-        text(card.querySelector('[data-asymmetry-level]'),'Level '+level+' / '+rule.max+' · Current effect ×'+number(Game.Asymmetry.effect(id),4));
+        text(card.querySelector('[data-asymmetry-level]'),'Level '+level+' / '+rule.max+' · '+(rule.startingSymmetry?'Starting Symmetry +'+number(Game.Asymmetry.effect(id).mul(100),2)+' percentage points':'Current effect ×'+number(Game.Asymmetry.effect(id),4)));
         const button=card.querySelector('button');button.disabled=!Game.Asymmetry.canBuy(id);text(button,level>=rule.max?'Complete':number(cost,0)+' Asymmetry');card.classList.toggle('is-owned',level>0);
       });
     }

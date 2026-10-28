@@ -11,6 +11,20 @@
     multiplier:function () { return this.unlocked()?this.multiplierAt(this.amount()):D(1); },
     intensity:function () { return this.unlocked()?Math.pow(this.amount(),6):0; },
     alignmentOwned:function () { return Game.player.symmetry.alignment.add(Game.player.symmetry.alignmentAdded); },
+    startingAmount:function (player) {
+      const p=player||Game.player;if(!p.prestige.symmetry)return D(0);
+      let amount=D(0);
+      Object.keys(Game.CONFIG.PRESTIGE.skills).forEach(function (id) {
+        const rule=Game.CONFIG.PRESTIGE.skills[id];if(p.prestige.skills[id] && rule.startingSymmetry)amount=amount.add(rule.startingSymmetry);
+      });
+      Object.keys(Game.CONFIG.ASYMMETRY.upgrades).forEach(function (id) {
+        const rule=Game.CONFIG.ASYMMETRY.upgrades[id];if(rule.startingSymmetry)amount=amount.add(D(rule.startingSymmetry).mul(p.asymmetry.upgrades[id]));
+      });
+      return Decimal.min(1,amount);
+    },
+    applyStarting:function (player) {
+      const p=player||Game.player;p.symmetry.amount=this.startingAmount(p);p.symmetry.best=Decimal.max(p.symmetry.best,p.symmetry.amount);
+    },
     alignmentEnergy:function () { return this.has('fieldResonance')?D(Game.CONFIG.SYMMETRY.alignmentEnergyBase).pow(this.alignmentOwned()):D(1); },
     unifiedEnergyMultiplier:function () { return D(this.has('unifiedField1')?Game.CONFIG.SYMMETRY.upgrades.unifiedField1.energyMultiplier:1); },
     perfectFactor:function (property) {
@@ -143,7 +157,8 @@
     preserve:function (old,fresh) {
       fresh.symmetry.best=old.symmetry.best;fresh.symmetry.upgrades=old.symmetry.upgrades;fresh.symmetry.upgradeCostAnchor=old.symmetry.upgradeCostAnchor;
       fresh.asymmetry=old.asymmetry;
-      // Current Symmetry and Field Alignment reset with the Energy run.
+      this.applyStarting(fresh);
+      // Field Alignment resets; current Symmetry returns to the owned starting bonuses.
     },
     showLore:function () {
       if(!this.unlocked() || Game.player.lore.symmetrySeen || !Game.Experience || Game.Experience.symmetryQueued) return;
@@ -170,7 +185,7 @@
 
   Game.Asymmetry={
     discovered:function () { return Game.Symmetry.discovered(.95) || Game.player.asymmetry.times.gt(0); },
-    effect:function (id) { const rule=Game.CONFIG.ASYMMETRY.upgrades[id];return rule?D(rule.effect).pow(Game.player.asymmetry.upgrades[id]):D(1); },
+    effect:function (id) { const rule=Game.CONFIG.ASYMMETRY.upgrades[id];return rule?rule.startingSymmetry?D(rule.startingSymmetry).mul(Game.player.asymmetry.upgrades[id]):D(rule.effect).pow(Game.player.asymmetry.upgrades[id]):D(1); },
     reward:function () {
       if(!Game.Symmetry.unlocked() || Game.Challenges.active() || !Game.Symmetry.reached(.95)) return D(0);
       const base=Math.pow(20,Math.min(1,Math.max(0,(Game.Symmetry.amount()-.95)/.05)));
@@ -182,6 +197,7 @@
       p.asymmetry.amount=p.asymmetry.amount.add(reward);p.asymmetry.total=p.asymmetry.total.add(reward);p.asymmetry.times=p.asymmetry.times.add(1);
       s.amount=D(0);s.alignment=D(0);s.alignmentAdded=D(0);s.pulseElapsed=D(0);s.upgradeCostAnchor=D(0);
       Object.keys(s.upgrades).forEach(function (id) { s.upgrades[id]=0; });
+      Game.Symmetry.applyStarting(p);
       Game.Symmetry.captureUpgradePricing(p);
       if(Game.Loop) { Game.Loop.accumulator=0;Game.Loop.lastTime=performance.now(); }
       Game.Save.save();if(Game.UI)Game.UI.render();
