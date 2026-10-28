@@ -200,7 +200,7 @@
     {name:"Fading momentum",unlockEnergy:"1e125",startExponent:15,exponentStep:6,description:"Energy production falls continuously to 85% of its previous strength each real second. Any successful generator or Disturb purchase resets this suppression."}
   ];
   Game.CONFIG.CHALLENGES[4].unlockEnergy="1e95";
-  Game.CONFIG.SYMMETRY={cost:"10000",baseCost:"1e1000",costScaling:"1e10",production:"0.0001",alignmentEnergyBase:"1.05",
+  Game.CONFIG.SYMMETRY={cost:"10000",baseCost:"1e1000",costScaling:"1e10",costExponentGrowth:"2",production:"0.0001",alignmentEnergyBase:"1.05",
     lore:"The laws of physics are still indistinguishable from one another.",
     milestones:[
       {at:.1,type:'Aligned fields',reward:'Field Alignment produces Symmetry twice as quickly.'},
@@ -212,11 +212,11 @@
       {at:1,type:'Perfect Symmetry',reward:'Perfect Symmetry reached. Symmetry generation stops at 100%. Perfect Interaction is available.'}
     ],
     upgrades:{
-      unifiedField1:{name:'Unified Field I',cost:'1e1030',description:'Multiply all Energy by ×3. Applies after late Energy resistance.'},
-      unifiedField2:{name:'Unified Field II',cost:'1e1050',description:'Multiply Symmetry generation by ×2.'},
-      quantumCoupling:{name:'Quantum Coupling',cost:'1e1080',description:'Unspent Primordial Quanta strengthen Symmetry generation with diminishing returns. Hover the name for details.'},
-      fieldResonance:{name:'Field Resonance',cost:'1e1100',description:'Every owned SGen1 (Field Alignment) multiplies Energy by ×1.05. Applies after late Energy resistance.'},
-      perfectInteraction:{name:'Perfect Interaction',cost:'1e1200',perfect:true,description:'Raise the Symmetry Energy multiplier to the power of 1.15. Unlocked by reaching Perfect Symmetry once.'}
+      unifiedField1:{name:'Unified Field I',cost:'1e1550',description:'Multiply all Energy by ×3. Applies after late Energy resistance.'},
+      unifiedField2:{name:'Unified Field II',cost:'1e1650',description:'Multiply Symmetry generation by ×2.'},
+      quantumCoupling:{name:'Quantum Coupling',cost:'1e1800',description:'Unspent Primordial Quanta strengthen Symmetry generation with diminishing returns. Hover the name for details.'},
+      fieldResonance:{name:'Field Resonance',cost:'1e2000',description:'Every owned SGen1 (Field Alignment) multiplies Energy by ×1.05. Applies after late Energy resistance.'},
+      perfectInteraction:{name:'Perfect Interaction',cost:'1e2400',perfect:true,description:'Raise the Symmetry Energy multiplier to the power of 1.15. Unlocked by reaching Perfect Symmetry once.'}
     }
   };
   Game.CONFIG.CHALLENGES.forEach(function (rule,index) {

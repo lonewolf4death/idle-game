@@ -49,18 +49,26 @@
         return value.mul(1+.01*state.purchased.add(state.added).add(1).log10());
       },D(1));
     },
-    cost:function () { return D(Game.CONFIG.SYMMETRY.baseCost).mul(D(Game.CONFIG.SYMMETRY.costScaling).pow(Game.player.symmetry.alignment)); },
+    cost:function (purchased) {
+      const rules=Game.CONFIG.SYMMETRY,n=purchased===undefined?Game.player.symmetry.alignment:D(purchased),growth=D(rules.costExponentGrowth);
+      // The exponent of each cost jump doubles: 10, 20, 40, 80…
+      const exponent=growth.pow(n).sub(1).div(growth.sub(1));
+      if(!Number.isFinite(exponent.toNumber())) return D(Infinity);
+      return D(rules.baseCost).mul(D(rules.costScaling).pow(exponent));
+    },
     quote:function (amount) {
       if(!this.unlocked()) return {count:D(0),cost:D(0)};
-      const price=this.cost(),money=Game.player.resources.energy,scale=D(Game.CONFIG.SYMMETRY.costScaling);
-      let count=money.lt(price)?D(0):D(Math.floor(money.div(price).mul(scale.sub(1)).add(1).log10()/scale.log10()));
-      if(amount!=='max') count=Decimal.min(count,Math.max(0,Number(amount)||0));
-      let cost=count.gt(0)?price.mul(scale.pow(count).sub(1)).div(scale.sub(1)):D(0);
-      while(count.gt(0) && cost.gt(money)) { count=count.sub(1);cost=count.gt(0)?price.mul(scale.pow(count).sub(1)).div(scale.sub(1)):D(0); }
-      // Correct a boundary lost to logarithmic rounding.
-      const limit=amount==='max'?Infinity:Math.max(0,Number(amount)||0);
-      if(count.lt(limit)) { const nextCost=price.mul(scale.pow(count.add(1)).sub(1)).div(scale.sub(1));if(nextCost.lte(money)){count=count.add(1);cost=nextCost;} }
-      return {count:count,cost:cost};
+      const money=Game.player.resources.energy,start=Game.player.symmetry.alignment;
+      const limit=amount==='max'?Infinity:Math.max(0,Math.floor(Number(amount)||0));
+      let count=0,cost=D(0);
+      // Exponentially growing exponents bound Max to a few dozen affordable
+      // levels, even with enormous Energy. Sum actual prices, not a geometric series.
+      while(count<limit) {
+        const next=cost.add(this.cost(start.add(count)));
+        if(!Number.isFinite(next.mantissa) || !Number.isFinite(next.exponent) || next.gt(money)) break;
+        cost=next;count++;
+      }
+      return {count:D(count),cost:cost};
     },
     buy:function (amount) {
       const quote=this.quote(amount);if(quote.count.lte(0)) return false;

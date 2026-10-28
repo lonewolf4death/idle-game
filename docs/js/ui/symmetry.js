@@ -46,7 +46,7 @@
       text(el('field-alignment-output'),number(S.unitProduction().mul(100),5)+'% Symmetry per level / game second'+(S.reached(.1)?' · Aligned fields ×2':''));
       const quote=S.quote(Game.UI.buyAmount),buy=el('buy-field-alignment');buy.disabled=quote.count.lte(0);
       text(buy,quote.count.gt(0)?'Buy '+number(quote.count,0)+' — '+number(quote.cost)+' Energy':'Buy 1 — '+number(S.cost())+' Energy');
-      el('field-alignment-scaling').hidden=!reveal;text(el('field-alignment-scaling'),'SGen1 · fixed cost scaling ×1e10 · no tiers');
+      el('field-alignment-scaling').hidden=!reveal;text(el('field-alignment-scaling'),'SGen1 · cost jumps ×1e10, ×1e20, ×1e40… · exponent doubles per purchase');
       el('symmetry-locked-note').hidden=open;
       el('unified-interaction').hidden=!(S.discovered(.5)||reveal);
       Object.keys(this.upgrades).forEach(function (id) {
