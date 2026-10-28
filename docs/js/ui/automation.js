@@ -6,13 +6,14 @@
     selected:'energyDisturbance', key:null, rows:{}, tracks:{}, pending:null,
     init: function () {
       const view=this;
-      Game.CONFIG.AUTOMATION.buyers.forEach(function (buyer,index) {
+      Game.Automation.definitions().forEach(function (buyer,index) {
         const row=document.createElement('label');
         row.innerHTML='<span>'+buyer.name+'<small></small></span><input type="checkbox" aria-label="Auto '+buyer.name+'">';
         row.querySelector('input').addEventListener('change',function () {
           Game.Loop.pump(performance.now());Game.Automation.setEnabled(buyer.id,this.checked);Game.Save.save();view.render();
         });
         element('automation-settings-list').appendChild(row);view.rows[buyer.id]=row;
+        if(buyer.id==='stabilize') return;
         const track=document.createElement('button');track.type='button';track.dataset.track=buyer.id;
         track.innerHTML=Game.Icons.svg(buyer.id)+'<span>'+Game.CONFIG.CHALLENGES[index].name+'<small></small></span>';
         track.addEventListener('click',function () { view.selected=buyer.id;view.key=null;view.render(); });
@@ -115,13 +116,16 @@
         if(first) this.selected=first.id;
       }
       const view=this,active=Game.Challenges.active();Game.Challenges.observe();
-      Game.CONFIG.AUTOMATION.buyers.forEach(function (buyer,index) {
+      Game.Automation.definitions().forEach(function (buyer,index) {
         const state=Game.player.automation.buyers[buyer.id],unlocked=Game.Automation.unlocked(buyer.id),interval=Game.Automation.interval(buyer.id).toFixed(1);
         if(automationVisible) {
           const row=view.rows[buyer.id],input=row.querySelector('input');row.hidden=!(unlocked||false);input.disabled=!unlocked;input.checked=!!Game.player.settings.autoBuyers[buyer.id];
-          text(row.querySelector('small'),unlocked ? (active?'Paused in challenge · ':buyer.id==='condense' && Game.Automation.editingCondenseTarget?'Paused while editing · ':'')+'Every '+interval+'s · '+(buyer.id==='condense'?'Target reward':Game.Automation.advanced(buyer.id)?'Buy max · challenge '+state.level+'/10':'Basic · next pattern; upgrade with skill '+buyer.skill) : buyer.id==='condense'?'Unlock skill '+buyer.skill+' · '+Game.CONFIG.PRESTIGE.skills[buyer.skill].cost+' Quanta':'Basic buyers unlock after your first Condense. Advanced: skill '+buyer.skill+' · '+Game.CONFIG.PRESTIGE.skills[buyer.skill].cost+' Quanta');
+          if(buyer.id==='stabilize') {
+            text(row.querySelector('small'),unlocked?(active?'Paused in challenge · ':Game.Automation.editingCondenseTarget?'Paused while editing · ':'')+'Every '+interval+'s · average of unlocked buyers, including Condense · Stabilize when ready':'Unlocks after your first Condense.');
+            row.title='Uses the average interval of all other unlocked buyers, including Condense. Disabled buyers still count. Includes later refinements; waits if Auto-Condense has reached its target.';
+          } else text(row.querySelector('small'),unlocked ? (active?'Paused in challenge · ':buyer.id==='condense' && Game.Automation.editingCondenseTarget?'Paused while editing · ':'')+'Every '+interval+'s · '+(buyer.id==='condense'?'Target reward':Game.Automation.advanced(buyer.id)?'Buy max · challenge '+state.level+'/10':'Basic · next pattern; upgrade with skill '+buyer.skill) : buyer.id==='condense'?'Unlock skill '+buyer.skill+' · '+Game.CONFIG.PRESTIGE.skills[buyer.skill].cost+' Quanta':'Basic buyers unlock after your first Condense. Advanced: skill '+buyer.skill+' · '+Game.CONFIG.PRESTIGE.skills[buyer.skill].cost+' Quanta');
         }
-        if(challengesVisible) {
+        if(challengesVisible && buyer.id!=='stabilize') {
           const track=view.tracks[buyer.id];track.hidden=!Game.Discovery.challenge(index+1);track.setAttribute('aria-pressed',String(view.selected===buyer.id));
           text(track.querySelector('small'),unlocked ? (active===index+1?'Running · ':'')+state.level+'/10 · '+interval+'s · '+buyer.name+(Game.Challenges.unlocked(index+1)?'':' · Requires '+number(Game.Challenges.definition(index+1).unlockEnergy)+' Energy') : 'Locked · '+number(Game.Challenges.definition(index+1).unlockEnergy)+' Energy + skill '+buyer.skill+' · '+Game.CONFIG.PRESTIGE.skills[buyer.skill].cost+' Quanta');
         }

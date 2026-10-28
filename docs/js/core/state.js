@@ -17,6 +17,7 @@
     Game.CONFIG.AUTOMATION.buyers.forEach(function (buyer) {
       buyers[buyer.id]={level:0,elapsed:0};autoBuyers[buyer.id]=Number(buyer.id!=='condense');
     });
+    buyers.stabilize={level:0,elapsed:0};autoBuyers.stabilize=0;
     return {
       automation: {buyers:buyers},
       flow:{seedElapsed:D(0),growthElapsed:D(0),pulses:D(0)},

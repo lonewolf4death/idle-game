@@ -178,6 +178,7 @@
     ]
   };
   Game.CONFIG.AUTOMATION = {
+    stabilizer: {id:"stabilize",name:"Stabilize the Field"},
     buyers: [
       {id:"energyDisturbance",skill:"1-6-1",name:"Gen 1 (Energy Disturbance)",title:"Disturbance lattice"},
       {id:"quantumFluctuation",skill:"2-5-1",name:"Gen 2 (Quantum Fluctuation)",title:"Uncertain signals"},

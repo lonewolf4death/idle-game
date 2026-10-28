@@ -136,6 +136,8 @@
       const interval=player.prestige.skills[buyer.skill]?(50-4*state.level)/10:Game.CONFIG.STRUCTURE.basicBuyerInterval;
       if (state.elapsed>=interval+1e-9) throw new Error('Invalid automation timer');
     });
+    const stabilizer=player.automation.buyers.stabilize;
+    if(![0,1].includes(player.settings.autoBuyers.stabilize) || stabilizer.level!==0 || stabilizer.elapsed<0 || stabilizer.elapsed>Game.CONFIG.STRUCTURE.basicBuyerInterval) throw new Error('Invalid Stabilize automation');
     const challenge=player.challenges;
     if (!Number.isInteger(challenge.active) || challenge.active<0 || challenge.active>8) throw new Error('Invalid challenge run');
     if(![challenge.failed,challenge.qualified,challenge.resetArmed].every(function (v) { return v===0 || v===1; }) || ![challenge.purchases,challenge.resets,challenge.latestGenerator].every(Number.isInteger) || challenge.latestGenerator>7 || challenge.lastPurchase>challenge.elapsed+1e-6) throw new Error('Invalid challenge clocks');

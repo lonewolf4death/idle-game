@@ -85,7 +85,7 @@
       state.bestEnergy=Decimal.max(state.bestEnergy,Game.player.resources.energy);
       if(state.recoveryTarget.gt(0) && !state.recovered && Game.player.resources.energy.gte(state.recoveryTarget)) { state.recovered=1;state.recoverySeconds=state.elapsed; }
     },
-    stabilize: function () {
+    stabilize: function (automated) {
       if(!this.canStabilize()) return false;
       const old=Game.player,next=old.structure.stabilizations.add(1),high=Decimal.max(old.structure.bestEnergy,old.resources.energy);
       Game.Progression.captureAchievements(old);
@@ -103,7 +103,7 @@
       if(fresh.prestige.skills['3-4-2']) fresh.generators.fieldCoupling.added=D(Game.CONFIG.PRESTIGE.skills['3-4-2'].startingCouplings);
       Game.player=fresh;
       Game.Achievements.capture(fresh,true);
-      if(Game.Loop) { Game.Loop.accumulator=0;Game.Loop.lastTime=performance.now(); }
+      if(Game.Loop && !automated) { Game.Loop.accumulator=0;Game.Loop.lastTime=performance.now(); }
       if(Game.Experience) Game.Experience.syncPlayer();
       const first=!fresh.lore.stabilizationSeen;fresh.lore.stabilizationSeen=1;
       if(first && Game.Experience) Game.Experience.enqueue({kind:'Lore · Stabilization',title:'A pattern remembered',text:Game.CONFIG.STRUCTURE.lore});

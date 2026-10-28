@@ -18,6 +18,8 @@ Symmetry unlocks for 10,000 Quanta. Switch generator layers beneath the title. S
 
 Progress saves in your browser. Settings includes Export, Import and rolling recovery backups. Failed loads and conflicting tabs pause autosaving instead of replacing stored progress. Asset URLs are versioned to avoid mixed cached modules. Older saves retain achievements, lore, skills, resources, generator counts, settings and earned generator stages when migrating to resonance patterns. The hosted site and a local file have separate browser storage; use Export/Import to move progress.
 
+Auto-Stabilize unlocks after the first Condense and starts disabled. Its interval averages all other unlocked buyer intervals, including auto-Condense; disabled buyers still count. It supports individual/all toggles and later refinements. Ready auto-Condense rewards take priority. Challenges, reset confirmations and editing the Condense target pause it. Background catch-up and development time skips continue across automatic Stabilization.
+
 ## Public edition
 
 The current game is in docs/, deployed by the GitHub Pages workflow. The public edition contains no developer reveal control, development multipliers, time skipping or development-only respec. Sound starts after your first interaction and can be adjusted in Settings. No installation, external assets or backend are required.

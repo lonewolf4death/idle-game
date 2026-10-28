@@ -2,12 +2,19 @@
   // Real-time timers deliberately do not accelerate from click-granted game time.
   Game.Automation = {
     editingCondenseTarget:false,
-    definition: function (id) { return Game.CONFIG.AUTOMATION.buyers.find(function (buyer) { return buyer.id === id; }); },
+    definitions: function () { return Game.CONFIG.AUTOMATION.buyers.concat(Game.CONFIG.AUTOMATION.stabilizer); },
+    definition: function (id) { return this.definitions().find(function (buyer) { return buyer.id === id; }); },
     advanced: function (id) { const buyer=this.definition(id);return !!buyer && Game.Progression.hasSkill(buyer.skill); },
     basic: function (id) { return id!=='condense' && !!this.definition(id) && Game.player.prestige.times.gt(0); },
     unlocked: function (id) { return Game.player.prestige.times.gt(0) && (this.advanced(id) || this.basic(id)); },
-    interval: function (id) { return this.advanced(id) ? (50 - 4 * Game.player.automation.buyers[id].level) / 10 : Game.CONFIG.STRUCTURE.basicBuyerInterval; },
-    active: function (id) { return !Game.Challenges.active() && !Game.Challenges.confirming && !(Game.StructureUI && Game.StructureUI.confirming) && !(id==='condense' && this.editingCondenseTarget) && this.unlocked(id) && !!Game.player.settings.autoBuyers[id]; },
+    interval: function (id) {
+      if(id==='stabilize') {
+        const buyers=Game.CONFIG.AUTOMATION.buyers.filter(function (buyer) { return Game.Automation.unlocked(buyer.id); });
+        return buyers.length ? buyers.reduce(function (sum,buyer) { return sum+Game.Automation.interval(buyer.id); },0)/buyers.length : Game.CONFIG.STRUCTURE.basicBuyerInterval;
+      }
+      return this.advanced(id) ? (50 - 4 * Game.player.automation.buyers[id].level) / 10 : Game.CONFIG.STRUCTURE.basicBuyerInterval;
+    },
+    active: function (id) { return !Game.Challenges.active() && !Game.Challenges.confirming && !(Game.StructureUI && Game.StructureUI.confirming) && !((id==='condense'||id==='stabilize') && this.editingCondenseTarget) && this.unlocked(id) && !!Game.player.settings.autoBuyers[id]; },
     parseCondenseTarget: function (input) {
       if (typeof input!=='string' && typeof input!=='number') return null;
       const value=String(input).trim();
@@ -28,29 +35,33 @@
       return true;
     },
     setAll: function (enabled) {
-      Game.CONFIG.AUTOMATION.buyers.forEach(function (buyer) { Game.Automation.setEnabled(buyer.id,enabled); });
+      this.definitions().forEach(function (buyer) { Game.Automation.setEnabled(buyer.id,enabled); });
     },
     remaining: function () {
-      return Game.CONFIG.AUTOMATION.buyers.reduce(function (next,buyer) {
+      return this.definitions().reduce(function (next,buyer) {
         return Game.Automation.active(buyer.id) ? Math.min(next,Math.max(0,Game.Automation.interval(buyer.id)-Game.player.automation.buyers[buyer.id].elapsed)) : next;
       },Infinity);
     },
     advance: function (seconds) {
-      Game.CONFIG.AUTOMATION.buyers.forEach(function (buyer) {
+      this.definitions().forEach(function (buyer) {
         const state=Game.player.automation.buyers[buyer.id];
         state.elapsed=Game.Automation.active(buyer.id) ? Math.round((state.elapsed+seconds)*1e9)/1e9 : 0;
       });
     },
     resolve: function () {
-      // Condense gets first refusal when due: Max buyers must not spend its
-      // earned target in the same instant. Then buy Gen 1 through Gen 7.
+      // Reset requirements are checked before buyers can spend their Energy.
+      // Condense takes priority, followed by Stabilize, then Gen 1 through 7.
       const buyers=Game.CONFIG.AUTOMATION.buyers;
-      [buyers[7]].concat(buyers.slice(0,7)).forEach(function (buyer) {
+      [buyers[7],Game.CONFIG.AUTOMATION.stabilizer].concat(buyers.slice(0,7)).forEach(function (buyer) {
         const state=Game.player.automation.buyers[buyer.id];
         if (!Game.Automation.active(buyer.id) || state.elapsed+1e-9<Game.Automation.interval(buyer.id)) return;
         state.elapsed=0;
         if (buyer.id === 'condense') {
           if(Game.Prestige.reward().gte(Game.player.settings.autoCondenseTarget)) Game.Prestige.condense(true);
+        }
+        else if(buyer.id==='stabilize') {
+          if(Game.Automation.active('condense') && Game.Prestige.reward().gte(Game.player.settings.autoCondenseTarget)) return;
+          Game.Structure.stabilize(true);
         }
         else Game.Energy.buyGenerator(buyer.id,Game.Automation.advanced(buyer.id)?'max':'pattern');
       });
@@ -59,7 +70,7 @@
       fresh.challenges.highestEnergy=Decimal.max(old.challenges.highestEnergy,old.resources.energy);
       Game.Symmetry.preserve(old,fresh);
       // Challenge mastery survives both Condense and respec; timers start fresh.
-      Game.CONFIG.AUTOMATION.buyers.forEach(function (buyer) {
+      this.definitions().forEach(function (buyer) {
         const state=old.automation.buyers[buyer.id];
         fresh.automation.buyers[buyer.id]={level:state.level,elapsed:0};
       });

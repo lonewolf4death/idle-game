@@ -250,9 +250,9 @@
         <div class="challenge-layout"><nav id="challenge-tracks" aria-label="Automation challenges"></nav><article id="challenge-detail" class="challenge-detail"></article></div>
       </section>
       <section id="automation-view" class="achievements-view automation-view" role="tabpanel" aria-labelledby="automation-tab" tabindex="0" hidden>
-        <div class="achievements-heading"><span class="label">Let the field sustain itself</span><h2 id="automation-heading">Automation</h2><p>Configure generator buyers and automatic Condensing.</p></div>
+        <div class="achievements-heading"><span class="label">Let the field sustain itself</span><h2 id="automation-heading">Automation</h2><p>Configure generator buyers, Stabilization and Condensing.</p></div>
         <section class="automation-settings" aria-labelledby="automation-heading">
-          <p class="settings-note">Unlock a buyer in the skill tree, then enable it here. Basic buyers attempt the next pattern; advanced buyers purchase Max. Timers use real seconds, including time out of focus. Failed attempts are not saved up. When timers coincide, Condense has priority, then buyers act in generator order.</p>
+          <p class="settings-note">Basic buyers and Auto-Stabilize unlock after Condense. Unlock advanced buyers in the skill tree. Basic buyers attempt the next pattern; advanced buyers purchase Max. Timers use real seconds, including time out of focus. Failed attempts are not saved up. Condense has priority, then Stabilize, then buyers act in generator order. Auto-Stabilize starts off and uses the average interval of all other unlocked buyers, whether enabled or disabled.</p>
           <div class="automation-actions"><button id="automation-all-on">Enable all unlocked</button><button id="automation-all-off">Disable all</button><button id="automation-challenges">View challenges</button></div>
           <div id="automation-settings-list" class="settings-list"></div>
           <form id="auto-condense-target-form" class="auto-condense-target" novalidate>
@@ -334,10 +334,10 @@
 
   <!-- Load order matters because this version works directly from file:// -->
   <script src="js/core/namespace.js?v=2be15fd41d03"></script>
-  <script src="js/core/config.js?v=d7b10e83b90f"></script>
+  <script src="js/core/config.js?v=4c749788d96d"></script>
   <script src="js/numbers/decimal.js?v=072eb6e5da4d"></script>
-  <script src="js/core/state.js?v=3e152fe84a63"></script>
-  <script src="js/core/automation.js?v=1b530b8b1aef"></script>
+  <script src="js/core/state.js?v=d1e089dde432"></script>
+  <script src="js/core/automation.js?v=677b825a3ef2"></script>
   <script src="js/core/symmetry.js?v=417ed7038dba"></script>
   <script src="js/time/gameTime.js?v=a3b9af0ff87e"></script>
   <script src="js/core/modifiers.js?v=368e702616dc"></script>
@@ -348,10 +348,10 @@
   <script src="js/layers/energy/coherence.js?v=be5e46fdf999"></script>
   <script src="js/layers/energy/fieldExcitation.js?v=abb01bc2d45d"></script>
   <script src="js/layers/energy/fieldDynamics.js?v=76632361444f"></script>
-  <script src="js/core/structure.js?v=d23c5a194005"></script>
+  <script src="js/core/structure.js?v=33987b7094e9"></script>
   <script src="js/core/flow.js?v=3c912125646f"></script>
   <script src="js/core/productionStats.js?v=bd5b239b1adb"></script>
-  <script src="js/save/saveManager.js?v=3646245eaab4"></script>
+  <script src="js/save/saveManager.js?v=12ca3404100f"></script>
   <script src="js/ui/format.js?v=7deb167be06e"></script>
   <script src="js/ui/icons.js?v=80b1b0ea0822"></script>
   <script src="js/ui/experience.js?v=c2c6b52cf097"></script>
@@ -364,7 +364,7 @@
   <script src="js/ui/prestige.js?v=665e616bd775"></script>
   <script src="js/ui/discovery.js?v=76910acc7fb3"></script>
   <script src="js/ui/treeMap.js?v=a5c9deae5458"></script>
-  <script src="js/ui/automation.js?v=2410b5992441"></script>
+  <script src="js/ui/automation.js?v=07c4d24a8ad4"></script>
   <script src="js/ui/symmetry.js?v=6d6c0dd5772e"></script>
   <script src="js/ui/render.js?v=537fecc22175"></script>
   <script src="js/ui/structure.js?v=a452375d9f49"></script>
