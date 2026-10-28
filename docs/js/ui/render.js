@@ -179,7 +179,7 @@
           "<summary><h3" + (formula ? " class='info-heading' data-tip='fluctFormula'" : "") + ">" + Game.Icons.svg(gen.id) + gen.name + "</h3>",
           formula ? "<button class='info-term formula-hint' data-tip='fluctFormula' aria-label='Fluct formula'>?</button>" : "",
           "<button class='collapsed-buy' data-buy-collapsed>Buy</button></summary>",
-          "<p data-description>" + (gen.type === "oscillation" ? "Exponentially strengthens all Energy over 55s, holds its peak for 5s, then restarts." : gen.type === "resonance" ? "Each unit multiplies Field Oscillation's peak by ×1.025." : gen.type === "coupling" ? "Every Disturb level adds one effective Field Excitation per owned unit." : gen.type === "fluctuation" ? "Fluct shifts all Energy gains, alternating between reinforcement and interference." : gen.type === "field" ? "Every cycle permanently strengthens the base Energy rate of every Energy Disturbance." : gen.type === "coherent" ? "Produces Quantum Resonance to strengthen Fluct and Energy Resonance to create Energy Disturbances." : "Base production: " + (gen.burstInterval ? Game.Format.number(gen.burstProduction) + " Energy every " + gen.burstInterval + "s each" : Game.Format.number(gen.production) + " Energy/sec each")) + "</p>",
+          "<p data-description>" + (gen.type === "oscillation" ? "Exponentially strengthens all Energy over 55s, holds its peak for 5s, then restarts." : gen.type === "resonance" ? "Each unit multiplies Field Oscillation's peak by ×1.025." : gen.type === "coupling" ? "Every purchased Energy Disturbance contributes effective Field Excitation for each owned Field Coupling." : gen.type === "fluctuation" ? "Fluct shifts all Energy gains, alternating between reinforcement and interference." : gen.type === "field" ? "Every cycle permanently strengthens the base Energy rate of every Energy Disturbance." : gen.type === "coherent" ? "Produces Quantum Resonance to strengthen Fluct and Energy Resonance to create Energy Disturbances." : "Base production: " + (gen.burstInterval ? Game.Format.number(gen.burstProduction) + " Energy every " + gen.burstInterval + "s each" : Game.Format.number(gen.production) + " Energy/sec each")) + "</p>",
           "<p data-scaling hidden></p>",
           "<p data-formula hidden>" + formula + "</p>",
           "<p data-odds hidden></p>",
@@ -245,13 +245,6 @@
           }
         });
       });
-      byId("energy-field").addEventListener("click", function (event) {
-        if (!Game.Challenges.clicksAllowed()) return;
-        Game.Audio.play("click");
-        Game.UI.flashEnergy(event);
-        Game.Energy.generateManual();
-        Game.UI.render();
-      });
       document.addEventListener("keydown", function (event) {
         if (event.defaultPrevented || event.repeat || event.ctrlKey || event.metaKey || event.altKey || event.shiftKey || !/^[0-9]$/.test(event.key)) return;
         if (byId("energy-view").hidden || document.querySelector("dialog[open]") || event.target.closest && event.target.closest("input,textarea,select,[contenteditable]:not([contenteditable=false])")) return;
@@ -262,20 +255,6 @@
         const gen=Game.CONFIG.GENERATORS[index];
         if (!gen || !(Game.UI.isUnlocked(gen) || Game.Energy.getOwned(gen.id).gt(0))) return;
         event.preventDefault();Game.Energy.buyGenerator(gen.id,Game.UI.buyAmount);Game.UI.render();
-      });
-      byId("energy-field").addEventListener("keydown", function (event) {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          if (!event.repeat) this.click();
-        }
-      });
-      ["buy-click-upgrade", "buy-click-upgrade-collapsed"].forEach(function (id) {
-        byId(id).addEventListener("click", function (event) {
-          event.preventDefault();
-          event.stopPropagation();
-          Game.Progression.buyClickUpgrade(Game.UI.buyAmount);
-          Game.UI.render();
-        });
       });
       byId("save-button").addEventListener("click", function () { Game.Save.save(true); });
       byId("export-button").addEventListener("click", function () { Game.Save.exportSave(); });
@@ -337,7 +316,7 @@
         node.card.hidden = !(Game.UI.isUnlocked(gen) || owned.gt(0));
         const quote = Game.Energy.quoteGenerator(gen.id, Game.UI.buyAmount);
         const genProduction = Game.Energy.getGeneratorProduction(gen);
-        let ownershipText = "Purchased: " + Game.Format.number(p.generators[gen.id].purchased, 0) + " + " + Game.Format.number(p.generators[gen.id].added, 0) + " added" + (gen.type === "field" && Game.Energy.getCoupledFields().gt(0) ? " + " + Game.Format.number(Game.Energy.getCoupledFields(), 0) + " coupled" : "") + " · Total: " + Game.Format.number(owned, 0);
+        let ownershipText = "Purchased: " + Game.Format.number(p.generators[gen.id].purchased, 0) + " + " + Game.Format.number(p.generators[gen.id].added, 0) + " added" + (gen.type === "field" && Game.Energy.getCoupledFields().gt(0) ? " + " + Game.Format.number(Game.Energy.getCoupledFields(), 0) + " coupled" : "") + " · Total: " + Game.Format.number(owned, 2);
         if (gen.id === "energyDisturbance" && Game.Progression.hasSkill("1-3-2")) ownershipText += " · Effective: " + Game.Format.number(Game.Energy.getProductionCount(gen.id), 2);
         if (gen.type === "resonance" && Game.Energy.getSharedResonance().gt(0)) ownershipText += " · +" + Game.Format.number(Game.Energy.getSharedResonance(),0) + " from purchased Gen 7";
         if (gen.type === "resonance" && Game.Progression.hasSkill("3-5-1")) ownershipText += " · QR ×" + Game.Format.number(Game.Energy.resonanceCountMultiplier(),3) + " · Effective: " + Game.Format.number(Game.Energy.getProductionCount(gen.id),2);
@@ -352,7 +331,7 @@
           const dynamics = Game.FieldDynamics.rules();
           const description = "Builds from a dependable baseline to a larger peak. Purchased patterns strengthen both. Peak timing remains available.";
           if (node.description.textContent !== description) node.description.textContent = description;
-          const oscillationText = Game.FieldDynamics.peakPaused() ? "All Energy ×1 · peak paused during negative Fluct · " + Game.Format.number(Game.D(dynamics.cycle).sub(p.fieldDynamics.elapsed), 2) + "s peak time remaining" : Game.FieldDynamics.held() ? "All Energy ×" + Game.Format.number(Game.FieldDynamics.multiplier(), 5) + " · frozen 0.25s before peak · click the field or Release peak when ready" : "All Energy ×" + Game.Format.number(Game.FieldDynamics.multiplier(), 5) + " · peak ×" + Game.Format.number(Game.FieldDynamics.peak(), 5) + " · " + (p.fieldDynamics.elapsed.lt(dynamics.rise) ? "rising · peak in " : "holding · restart in ") + Game.Format.number(Game.FieldDynamics.nextEventIn()) + "s";
+          const oscillationText = Game.FieldDynamics.peakPaused() ? "All Energy ×1 · peak paused during negative Fluct · " + Game.Format.number(Game.D(dynamics.cycle).sub(p.fieldDynamics.elapsed), 2) + "s peak time remaining" : Game.FieldDynamics.held() ? "All Energy ×" + Game.Format.number(Game.FieldDynamics.multiplier(), 5) + " · frozen 0.25s before peak · use Release peak when ready" : "All Energy ×" + Game.Format.number(Game.FieldDynamics.multiplier(), 5) + " · peak ×" + Game.Format.number(Game.FieldDynamics.peak(), 5) + " · " + (p.fieldDynamics.elapsed.lt(dynamics.rise) ? "rising · peak in " : "holding · restart in ") + Game.Format.number(Game.FieldDynamics.nextEventIn()) + "s";
           setText(node.production, oscillationText);
           const controls = node.card.querySelector(".oscillation-controls"), toggle = controls.querySelector("[data-freeze]"), release = controls.querySelector("[data-release]");
           controls.hidden = !(Game.Progression.hasSkill("3-2-1") || false);
@@ -364,7 +343,7 @@
           if (node.description.textContent !== description) { node.description.textContent = description;Game.Tooltips.enrich(node.description); }
           setText(node.production, "Oscillation peak ×" + Game.Format.number(Game.FieldDynamics.resonance(), 5) + " · " + (Game.FieldDynamics.active() ? "reinforcing" : "requires Field Oscillation"));
         } else if (gen.type === "coupling") {
-          setText(node.production, "+" + Game.Format.number(Game.Energy.getCoupledFields(), 0) + " effective Field Excitations from " + Game.Format.number(p.upgrades.clickPower, 0) + " Disturb levels");
+          setText(node.production, "+" + Game.Format.number(Game.Energy.getCoupledFields(), 0) + " effective Field Excitations from " + Game.Format.number(p.generators.energyDisturbance.purchased, 0) + " purchased Energy Disturbances");
         } else if (gen.type === "fluctuation") {
           const fluctRules = Game.Modifiers.getFluctuationRules();
           const chance = Math.max(0, Math.min(1, fluctRules.positiveChance));
@@ -375,9 +354,9 @@
           if (Game.Progression.hasSkill("2-1-2") && p.fluctuation.rollReductionStacks.gt(0)) fluctText += " · negative chain: " + Game.Format.number(p.fluctuation.rollReductionStacks, 0) + " · interval " + Game.Format.number(fluctRules.rollInterval, 5) + "s";
           setText(node.production, fluctText);
         } else if (gen.type === "coherent") {
-          const output = Game.Coherence.outputPerCycle();
-          const energyOutput=output;
-          setText(node.production, Game.Format.number(output) + " Quantum Resonance / " + Game.Format.number(Game.Coherence.quantumInterval()) + "s · " + Game.Format.number(energyOutput) + " Energy Resonance / " + Game.Coherence.energyInterval().toString() + "s" + (Game.Progression.hasSkill("2-4-1") ? " · QR cycles also produce ER" : "") + (Game.Progression.hasSkill("2-4-2") ? " · each QR cycle advances Gen 4 by 15s" : ""));
+          const output = Game.Coherence.quantumPerSecond();
+          const energyOutput=Game.Coherence.energyPerSecond();
+          setText(node.production, Game.Format.number(output) + " Quantum Resonance / " + Game.Format.number(Game.Coherence.quantumInterval()) + "s · " + Game.Format.number(energyOutput) + " Energy Resonance / " + Game.Coherence.energyInterval().toString() + "s" + (Game.Progression.hasSkill("2-4-1") ? " · QR cycles also produce ER" : "") + (Game.Progression.hasSkill("2-4-2") ? " · QR production accelerates Gen 4" : ""));
         } else if (gen.type === "field") {
           setText(node.production, "+" + Game.Format.number(Game.FieldExcitation.boostPerCycle(), 5) + " base Energy/sec to Energy Disturbance every " + Game.FieldExcitation.interval().toString() + "s · next in " + Game.Format.number(Game.FieldExcitation.remaining()) + "s · accumulated base bonus +" + Game.Format.number(p.fieldExcitation.baseRateBonus, 5) + "/sec");
         } else if (gen.burstInterval && owned.lt(gen.smoothAt)) {
@@ -402,29 +381,11 @@
       byId("generator-empty").hidden = Game.CONFIG.GENERATORS.some(function (gen) {
         return !Game.UI.generatorNodes[gen.id].card.hidden;
       });
-      const upgradeVisible = this.isUnlocked(Game.CONFIG.CLICK_UPGRADE) || p.upgrades.clickPower.gt(0);
-      byId("click-upgrade").hidden = !upgradeVisible;
-      byId("upgrade-empty").hidden = upgradeVisible;
-      const rules = Game.Modifiers.getClickUpgradeRules();
-      const capped = p.upgrades.clickPower.gte(rules.maxLevel);
-      setText(byId("click-upgrade-level"), "Level " + Game.Format.number(p.upgrades.clickPower, 0) + " / " + rules.maxLevel.toLocaleString());
-      const tier = Math.floor(p.upgrades.clickPower.toNumber() / rules.scalingStepLevels);
-      const scale = Game.D(rules.initialScaling).add(Game.D(rules.scalingStepIncrease).mul(tier));
-      const nextBreakpoint = Math.min(rules.maxLevel, (tier + 1) * rules.scalingStepLevels);
-      byId("click-upgrade-scaling").hidden = !false;
-      setText(byId("click-upgrade-scaling"), capped ? "Maximum level reached" : "Cost scaling ×" + Game.Format.number(scale) + (Game.D(rules.scalingStepIncrease).eq(0) ? " · constant" : " · next breakpoint: " + nextBreakpoint));
-      setText(byId("click-upgrade-affordable"), "Can afford " + Game.Progression.affordableClickLevels() + " more now");
-      byId("auto-click-status").hidden = !Game.Progression.hasSkill("1-2-2");
-      setText(byId("auto-click-status"), capped ? "Self-sustaining impulse · click in " + Game.Format.number(Game.Energy.autoClickRemaining(), 1) + " game seconds" : "Self-sustaining impulse · max Disturb to activate");
-      const clickQuote = Game.Progression.quoteClickUpgrade(this.buyAmount);
-      setText(byId("buy-click-upgrade"), capped ? "Maxed" : clickQuote.count.gt(0) ? "Buy " + Game.Format.number(clickQuote.count, 0) + (clickQuote.gain.gt(clickQuote.count)?" → +"+Game.Format.number(clickQuote.gain,0)+" levels":"") + " — " + Game.Format.number(clickQuote.cost) + " Energy" : "Buy 1 — " + Game.Format.number(Game.Progression.upgradeCost()) + " Energy");
-      byId("buy-click-upgrade").disabled = capped || clickQuote.count.lte(0);
-      this.updateCompactBuy(byId("buy-click-upgrade-collapsed"), byId("buy-click-upgrade"), "Disturb");
       const resonanceVisible = false || Game.Coherence.discovered();
       byId("resonance-overview").hidden = !resonanceVisible;
       byId("energy-field").classList.toggle("has-resonance", resonanceVisible);
-      setText(byId("quantum-resonance-display"), Game.Format.number(p.resources.quantumResonance, 0));
-      setText(byId("energy-resonance-display"), Game.Format.number(p.resources.energyResonance, 0));
+      setText(byId("quantum-resonance-display"), Game.Format.number(p.resources.quantumResonance, 3));
+      setText(byId("energy-resonance-display"), Game.Format.number(p.resources.energyResonance, 3));
       const coherenceActive = Game.Energy.getOwned("coherentEnergy").gt(0);
       setText(byId("quantum-resonance-timer"), coherenceActive ? "Next in " + Game.Format.number(Game.Coherence.quantumRemaining()) + "s · interval " + Game.Format.number(Game.Coherence.quantumInterval()) + "s" : "Requires Coherent Energy");
       setText(byId("energy-resonance-timer"), coherenceActive ? "Next in " + Game.Format.number(Game.Coherence.energyRemaining()) + "s · interval " + Game.Coherence.energyInterval().toString() + "s" : "Requires Coherent Energy");
@@ -436,8 +397,7 @@
       const fluct = Game.Energy.getOwned("quantumFluctuation");
       byId("fluct-display").hidden = fluct.lte(0);
       setText(byId("fluct-display"), "Fluct " + (p.fluctuation.positive ? "+" : "−") + " · ×" + Game.Format.number(Game.Energy.fluctMultiplier(), 5));
-      setText(byId("music-stage"), "Eventide · " + ["Unformed tones", "Pentatonic notes · 10 clicks", "Harmonic layers · 25 purchased generators", "Interwoven tones · Quantum Fluctuation", "Resonance chords · Coherent Energy", "Field harmonics · Field Excitation"][Game.Audio.musicStage()]);
-      setText(byId("click-gain"), "+" + Game.Format.number(Game.Energy.manualGain()) + (Game.Progression.hasSkill("1-2-1") ? " direct / click · +0.33s all generators" : " / click"));
+      setText(byId("music-stage"), "Eventide · " + ["Unformed tones", "Pentatonic notes · first generator", "Harmonic layers · 25 purchased generators", "Interwoven tones · Quantum Fluctuation", "Resonance chords · Coherent Energy", "Field harmonics · Field Excitation"][Game.Audio.musicStage()]);
       const achieved = Game.Progression.achievementUnlocked();
       byId("click-achievement").classList.toggle("unlocked", achieved);
       const firstGen = Game.Progression.firstGeneratorAchievementUnlocked(), twentyFive = Game.Progression.growingEngineAchievementUnlocked();
@@ -455,11 +415,11 @@
       setText(byId("five-minutes-status"), "Tier " + Game.Format.number(timeAchievement.level, 0) + (fiveMinutes ? " · Unlocked" : " · Locked") + " · " + Game.Playtime.elapsedLabel() + " / " + nextTimeLabel);
       byId("first-generator-achievement").classList.toggle("unlocked", firstGen);
       byId("twenty-five-achievement").classList.toggle("unlocked", twentyFive);
-      setText(byId("first-generator-status"), firstGen ? "Unlocked" : "0 / 1 generators");
+      setText(byId("first-generator-status"), firstGen ? "Unlocked" : Game.Format.number(p.stats.generatorsBought,0)+" / 10 generators");
       setText(byId("twenty-five-status"), twentyFive ? "Unlocked" : Game.Format.number(p.generators.energyDisturbance.purchased, 0) + " / 25 Energy Disturbances");
       setText(byId("achievement-required"), Game.CONFIG.CLICK_ACHIEVEMENT.requiredClicks);
       setText(byId("achievement-reward"), "×" + Game.CONFIG.CLICK_ACHIEVEMENT.multiplier);
-      const achievementText = achieved ? "Unlocked · ×" + Game.CONFIG.CLICK_ACHIEVEMENT.multiplier + " clicks" : Game.Format.number(p.stats.manualClicks, 0) + " / " + Game.CONFIG.CLICK_ACHIEVEMENT.requiredClicks + " clicks";
+      const achievementText = achieved ? "Unlocked · ×" + Game.CONFIG.CLICK_ACHIEVEMENT.multiplier + " all Energy" : Game.Format.number(p.stats.generatorsBought, 0) + " / 1 generators";
       if (byId("achievement-status").textContent !== achievementText) byId("achievement-status").textContent = achievementText;
       byId("generators-panel").hidden = byId("generator-empty").hidden === false;
       const percent = Game.Progression.milestoneProgress() * 100;

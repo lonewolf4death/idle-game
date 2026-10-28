@@ -94,7 +94,7 @@
     addGenerators: function (id, amount) {
       if (!Game.Challenges.addedAllowed(id)) return false;
       const state = Game.player.generators[id], gen = this.getGenerator(id), value = D(amount);
-      if (!state || !Number.isFinite(value.exponent) || !Number.isFinite(value.mantissa) || value.lt(0) || !value.eq(value.floor())) return false;
+      if (!state || !Number.isFinite(value.exponent) || !Number.isFinite(value.mantissa) || value.lt(0)) return false;
       const beforeCredit = this.syncGeneratorTimers(gen, state);
       state.added = state.added.add(value);
       const afterCredit = this.syncGeneratorTimers(gen, state);
@@ -225,7 +225,7 @@
       const transitionCredit = this.syncGeneratorTimers(gen, state);
       this.addEnergyCredit(oldCredit.add(transitionCredit).mul(this.getCountMultiplier(id)).mul(Game.Progression.generatorFocusMultiplier(id)).mul(Game.Symmetry.crossMultiplier(id)).mul(Game.Progression.generatorMultiplier()).mul(this.fluctMultiplier()).mul(Game.Progression.energyMultiplier()).mul(Game.FieldDynamics.multiplier()));
       if (Game.UI) {
-        if (!hadFirstAchievement && Game.Progression.firstGeneratorAchievementUnlocked()) Game.UI.notifyAchievement("First generator", "×1.05 Energy per click");
+        if (!hadFirstAchievement && Game.Progression.firstGeneratorAchievementUnlocked()) Game.UI.notifyAchievement("An emerging chorus", "×1.05 generator production");
         if (!hadGrowingAchievement && Game.Progression.growingEngineAchievementUnlocked()) Game.UI.notifyAchievement("A growing engine", "×1.1 generator production");
         if (!hadCoherentAchievement && Game.Progression.coherentAchievementUnlocked()) Game.UI.notifyAchievement("A coherent beginning", "×1.05 all generator production");
       }
@@ -276,12 +276,13 @@
         const untilRoll = hasFluctuation ? Decimal.max(0, interval.sub(state.elapsed)) : D(Infinity);
         const gen = this.getGenerator("energyDisturbance"), timers = Game.player.generators.energyDisturbance;
         const untilBurst = Game.Challenges.produces(gen.id) && this.getOwned(gen.id).gt(0) && this.getOwned(gen.id).lt(gen.smoothAt) ? this.burstInterval(gen).sub(timers.burstTimers.reduce(function (latest, timer) { return Decimal.max(latest, timer); }, timers.burstElapsed)) : D(Infinity);
-        const segment = Decimal.min(Game.Symmetry.nextEventIn(),Decimal.min(this.replicationRemaining(), Decimal.min(Game.Progression.generatorFocus().remaining, Decimal.min(remaining, Decimal.min(untilBurst, Decimal.min(Game.FieldDynamics.nextEventIn(), Decimal.min(untilRoll, Decimal.min(Game.Coherence.nextEventIn(), Game.FieldExcitation.nextEventIn()))))))));
+        const segment = Decimal.min(Game.Flow.nextEventIn(),Decimal.min(Game.Symmetry.nextEventIn(),Decimal.min(this.replicationRemaining(), Decimal.min(Game.Progression.generatorFocus().remaining, Decimal.min(remaining, Decimal.min(untilBurst, Decimal.min(Game.FieldDynamics.nextEventIn(), Decimal.min(untilRoll, Decimal.min(Game.Coherence.nextEventIn(), Game.FieldExcitation.nextEventIn())))))))));
         if (segment.gt(0)) {
           this.tickProduction(segment);
           Game.Symmetry.advance(segment);
           Game.Challenges.advanceClock(segment.toNumber()*(Game.Challenges.realRate||0));
           Game.Coherence.advance(segment);
+          Game.Flow.advance(segment);
           Game.FieldExcitation.advance(segment);
           Game.FieldDynamics.advance(segment);
           if (this.replicationActive()) Game.player.disturbanceReplication.elapsed = Game.player.disturbanceReplication.elapsed.add(segment);
@@ -289,6 +290,7 @@
           remaining = remaining.sub(segment);
         } else this.tickProduction(D(0));
         Game.Coherence.resolveEvents();
+        Game.Flow.resolve();
         Game.FieldExcitation.resolveEvents();
         Game.FieldDynamics.resolveEvents();
         this.resolveReplication();

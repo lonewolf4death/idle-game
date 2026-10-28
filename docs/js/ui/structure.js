@@ -8,7 +8,7 @@
     init:function () {
       const ui=this;
       const choices=document.createElement('div');choices.id='first-quanta-choices';choices.className='first-quanta-choices';
-      choices.innerHTML='<p class="label">Your first Quanta · choose a new beginning</p><div><button data-first-skill="1-1"><strong>Impulse · 1 Quanta</strong><span>×4 all Energy · ×2 click Energy</span></button><button data-first-skill="2-1"><strong>Probability · 1 Quanta</strong><span>×3 all Energy · positive chance +5 points</span></button><button data-first-skill="3-1"><strong>Rhythm · 1 Quanta</strong><span>Remember an extra Stabilization · longer peak</span></button><button data-first-skill="4-1"><strong>Continuum · 1 Quanta</strong><span>×2 all Energy · ×2 Resonance output</span></button></div>';
+      choices.innerHTML='<p class="label">Your first Quanta · choose a new beginning</p><div><button data-first-skill="1-1"><strong>Foundation · 1 Quanta</strong><span>×4 all Energy production</span></button><button data-first-skill="2-1"><strong>Probability · 1 Quanta</strong><span>×3 all Energy · positive chance +5 points</span></button><button data-first-skill="3-1"><strong>Rhythm · 1 Quanta</strong><span>×2 Energy · extra Stabilization · longer peak</span></button><button data-first-skill="4-1"><strong>Continuum · 1 Quanta</strong><span>×2 all Energy · ×2 Resonance output</span></button></div>';
       byId('prestige-view').insertBefore(choices,byId('prestige-view').firstChild);
       choices.querySelectorAll('button').forEach(function (button) { button.addEventListener('click',function (event) { Game.PrestigeUI.activateNode(button.dataset.firstSkill,event); }); });
       Game.CONFIG.GENERATORS.forEach(function (gen) {
@@ -41,7 +41,7 @@
     },
     rewardText:function () {
       const n=Game.player.structure.stabilizations.toNumber(),gen=n<4?Game.CONFIG.GENERATORS[n+3]:null;
-      return (n<4?'Stabilization '+(n+1):'Refinement '+(n-3))+' · ×'+Game.CONFIG.STRUCTURE.strengthPerStabilization+' all Energy, '+(gen?'unlock Gen '+(n+4)+' ('+gen.name+'), ':'')+'and restart with '+(100*(n+1))+' Energy.'+(n===0?' Unlock basic buyers for Gen 1–3: one pattern attempt every 15 real seconds.':'');
+      return (n<4?'Stabilization '+(n+1):'Refinement '+(n-3))+' · ×'+Game.CONFIG.STRUCTURE.strengthPerStabilization+' all Energy, '+(gen?'unlock Gen '+(n+4)+' ('+gen.name+'), ':'')+'and restart with '+Game.CONFIG.IDLE_FLOW.startingEnergy+' Energy.';
     },
     patternFeedback:function (gen,crossed) {
       const card=Game.UI.generatorNodes[gen.id].card;
@@ -55,18 +55,18 @@
       const choices=byId('first-quanta-choices');if(choices) { choices.hidden=p.prestige.totalQuanta.gte(5);choices.querySelectorAll('button').forEach(function (button) { button.classList.toggle('is-owned',Game.Progression.hasSkill(button.dataset.firstSkill)); }); }
       byId('stabilization-panel').hidden=!(reveal || level>0 || p.generators.coherentEnergy.purchased.gt(0));
       text(byId('stabilization-level'),level<4?level+' / 4 established':'4 established · '+(level-4)+' refinements');
-      text(byId('stabilization-reward'),level<Game.CONFIG.STRUCTURE.maxStabilizations?this.rewardText():'The field is fully stabilized · ×'+number(Game.Structure.multiplier())+' Energy. Push onward to Condense.');
+      text(byId('stabilization-reward'),this.rewardText());
       const goal=Game.Structure.goal(),patterns=Game.Patterns.total(),ready=Game.Structure.canStabilize();
       const next=level<4?Game.CONFIG.GENERATORS[level+3]:null,missing=[];
       if(p.resources.energy.lt(goal.energy)) missing.push(number(goal.energy)+' Energy');
       if(patterns<goal.patterns) missing.push((goal.patterns-patterns)+' more patterns');
       if(p.resources.quantumResonance.lt(goal.quantum)) missing.push(number(goal.quantum.sub(p.resources.quantumResonance),0)+' more QR');
       text(byId('stabilization-next'),(next?'Next: '+next.name:'Next: stronger rebuilding')+' · '+(ready?'Ready to stabilize':missing.join(' · ')));
-      text(byId('stabilization-goal'),level<Game.CONFIG.STRUCTURE.maxStabilizations?number(p.resources.energy)+' / '+number(goal.energy)+' Energy · '+patterns+' / '+goal.patterns+' patterns · '+number(p.resources.quantumResonance,0)+' / '+number(goal.quantum,0)+' Quantum Resonance':'Condense retains permanent progress and compresses this opening on future runs.');
-      const progress=level>=Game.CONFIG.STRUCTURE.maxStabilizations?1:Math.min(1,p.resources.energy.add(1).log10()/goal.energy.log10(),patterns/goal.patterns,p.resources.quantumResonance.div(goal.quantum).toNumber());
+      text(byId('stabilization-goal'),number(p.resources.energy)+' / '+number(goal.energy)+' Energy · '+patterns+' / '+goal.patterns+' patterns · '+number(p.resources.quantumResonance,0)+' / '+number(goal.quantum,0)+' Quantum Resonance');
+      const progress=Math.min(1,p.resources.energy.add(1).log10()/goal.energy.log10(),patterns/goal.patterns,p.resources.quantumResonance.div(goal.quantum).toNumber());
       byId('stabilization-fill').style.width=(progress*100)+'%';
       byId('stabilization-fill').parentElement.setAttribute('aria-valuenow',(progress*100).toFixed(1));
-      const button=byId('open-stabilization');button.hidden=level>=Game.CONFIG.STRUCTURE.maxStabilizations;button.disabled=!ready;text(button,Game.Challenges.active()?'Unavailable during challenges':ready?level<4?'Stabilize · '+(level+1)+'/4':'Refine the field':'Establish the next pattern');
+      const button=byId('open-stabilization');button.hidden=false;button.disabled=!ready;text(button,Game.Challenges.active()?'Unavailable during challenges':ready?level<4?'Stabilize · '+(level+1)+'/4':'Refine the field':'Establish the next pattern');
       const recovery=byId('stabilization-recovery');recovery.hidden=p.structure.recoveryTarget.eq(0);
       text(recovery,p.structure.recovered?'Previous Energy high recovered in '+Game.Format.duration(p.structure.recoverySeconds)+'.':'Rebuilding toward previous high: '+number(p.structure.recoveryTarget)+' Energy.');
       byId('economy-migration').hidden=!p.structure.migrated;
@@ -87,12 +87,9 @@
           describe(node,'Builds from a dependable baseline to a larger peak. Purchased patterns strengthen both. Peak timing remains available.');
           const rules=Game.FieldDynamics.rules();text(node.production,'All Energy ×'+number(Game.FieldDynamics.multiplier(),5)+' · baseline ×'+number(Game.FieldDynamics.baseline(),5)+' · peak ×'+number(Game.FieldDynamics.peak(),5)+(Game.FieldDynamics.peakPaused()?' · peak held during negative Fluct':Game.FieldDynamics.held()?' · waiting for release':' · '+number(Game.FieldDynamics.nextEventIn(),1)+'s to '+(p.fieldDynamics.elapsed.lt(rules.rise)?'peak':'restart')));
         }
-        if(gen.type==='fluctuation') describe(node,'Purchased patterns build dependable strength. Positive and negative Fluct vary that strength by +20% or −20%; Quantum Resonance reinforces it with diminishing returns.');
-        if(gen.type==='field') describe(node,'Purchasing immediately adds base Energy output. Every cycle adds more; purchased patterns strengthen future growth.');
+        if(gen.type==='fluctuation') describe(node,'Purchased patterns build dependable strength. Positive and negative Fluct vary that strength.'+(Game.Coherence.discovered() || Game.Discovery.generator('coherentEnergy')?' Quantum Resonance reinforces it with diminishing returns.':''));
+        if(gen.type==='field') describe(node,'Purchasing immediately adds base Energy output. Every second adds more; purchased patterns strengthen future growth.');
       });
-      const disturb=Game.Patterns.state(p.upgrades.clickPower);
-      text(byId('disturb-pattern'),'Pattern '+(disturb.index+1)+' · '+disturb.position+' / '+disturb.size+' · whole click ×'+number(Game.D(Game.CONFIG.STRUCTURE.clickStrength).pow(disturb.index)));
-      text(byId('click-upgrade-scaling'),'Fixed unit prices in 4 / 6 / 8 / 12 patterns; ×4 price and ×1.15 whole-click strength on completion.');
       text(byId('resonance-fluct-growth'),'QR stable-strength bonus ×'+number(Game.Energy.fluctGrowth(),5)+' · effective Resonance '+number(Game.Coherence.quantumSoftcapState().effective));
       if(this.confirming && this.owner!==p && !byId('stabilization-dialog').classList.contains('is-dismissing')) this.dismiss(false);
     }

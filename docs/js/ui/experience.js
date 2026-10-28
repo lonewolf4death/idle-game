@@ -175,7 +175,7 @@
       this.queue = []; this.active = null; this.coherenceQueued = false; this.fieldQueued = false;this.symmetryQueued=false; this.dismissing = false; clearTimeout(this.timer); clearTimeout(this.dismissTimer); byId('story-dialog').close(); byId('story-dialog').classList.remove('is-dismissing'); byId('story-dismiss').removeAttribute('aria-disabled');
       if (Game.UI.syncCollapseState) Game.UI.syncCollapseState();
       const settings = Game.player.settings;
-      ['sound', 'muteUnfocused', 'clickSound', 'autoClickSound', 'bubbleSound', 'perkSound', 'perkVisuals', 'generatorSound', 'fluctuationSound', 'coherentSound', 'fieldSound', 'condenseSound', 'condenseVisuals', 'autoDismiss'].forEach(function (key) { byId('setting-' + key).checked = !!settings[key]; });
+      ['sound', 'muteUnfocused', 'perkSound', 'perkVisuals', 'generatorSound', 'fluctuationSound', 'coherentSound', 'fieldSound', 'condenseSound', 'condenseVisuals', 'autoDismiss'].forEach(function (key) { byId('setting-' + key).checked = !!settings[key]; });
       byId('setting-volume').value = settings.volume;
       byId('setting-visuals').value = settings.visuals;
       Game.Audio.updateVolume(); this.loreKey = ''; this.updateLore();
@@ -197,7 +197,7 @@
       byId('story-dismiss').addEventListener('click', function () { Game.Experience.dismiss(); });
       byId('story-dialog').addEventListener('click', function (event) { if (event.target === this) Game.Experience.dismiss(); });
       byId('story-dialog').addEventListener('cancel', function (event) { event.preventDefault(); });
-      ['sound','muteUnfocused','clickSound','autoClickSound','bubbleSound','perkSound','perkVisuals','generatorSound','fluctuationSound','coherentSound','fieldSound','condenseSound','condenseVisuals','autoDismiss','volume','visuals'].forEach(function (key) {
+      ['sound','muteUnfocused','perkSound','perkVisuals','generatorSound','fluctuationSound','coherentSound','fieldSound','condenseSound','condenseVisuals','autoDismiss','volume','visuals'].forEach(function (key) {
         const input = byId('setting-' + key);
         input.addEventListener(key === 'volume' ? 'input' : 'change', function () {
           Game.player.settings[key] = this.type === 'checkbox' ? Number(this.checked) : Number(this.value);
@@ -208,13 +208,11 @@
       if (Game.PotentialBubble) Game.PotentialBubble.clear(); }
         });
       });
-      byId('preview-sound').addEventListener('click', function () { Game.Audio.play('click'); });
-      byId('preview-auto-sound').addEventListener('click', function () { Game.Audio.play('autoClick'); });
       byId('preview-perk-sound').addEventListener('click', function () { Game.Audio.play('perk'); });
       this.syncPlayer();
     },
     updateLore: function () {
-      const clicked = Game.player.lore.clickSeen || Game.player.stats.manualClicks.gte(1), generated = Game.player.lore.generatorSeen || Game.player.stats.generatorsBought.gte(1);
+      const clicked = Game.player.stats.generatorsBought.gte(1), generated = Game.player.lore.generatorSeen || Game.player.stats.generatorsBought.gte(1);
       const coherent = Game.Coherence.discovered();
       const field = Game.FieldExcitation.discovered() || Game.player.lore.fieldFirstSeen || Game.player.lore.fieldSecondSeen;
       const condensed = Game.player.prestige.times.gt(0);

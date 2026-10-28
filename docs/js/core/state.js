@@ -19,6 +19,7 @@
     });
     return {
       automation: {buyers:buyers},
+      flow:{seedElapsed:D(0),growthElapsed:D(0),pulses:D(0)},
       structure: {economyVersion:1,stabilizations:D(0),bestEnergy:D(0),recoveryTarget:D(0),elapsed:0,recovered:0,recoverySeconds:0,migrated:0},
       symmetry:{amount:D(0),best:D(0),alignment:D(0),alignmentAdded:D(0),pulseElapsed:D(0),upgradeCostAnchor:D(0),upgrades:{unifiedField1:0,unifiedField2:0,quantumCoupling:0,fieldResonance:0,perfectInteraction:0}},
       lateEnergy:{highest:D(0)},
@@ -34,7 +35,7 @@
       autoClick: { elapsed: D(0) },
       disturbanceReplication: { elapsed: D(0), doubles: D(0) },
       resources: {
-        energy: D(0),
+        energy: D(Game.CONFIG.IDLE_FLOW.startingEnergy),
         quantumResonance: D(0),
         energyResonance: D(0)
       },

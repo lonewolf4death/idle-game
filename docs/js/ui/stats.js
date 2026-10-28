@@ -1,9 +1,10 @@
 (function (Game) {
   function text(id, value) {
     const node = document.getElementById(id);
+    if (!node) return;
     if (node.textContent !== value) node.textContent = value;
   }
-  function show(id, visible) { document.getElementById(id).hidden = !visible; }
+  function show(id, visible) { const node=document.getElementById(id);if(node)node.hidden = !visible; }
   function number(value, places) { return Game.Format.number(value, places === undefined ? 5 : places); }
   function multiplier(value) { return "×" + number(value, 6); }
   function increase(value) { return "+" + number(value); }
@@ -101,7 +102,7 @@
         note = "Cycle " + number(s.dynamics.phase, 1) + " / " + s.dynamics.rules.cycle + "s · current " + multiplier(s.dynamics.multiplier) + " · peak " + multiplier(s.dynamics.peak) + ". Both sources build the current all-Energy multiplier; the final " + number(Game.D(s.dynamics.rules.cycle).sub(s.dynamics.rules.rise), 0) + " seconds hold the peak.";
         if (Game.Progression.hasSkill("3-2-2")) note += Game.FieldDynamics.peakPaused() ? " Peak countdown is paused until Fluct is positive; the baseline remains active." : " Peak time is spent only while Fluct is positive.";
       } else if (entry.childBasis === "resonance-growth") {
-        note = number(s.coherence.quantum, 0) + " Resonance held. Raw Resonance strengthens Fluct; the soft cap reduces that potential. Shares compare effects within this boost.";
+        note = number(s.coherence.quantum, 3) + " Resonance held. Raw Resonance strengthens Fluct; the soft cap reduces that potential. Shares compare effects within this boost.";
       } else if (entry.childBasis === "captured-production") {
         note = "Direct Energy portions per click. Captured instant adds 0.25 seconds of the displayed Energy/sec rate until replaced by 1-2-1. Echo of creation adds 1% of per-game-second output and also grants Resonance and field growth. These direct bonuses do not advance clocks.";
       } else {
@@ -187,9 +188,9 @@
       text("stats-click-time-step", Game.Challenges.clicksAllowed()?clickNote:"Hands off challenge · clicks and their Energy, resource and time rewards are disabled.");
       text("stats-generator-total", number(s.generators.perRealSecond));
       this.renderContributions(s, "generators", reveal);
-      this.renderContributions(s, "clicks", reveal);
+
       show("stats-clock-note", showSpeed);
-      text("stats-clock-note", s.speed.eq(0) ? "Game speed ×0 · Timed production is paused. Click Energy remains available." : "Game speed " + multiplier(s.speed) + " · Cycle durations are in game seconds. Generator Energy/sec uses real seconds.");
+      text("stats-clock-note", s.speed.eq(0) ? "Game speed ×0 · Timed production is paused." : "Game speed " + multiplier(s.speed) + " · Cycle durations are in game seconds. Generator Energy/sec uses real seconds.");
       show("stats-empty", !reveal && !Game.CONFIG.GENERATORS.some(function (gen) { return Game.Energy.getOwned(gen.id).gt(0); }));
 
       text("stats-click-base", increase(s.clicks.base));
@@ -259,7 +260,7 @@
       show("stats-speed-row", showSpeed);
       text("stats-speed", multiplier(s.speed));
       text("stats-generator-result", number(s.generators.perRealSecond));
-      text("stats-generator-cadence", s.generators.smooth ? "Smooth production · 25 or more units owned." : "Independent timers · each unit pays " + number(s.generators.burstPerUnit) + " Energy every " + number(s.generators.burstInterval) + "s at current bonuses.");
+      text("stats-generator-cadence", s.generators.smooth ? "Continuous production from the first unit." : "Independent timers · each unit pays " + number(s.generators.burstPerUnit) + " Energy every " + number(s.generators.burstInterval) + "s at current bonuses.");
 
       show("stats-fluct-section", reveal || hasFluct);
       text("stats-fluct-owned", number(s.fluct.owned, 0));
@@ -277,12 +278,12 @@
       show("stats-coherence-section", reveal || hasCoherence);
       text("stats-coherence-owned", number(s.coherence.owned, 0));
       text("stats-coherence-bonus", multiplier(s.coherence.bonus));
-      text("stats-quantum-output", increase(s.coherence.perCycle));
-      text("stats-resonance-output", increase(s.coherence.perCycle) + (Game.Progression.hasSkill("2-4-1") ? " · plus matching ER on each QR cycle" : ""));
+      text("stats-quantum-output", increase(Game.Coherence.quantumPerSecond()));
+      text("stats-resonance-output", increase(Game.Coherence.energyPerSecond()));
       text("stats-quantum-interval", number(s.coherence.quantumInterval) + "s");
       text("stats-resonance-interval", number(s.coherence.energyInterval) + "s");
-      text("stats-quantum-held", number(s.coherence.quantum, 0));
-      text("stats-resonance-added", number(s.coherence.energy, 0));
+      text("stats-quantum-held", number(s.coherence.quantum, 3));
+      text("stats-resonance-added", number(s.coherence.energy, 3));
       show("stats-softcap-row", reveal || s.coherence.softcap.active);
       text("stats-quantum-softcap", s.coherence.softcap.active ? "Active" : "Inactive");
       show("stats-effective-row", reveal);
@@ -292,14 +293,14 @@
 
       show("stats-field-section", reveal || Boolean(hasField));
       text("stats-field-owned", number(s.field.owned, 0));
-      text("stats-field-base", increase(s.field.baseIncrease) + " / sec");
+      text("stats-field-base", increase(s.field.baseIncrease.div(Game.FieldExcitation.referenceInterval())) + " / sec");
       text("stats-field-bonus", multiplier(s.field.bonus));
       show("stats-field-purchased-row", reveal || Game.Progression.hasSkill("4-3-3"));
       text("stats-field-purchased", multiplier(s.field.purchasedMultiplier));
       show("stats-auto-clicks", reveal || Game.Progression.hasSkill("1-2-2"));
       text("stats-auto-clicks", "1-2-2 · " + number(p.stats.autoClicks, 0) + " automatic clicks this run · " + (Game.Energy.autoClickEligible() ? "next in " + number(Game.Energy.autoClickRemaining(), 2) + " game seconds" : "waiting for Disturb to reach its maximum") + ". Automatic clicks apply the same output and time effects as manual clicks.");
       text("stats-field-output", increase(s.field.perCycle) + " / sec");
-      text("stats-field-interval", number(s.field.interval) + "s" + (Game.Progression.hasSkill("2-4-2") ? " · +15s cycle progress per QR cycle" : ""));
+      text("stats-field-interval", number(s.field.interval) + "s" + (Game.Progression.hasSkill("2-4-2") ? " · enhanced by Excitation cascade" : ""));
       text("stats-field-accumulated", increase(s.field.accumulated) + " / sec");
       show("stats-dynamics-section", reveal || s.dynamics.owned5.gt(0) || s.dynamics.owned6.gt(0) || s.dynamics.owned7.gt(0));
       text("stats-oscillation-phase", number(s.dynamics.phase, 1) + " / " + s.dynamics.rules.cycle + "s");

@@ -26,7 +26,8 @@
       const p=Game.player;
       if(false || p.achievements[definition.id]) return true;
       if(definition.kind==='purchased') return this.generator(definition.generator);
-      if(definition.kind==='autoClicks') return Game.Progression.hasSkill('1-2-2');
+      if(definition.kind==='passive') return Game.Progression.hasSkill('1-2-1') || Game.Progression.hasSkill('1-5-2');
+      if(definition.kind==='purchases') return this.generator('energyDisturbance');
       if(definition.kind==='disturb') return p.upgrades.clickPower.gt(0) || p.resources.energy.gte(Game.CONFIG.CLICK_UPGRADE.unlockEnergy);
       if(definition.kind==='patterns') return this.generator('energyDisturbance');
       if(definition.kind==='stabilizations') return p.structure.stabilizations.gt(0) || this.generator('coherentEnergy');
@@ -38,6 +39,10 @@
       Game.UI.views.forEach(function (name) { document.getElementById(name+'-tab').hidden=!Game.Discovery.view(name); });
       const selected=Game.UI.views.find(function (name) { return !document.getElementById(name+'-view').hidden; });
       if(selected && !this.view(selected)) Game.UI.selectView('energy',false);
+      const condensed=Game.player.prestige.times.gt(0),preview=false;
+      const note=document.getElementById('stats-introduction');if(note)note.textContent=condensed||preview?'Production bonuses and the history of condensation.':'Production bonuses.';
+      [['fluctuationSound',this.generator('quantumFluctuation')],['coherentSound',this.generator('coherentEnergy')],['fieldSound',this.generator('fieldExcitation')],['condenseSound',condensed||Game.Prestige.reward().gt(0)],['condenseVisuals',condensed||Game.Prestige.reward().gt(0)],['perkSound',condensed],['perkVisuals',condensed]].forEach(function (entry) { document.getElementById('setting-'+entry[0]).closest('label').hidden=!(preview||entry[1]); });
+      document.getElementById('preview-perk-sound').hidden=!(preview||condensed);
       const history=document.getElementById('stats-condense-tab');history.hidden=!(false || Game.player.prestige.times.gt(0));
       if(history.hidden && Game.StatsUI.page==='condense') Game.StatsUI.selectPage('production');
     }

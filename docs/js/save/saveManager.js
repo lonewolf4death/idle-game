@@ -74,7 +74,7 @@
       if(stage) player.lore.stabilizationSeen=1;
     }
     const structure=player.structure;
-    if(structure.economyVersion!==1 || !structure.stabilizations.eq(structure.stabilizations.floor()) || structure.stabilizations.gt(Game.CONFIG.STRUCTURE.maxStabilizations) || ![structure.recovered,structure.migrated].every(function (v) { return v===0 || v===1; }) || structure.recoverySeconds>structure.elapsed+1e-6) throw new Error('Invalid field structure');
+    if(structure.economyVersion!==1 || !structure.stabilizations.eq(structure.stabilizations.floor()) || ![structure.recovered,structure.migrated].every(function (v) { return v===0 || v===1; }) || structure.recoverySeconds>structure.elapsed+1e-6) throw new Error('Invalid field structure');
     const challengeVersion=data.challenges && data.challenges.rulesVersion;
     if (challengeVersion!==undefined && ![1,2,3].includes(challengeVersion)) throw new Error('Unsupported challenge rules');
     if(player.challenges.active===5 && (challengeVersion===undefined || challengeVersion<2)) {
@@ -101,7 +101,7 @@
     });
     Game.CONFIG.GENERATORS.forEach(function (gen) {
       const state = player.generators[gen.id];
-      if (!state.purchased.eq(state.purchased.floor()) || !state.added.eq(state.added.floor())) throw new Error('Invalid generator count');
+      if (!state.purchased.eq(state.purchased.floor())) throw new Error('Invalid generator count');
     });
     if (!player.stats.manualClicks.eq(player.stats.manualClicks.floor()) || !player.upgrades.clickPower.eq(player.upgrades.clickPower.floor())) throw new Error('Invalid click progression');
     if (!player.stats.autoClicks.eq(player.stats.autoClicks.floor()) || player.stats.autoClicks.gt(player.stats.manualClicks) || player.autoClick.elapsed.gte(Game.CONFIG.PRESTIGE.skills["1-2-2"].interval)) throw new Error('Invalid automatic click progress');
@@ -114,9 +114,10 @@
     if (!Number.isInteger(player.fluctuation.negativeStreak) || ![0, 1].includes(player.fluctuation.negativeStreakAchievement)) throw new Error('Invalid Fluct achievement');
     if (!Number.isInteger(player.fluctuation.negativeStreakLevel) || player.fluctuation.negativeStreakLevel>Game.CONFIG.FLUCT_STREAK_ACHIEVEMENT.tiers.length || ![0,1].includes(player.fluctuation.positiveChanceMastery)) throw new Error('Invalid Fluct achievement levels');
     player.fluctuation.negativeStreak = Math.min(player.fluctuation.negativeStreak, Game.CONFIG.FLUCT_STREAK_ACHIEVEMENT.requiredRolls);
-    if (!player.resources.quantumResonance.eq(player.resources.quantumResonance.floor()) || !player.resources.energyResonance.eq(player.resources.energyResonance.floor()) || !player.stats.totalQuantumResonance.eq(player.stats.totalQuantumResonance.floor()) || player.stats.totalQuantumResonance.lt(player.resources.quantumResonance)) throw new Error('Invalid resonance resources');
+    if (player.stats.totalQuantumResonance.lt(player.resources.quantumResonance)) throw new Error('Invalid resonance resources');
     if (![0, 1].includes(player.unlocks.fluctOdds) || ![0, 1].includes(player.unlocks.fieldExcitation) || !Object.values(player.ui.collapsed).every(function (value) { return value === 0 || value === 1; })) throw new Error('Invalid interface settings');
     if (![0, 1].includes(player.ui.skillTree2D)) throw new Error('Invalid tree view');
+    if(player.flow.seedElapsed.gte(Game.CONFIG.IDLE_FLOW.seedInterval)||player.flow.growthElapsed.gte(Game.CONFIG.IDLE_FLOW.growthInterval)||!player.flow.pulses.eq(player.flow.pulses.floor())) throw new Error('Invalid formation progress');
     if (player.coherence.quantumCarry.gte(1) || player.coherence.energyCarry.gte(1)) throw new Error('Invalid resonance progress');
     if (player.fieldExcitation.elapsed.gte(Game.CONFIG.FIELD_EXCITATION.interval)) throw new Error('Invalid Field Excitation timer');
     if (player.fieldDynamics.elapsed.gte(player.prestige.skills["3-2-3"] ? Game.CONFIG.PRESTIGE.skills["3-2-3"].cycle : Game.CONFIG.FIELD_DYNAMICS.cycle)) throw new Error('Invalid Field Oscillation timer');

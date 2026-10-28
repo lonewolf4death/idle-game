@@ -10,8 +10,8 @@
     captureAchievements: function (player) {
       const p = player || Game.player, a = p.achievements;
       Game.Symmetry.captureUpgradePricing(p);
-      a.firstSparks = Number(Boolean(a.firstSparks || p.stats.manualClicks.gte(Game.CONFIG.CLICK_ACHIEVEMENT.requiredClicks)));
-      a.firstGenerator = Number(Boolean(a.firstGenerator || p.stats.generatorsBought.gte(1)));
+      a.firstSparks = Number(Boolean(a.firstSparks || p.stats.generatorsBought.gte(1)));
+      a.firstGenerator = Number(Boolean(a.firstGenerator || p.stats.generatorsBought.gte(10)));
       a.growingEngine = Number(Boolean(a.growingEngine || p.generators.energyDisturbance.purchased.gte(25)));
       a.coherentBeginning = Number(Boolean(a.coherentBeginning || p.generators.coherentEnergy.purchased.gte(1)));
       a.condense = Number(Boolean(a.condense || p.prestige.times.gt(0)));
@@ -181,7 +181,7 @@
       const required=definition.amount==="max" ? Game.Modifiers.getClickUpgradeRules().maxLevel : definition.amount;
       return definition.exact ? amount.eq(required) : amount.gte(required);
     },
-    rewardText: function (definition) { if(definition.reward==='none') return 'Milestone only · no production reward';if(definition.reward==='power') return 'All Energy gains raised to '+definition.multiplier+' (generator rate per game second)'+(definition.id==='allChallenges'?' · Disturb stays maxed through all run resets':'');return "×"+definition.multiplier+" "+({clicks:"click Energy",generators:"generator production",energy:"all Energy"}[definition.reward]); },
+    rewardText: function (definition) { if(definition.reward==='none') return 'Milestone only · no production reward';if(definition.reward==='power') return 'All Energy gains raised to '+definition.multiplier+' (generator rate per game second)';return "×"+definition.multiplier+" "+({clicks:"click Energy",generators:"generator production",energy:"all Energy"}[definition.reward]); },
     capture: function (player, notify) {
       const p=player||Game.player;
       Game.CONFIG.DISCOVERY_ACHIEVEMENTS.forEach(function (definition) {

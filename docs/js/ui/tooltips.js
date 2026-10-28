@@ -8,7 +8,7 @@
       const state=Game.Progression.quantaBonusState();
       return "Each bonus Quanta multiplies all Energy gains by ×"+Game.CONFIG.PRESTIGE.quantaEnergyBase+" until the bonus reaches ×"+Game.Format.number(state.cap,0)+", at about "+Game.Format.number(state.threshold,2)+" Quanta. Above that soft cap, every ×10 increase in the bonus requires ×10 as much Quanta. The bonus stays continuous at the threshold and keeps growing. "+(state.active?"Soft cap active. ":"")+"Spending Quanta can lower this bonus immediately. "+(Game.Progression.hasSkill("4-4-2")?"Lasting potential uses whichever is higher: unspent Quanta or half lifetime Quanta. Both follow the same soft cap. ":"")+"Current bonus basis: "+Game.Format.number(state.basis,1)+" Quanta. Purchased skills survive Condensing.";
     } },
-    fieldOscillation: { terms: ["Field Oscillation"], title: "Field Oscillation", text: function () { const rules = Game.FieldDynamics.rules(); return "Each owned Gen 5 unit contributes ×1.25 to the peak Energy multiplier. Purchased patterns strengthen the peak and the dependable baseline. The shared " + rules.cycle + "-second cycle rises exponentially from its current baseline for " + rules.rise + " seconds, holds its peak for " + Game.D(rules.cycle).sub(rules.rise).toString() + " seconds, and restarts." + (Game.Progression.hasSkill("3-2-2") ? " At peak, negative Fluct returns output to its baseline and pauses the remaining peak countdown until Fluct is positive again." : "") + " All Energy gains receive the current effect. Resonance resources and permanent base boosts use their existing bonuses."; } },
+    fieldOscillation: { terms: ["Field Oscillation"], title: "Field Oscillation", text: function () { const rules = Game.FieldDynamics.rules(); return "Each owned Gen 5 unit contributes ×1.25 to the peak Energy multiplier. Purchased patterns strengthen the peak and the dependable baseline. The shared " + rules.cycle + "-second cycle rises exponentially from its current baseline for " + rules.rise + " seconds, holds its peak for " + Game.D(rules.cycle).sub(rules.rise).toString() + " seconds, and restarts." + (Game.Progression.hasSkill("3-2-2") ? " Its peak is ×1.5 stronger. At peak, negative Fluct returns output to its baseline and pauses the remaining peak countdown until Fluct is positive again." : "") + " All Energy gains receive the current effect. Resonance resources and permanent base boosts use their existing bonuses."; } },
     fieldResonance: { terms: ["Field Resonance"], title: "Field Resonance", text: function () { return "Each owned Gen 6 unit multiplies Field Oscillation's combined peak by ×" + Game.FieldDynamics.rules().resonancePerUnit + ". Purchased patterns strengthen this effect. A quarter of its logarithmic strength also reinforces Oscillation's baseline. It requires an owned Field Oscillation to affect Energy. Purchased and added units both count." + (Game.Progression.hasSkill("3-5-2") ? " Purchased Gen 7 units also contribute: " + Game.Format.number(Game.Energy.getSharedResonance(), 0) + "." : "") + (Game.Progression.hasSkill("3-5-1") ? " Logarithmic harmony multiplies the combined count by ×" + Game.Format.number(Game.Energy.resonanceCountMultiplier(), 3) + " (log₂ of raw held QR, minimum ×1). Effective count: " + Game.Format.number(Game.Energy.getProductionCount("fieldResonance"), 3) + "." : ""); } },
     fieldCoupling: { terms: ["Field Coupling"], title: "Field Coupling", text: "Each owned Gen 7 unit makes every purchased Disturb level add one effective Field Excitation. Coupled units join its shared cycle and boost future base-rate increases. Purchase costs and achievements still count only purchased units. Coupled units are derived from current levels, rather than permanently added." },
     fluct: {
@@ -61,6 +61,35 @@
       }
     }
   };
+  const known=function (id) { return false || Game.Discovery.generator(id); };
+  Object.assign(entries,{
+    quantumSoftcap:{title:"Quantum Resonance · diminishing returns",text:function () { const state=Game.Coherence.quantumSoftcapState();return "Diminishing returns affect only Quantum Resonance's contribution to Fluct. The resource count and production keep growing normally. Current effective Resonance: "+Game.Format.number(state.effective,4)+"; current effect exponent: "+Game.Format.number(state.power,2)+"."+(false&&state.next?" Next threshold: "+Game.Format.number(state.next,0)+".":""); }},
+    echoes:{title:"Echoes",text:function () {
+      const p=Game.player;
+      return "Completing a purchased resonance pattern sends an echo to the previous generator: a lasting ×1.10 production-strength bonus. Echoes multiply together and benefit purchased and added units."+(known('quantumFluctuation')?" For example, a completed Quantum Fluctuation pattern strengthens Energy Disturbance.":"")+" They last until the current field is rebuilt."+(false||p.structure.stabilizations.gt(0)||p.lore.stabilizationSeen?" Stabilizing starts a new field and clears its echoes.":"")+(false||p.prestige.times.gt(0)?" Condense also clears the current field's echoes.":"");
+    }},
+    energyDisturbance:{terms:["Energy Disturbances","Energy Disturbance"],title:"Energy Disturbance",text:function () {
+      return "Each unit produces Energy continuously from the moment it is owned. Paid purchases complete repeating 4 / 6 / 8 / 12 resonance patterns, multiplying output. Added units benefit without filling patterns."+(known('fieldExcitation')?" Field Excitation raises every Energy Disturbance's base output.":"");
+    }},
+    fluct:{terms:["Fluct"],title:"Fluct",text:function () {
+      return "A changing multiplier applied to Energy production. Quantum Fluctuation rolls every "+Game.Modifiers.getFluctuationRules().rollInterval+" game seconds. Purchases and completed patterns build stable strength; positive and negative rolls apply ×"+(Game.Progression.hasSkill('2-2')?"1.32":"1.20")+" and ×0.80 around it."+(known('coherentEnergy')?" Quantum Resonance reinforces this strength without changing roll probabilities.":"");
+    }},
+    quantumResonance:{terms:["Quantum Resonance"],title:"Quantum Resonance",text:function () {
+      const c=Game.Coherence,rules=c.rules(),cap=c.quantumSoftcapState();
+      return "Coherent Energy produces Quantum Resonance every game second. Current rate: "+Game.Format.number(c.quantumPerSecond(),5)+" per second. It strengthens Fluct without changing positive or negative chance. Production resistance grows for every "+rules.quantumSlowdownEvery+" produced, reducing the amount in each one-second payout."+(cap.active||false?" Its Fluct effect has diminishing returns starting at "+rules.quantumSoftcap.start+" Resonance; the actual resource amount keeps growing normally.":"");
+    }},
+    energyResonance:{terms:["Energy Resonance"],title:"Energy Resonance",text:function () {
+      return "Coherent Energy produces Energy Resonance every game second. Each unit of Energy Resonance adds one Energy Disturbance; fractional output adds fractional generator units immediately. Added units produce normally without increasing purchase costs or filling patterns. Current production: "+Game.Format.number(Game.Coherence.energyPerSecond(),5)+" per second.";
+    }},
+    fieldExcitation:{terms:["Field Excitation"],title:"Field Excitation",text:function () {
+      return "Adds to Energy Disturbance's base output every game second. The baseline is 0.01 base Energy/sec of growth per unit across 30 seconds, delivered as smaller one-second increases. Purchasing grants its immediate base-output increase as before. Patterns, echoes and generator production bonuses strengthen the growth. Current combined growth: +"+Game.Format.number(Game.FieldExcitation.growthPerSecond(),7)+" base Energy/sec each second.";
+    }},
+    fieldCoupling:{terms:["Field Coupling"],title:"Field Coupling",text:"Each owned Field Coupling makes every purchased Energy Disturbance contribute one effective Field Excitation. Purchased patterns strengthen coupling. Added Gen 1 units do not increase this contribution; effective Field Excitations increase base growth without raising purchase costs."},
+    coherentEnergy:{terms:["Coherent Energy"],title:"Coherent Energy",text:"Produces Quantum Resonance and Energy Resonance in one-second payouts. Quantum Resonance strengthens Fluct; Energy Resonance adds Energy Disturbances. Purchased patterns and echoes multiply both outputs."},
+    lateEnergy:{title:"Late Energy resistance",text:function () { return "Above 1e1000, each ten-exponent band adds resistance to Energy production. Existing bonuses still contribute. Spending Energy does not reset the reached band."+(Game.Symmetry.unlocked()?" Symmetry applies after this resistance.":"")+(Game.Symmetry.discovered(.5)?" Unified Interaction Energy bonuses also apply afterwards.":""); }},
+    symmetry:{title:"Symmetry",text:function () { return "S = Symmetry / 100%. The Energy multiplier is 10^(100 × S⁴), reaching ×1e100 at 100%. Current bonus: ×"+Game.Format.number(Game.Symmetry.multiplier(),5)+". Condense resets current Symmetry and Field Alignment. Achievements do not improve Symmetry generator output."+(Game.Symmetry.discovered(.5)||false?" Purchased Unified Interaction upgrades survive Condense.":"")+(Game.Symmetry.discovered(1)||false?" Perfect Interaction raises the Symmetry multiplier to the power of 1.15.":""); }},
+    quantaBonus:{title:"Primordial Quanta · Energy bonus",text:function () { const state=Game.Progression.quantaBonusState();return "Each unspent Quanta multiplies Energy by ×1.03. Spending Quanta can lower this bonus immediately. Current basis: "+Game.Format.number(state.basis,2)+" Quanta; current bonus: ×"+Game.Format.number(state.multiplier,5)+"."+(Game.Progression.hasSkill('4-4-2')?" Lasting potential uses the greater of unspent Quanta or half of lifetime Quanta.":"")+(state.active||false?" Above ×1e25, every ×10 increase in the bonus requires ×10 as much bonus Quanta.":""); }}
+  });
   let tooltip, active, timer;
   function hide() {
     clearTimeout(timer);
@@ -94,6 +123,7 @@
     }, 1000);
   }
   Game.Tooltips = {
+    text: function (key) { const entry=entries[key];return entry ? typeof entry.text==="function"?entry.text():entry.text : ""; },
     enrich: function (element) {
       const terms = Object.keys(entries).flatMap(function (key) {
         return (entries[key].terms || []).map(function (term) { return { key: key, term: term }; });

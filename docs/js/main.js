@@ -3,7 +3,6 @@
     Game.Save.load();
     Game.UI.init();
     Game.Experience.init();
-    Game.PotentialBubble.init();
     Game.UI.render();
     Game.Loop.start();
 

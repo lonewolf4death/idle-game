@@ -57,10 +57,10 @@
       return index<3 || index>=7 || p.structure.stabilizations.gte(index-2) || p.generators[gen.id].purchased.add(p.generators[gen.id].added).gt(0);
     },
     multiplier: function () { return D(Game.CONFIG.STRUCTURE.strengthPerStabilization).pow(Game.player.structure.stabilizations); },
-    condenseMemory: function () { return D(2).pow(Decimal.min(8,Game.player.prestige.times)); },
-    goal: function () { const n=Game.player.structure.stabilizations.toNumber();return {energy:D(10).pow(6+4*n+n*n),patterns:8+4*n,quantum:D(25).mul(D(3).pow(n))}; },
+    condenseMemory: function () { return D(2).pow(Decimal.min(8,Game.Progression.effectiveCondenses())); },
+    goal: function () { const n=Game.player.structure.stabilizations.toNumber();return {energy:D(10).pow(n<4?6+4*n+n*n:100*Math.pow(4,n-4)),patterns:8+4*n,quantum:D(25).mul(D(3).pow(n))}; },
     canStabilize: function () {
-      if(Game.Challenges.active() || Game.player.structure.stabilizations.gte(Game.CONFIG.STRUCTURE.maxStabilizations)) return false;
+      if(Game.Challenges.active()) return false;
       const goal=this.goal();return Game.player.resources.energy.gte(goal.energy) && Game.Patterns.total()>=goal.patterns && Game.player.resources.quantumResonance.gte(goal.quantum);
     },
     seed: function (fresh) {
@@ -68,7 +68,7 @@
       // bypass structural gates but retain their own starting restrictions.
       const count=fresh.challenges.active?4:Math.min(4,fresh.prestige.times.toNumber()+(fresh.prestige.skills['3-1']?1:0));
       fresh.structure.stabilizations=D(fresh.achievements.allChallenges?4:count);
-      fresh.resources.energy=Decimal.max(fresh.resources.energy,fresh.structure.stabilizations.gt(0)?D(100).mul(fresh.structure.stabilizations):D(0));
+      fresh.resources.energy=Decimal.max(fresh.resources.energy,Game.CONFIG.IDLE_FLOW.startingEnergy);
     },
     advance: function (realSeconds) {
       const state=Game.player.structure;state.elapsed+=realSeconds;
@@ -88,7 +88,7 @@
       ['negativeStreakAchievement','negativeStreakLevel','positiveChanceMastery'].forEach(function (key) { fresh.fluctuation[key]=old.fluctuation[key]; });
       Game.Automation.preserve(old,fresh);
       fresh.structure.stabilizations=next;fresh.structure.bestEnergy=high;fresh.structure.recoveryTarget=high;
-      fresh.resources.energy=D(100).mul(next);
+      fresh.resources.energy=D(Game.CONFIG.IDLE_FLOW.startingEnergy);
       if(fresh.prestige.skills['3-2']) fresh.generators.fieldOscillation.added=D(Game.CONFIG.PRESTIGE.skills['3-2'].startingOscillations);
       if(fresh.prestige.skills['3-4-2']) fresh.generators.fieldCoupling.added=D(Game.CONFIG.PRESTIGE.skills['3-4-2'].startingCouplings);
       Game.player=fresh;
@@ -122,9 +122,9 @@
   E.fluctFormulaText=function () { return 'Stable strength = (1.25 + 0.02 × owned Gen 2) × purchased-pattern strength × echoes × (1 + 0.1 × log10(1 + effective QR)) × rhythm × Symmetry coupling. Positive Fluct applies ×1.20 to this strength; negative Fluct applies ×0.80. Both signs benefit from every purchase. QR is outside the Gen 2 exponent.'; };
   E.buyGenerator=function (id,amount) {
     const gen=this.getGenerator(id);if(!gen) return false;
-    const pattern=Game.Patterns.forGenerator(id).index,field=id==='fieldExcitation'?Game.FieldExcitation.boostPerCycle():D(0);
+    const pattern=Game.Patterns.forGenerator(id).index,field=id==='fieldExcitation'?Game.FieldExcitation.purchaseBoost():D(0);
     if(!buy.call(this,id,amount)) return false;
-    if(id==='fieldExcitation') Game.player.fieldExcitation.baseRateBonus=Game.player.fieldExcitation.baseRateBonus.add(Decimal.max(0,Game.FieldExcitation.boostPerCycle().sub(field)));
+    if(id==='fieldExcitation') Game.player.fieldExcitation.baseRateBonus=Game.player.fieldExcitation.baseRateBonus.add(Decimal.max(0,Game.FieldExcitation.purchaseBoost().sub(field)));
     Game.Patterns.completed(gen,pattern);return true;
   };
   const output=Game.Coherence.outputPerCycle,fieldOutput=Game.FieldExcitation.boostPerCycle,resonance=F.resonance;

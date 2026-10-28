@@ -124,7 +124,7 @@
         if (!Game.Prestige.canRespec()) return;
         const dialog=byId("respec-dialog");
         setText(byId("respec-refund"), "Refund "+number(Game.Prestige.respecRefund())+" Primordial Quanta");
-        setText(byId("respec-description"), "Clear all purchased skills and restart this run. Energy, generators, Disturb, Resonance, field growth, Symmetry, Field Alignment and run timers reset. Keep Unified Interaction upgrades, discovered features, achievements, lore, total playtime, lifetime Condenses and earned Quanta. This grants no Condense reward.");
+        setText(byId("respec-description"), "Clear all purchased skills and restart this run. Energy, generators, Resonance, field growth, Symmetry, Field Alignment and run timers reset. Keep Unified Interaction upgrades, discovered features, achievements, lore, total playtime, lifetime Condenses and earned Quanta. This grants no Condense reward.");
         setText(byId("confirm-respec"), "Respec · restart run");
         dialog.classList.remove("is-dismissing");byId("confirm-respec").disabled=false;byId("cancel-respec").disabled=false;dialog.showModal();byId("cancel-respec").focus();
       });
@@ -187,8 +187,7 @@
       setText(byId("skill-detail-name"), definition ? definition.name : "Unformed potential");
       let description = definition ? definition.description : "This part of the constellation has yet to take shape. Its effect and cost will be designed later.";
       if (selected === "0-0") description += " Current bonus: ×" + Game.Format.number(Game.Progression.hasSkill("0-0") ? Game.Progression.condenseMemoryMultiplier() : Game.D(definition.energyPerCondense).pow(Game.Progression.effectiveCondenses()), 5) + " from " + number(p.prestige.times) + " lifetime Condenses" + (Game.Progression.hasSkill("4-3-1") ? " (" + number(Game.Progression.effectiveCondenses()) + " effective)" : "") + ".";
-      if (selected === "1-2" && Game.Progression.hasSkill("1-2-1")) description += " Replaced by 1-2-1: clicks now advance all generators by 0.33 game seconds instead of granting this Energy-only payout.";
-      if (selected === "3-3" && Game.Progression.hasSkill("3-4-3")) description += " Upgraded by 3-4-3: the current bonus is ×1.2 for two adjacent generators.";
+      if (selected === "3-3" && Game.Progression.hasSkill("3-4-3")) description += " Upgraded by 3-4-3: the current bonus is ×1.5 for two adjacent generators.";
       setText(byId("skill-detail-description"), description);
       const afterSpend=Decimal.max(0,p.prestige.quanta.sub(definition.cost));
       const afterBasis=Decimal.max(afterSpend,Game.Progression.hasSkill("4-4-2") || selected==="4-4-2" ? p.prestige.totalQuanta.div(2) : 0);

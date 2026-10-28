@@ -4,8 +4,8 @@
     editingCondenseTarget:false,
     definition: function (id) { return Game.CONFIG.AUTOMATION.buyers.find(function (buyer) { return buyer.id === id; }); },
     advanced: function (id) { const buyer=this.definition(id);return !!buyer && Game.Progression.hasSkill(buyer.skill); },
-    basic: function (id) { return id!=='condense' && !!this.definition(id) && (Game.player.prestige.times.gt(0) || Game.player.structure.stabilizations.gte(1) && Game.CONFIG.GENERATORS.findIndex(function (g) { return g.id===id; })<3); },
-    unlocked: function (id) { return this.advanced(id) || this.basic(id); },
+    basic: function (id) { return id!=='condense' && !!this.definition(id) && Game.player.prestige.times.gt(0); },
+    unlocked: function (id) { return Game.player.prestige.times.gt(0) && (this.advanced(id) || this.basic(id)); },
     interval: function (id) { return this.advanced(id) ? (50 - 4 * Game.player.automation.buyers[id].level) / 10 : Game.CONFIG.STRUCTURE.basicBuyerInterval; },
     active: function (id) { return !Game.Challenges.active() && !Game.Challenges.confirming && !(Game.StructureUI && Game.StructureUI.confirming) && !(id==='condense' && this.editingCondenseTarget) && this.unlocked(id) && !!Game.player.settings.autoBuyers[id]; },
     parseCondenseTarget: function (input) {
@@ -81,8 +81,8 @@
       c.bestEnergy=Decimal.max(c.bestEnergy,p.resources.energy);
       if(c.bestEnergy.gte(this.goal()) && (!this.active(1) || c.purchases>=this.definition().requiredPurchases)) c.qualified=1;
     },
-    unlocked: function (index) { this.observe();return Game.Automation.advanced(this.buyer(index).id) && Game.player.challenges.highestEnergy.gte(this.definition(index).unlockEnergy); },
-    clicksAllowed: function () { return true; },
+    unlocked: function (index) { this.observe();return Game.player.prestige.times.gt(0) && Game.Automation.advanced(this.buyer(index).id) && Game.player.challenges.highestEnergy.gte(this.definition(index).unlockEnergy); },
+    clicksAllowed: function () { return false; },
     allowedGenerator: function (id) { const rule=this.definition();return !rule || !rule.blocked || !rule.blocked.includes(id); },
     produces: function (id) { return this.allowedGenerator(id) && (!this.active(6) || Game.CONFIG.GENERATORS[Game.player.challenges.latestGenerator-1]?.id===id); },
     addedAllowed: function (id) { return this.allowedGenerator(id); },

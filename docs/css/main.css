@@ -879,5 +879,7 @@ summary.contribution-row { cursor:pointer; }
 .condense-active #skill-map { flex:1 0 300px; min-height:300px; }
 .skill-tree-heading + .tree-branch-nav { flex-shrink:0; }
 
+.energy-field { cursor:default; }.stats-overview { grid-template-columns:1fr; }
+
 /* Public edition: the third desktop column balances the centered resource. */
 @media(min-width:761px){.topbar{min-height:110px}}

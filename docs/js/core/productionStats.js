@@ -22,13 +22,14 @@
 
     fluctBreakdown: function (s) {
       const enabled = Game.Challenges.produces('quantumFluctuation') && s.fluct.owned.gt(0), rules = s.fluct.rules;
-      const rawGrowth = D(1).add(s.coherence.quantum.add(1).log10()*.1);
+      const rawGrowth = D(1).add(s.coherence.quantum.add(1).log10()*.1*(Game.Progression.hasSkill("2-3-3")?Number(Game.CONFIG.PRESTIGE.skills["2-3-3"].resonanceEffectMultiplier):1));
       const effectiveGrowth = Game.Energy.fluctGrowth();
       const resonance = [
         { id: "raw-resonance", label: "Raw Resonance potential", factor: enabled ? rawGrowth : D(1) },
         { id: "resonance-softcap", label: "Soft-cap reduction", factor: enabled ? effectiveGrowth.div(rawGrowth) : D(1), tip: "quantumSoftcap" }
       ];
       const entries = [
+        {id:"deferred-resistance",label:"4-4-1 · Deferred resistance",factor:enabled&&Game.Progression.hasSkill("4-4-1")?D(Game.CONFIG.PRESTIGE.skills["4-4-1"].fluctStrengthMultiplier):D(1)},
         { id: "fluct-base", label: "Stable purchased strength", factor: enabled ? D(1.25).add(s.fluct.owned.mul(.02)) : D(1) },
         { id: "fluct-units", label: "Purchased resonance patterns", factor: enabled ? Game.Patterns.multiplier('quantumFluctuation') : D(1), owned: s.fluct.owned },
         {
@@ -39,7 +40,7 @@
       ];
       entries.push({id:"fluct-symmetry-coupling",label:"75% Symmetry · cross-generator coupling",factor:enabled?Game.Symmetry.crossMultiplier("quantumFluctuation"):D(1)});
       entries.push({ id: "fluct-focus", label: "3-3 · Wandering rhythm", factor: enabled ? s.fluct.focus : D(1) });
-      entries.push({id:'fluct-roll',label:s.fluct.positive?'Positive roll · +20%':'Negative roll · −20%',factor:enabled?Game.Energy.fluctRollFactor():D(1)});
+      entries.push({id:'fluct-roll',label:s.fluct.positive?'Positive roll · +'+Game.Format.number(Game.Energy.fluctRollFactor().sub(1).mul(100),0)+'%':'Negative roll · −20%',factor:enabled?Game.Energy.fluctRollFactor():D(1)});
       // These factors build M. A negative roll transforms the combined M using
       // the softened penalty; the individual strength sources are not penalties.
       return { enabled: enabled, magnitude: enabled ? s.fluct.magnitude : D(1), entries: this.withShares(entries, enabled) };
@@ -51,6 +52,8 @@
       const output = generator ? amount.perRealSecond : amount.total;
       const active = output.gt(0);
       const achievements = generator ? [
+        {id:"first-signal",label:"First signal",factor:a.firstSparks},
+        {id:"first-chorus",label:"An emerging chorus",factor:a.firstGenerator},
         { id: "growing", label: "A growing engine", factor: a.growingEngine },
         { id: "coherent", label: "A coherent beginning", factor: a.coherentBeginning }
       ] : [
@@ -82,10 +85,13 @@
         color: "base", base: true, children: children, childBasis: "output"
       }];
       if (generator) {
+        entries.push({id:"gathered-momentum",label:"1-2 · Gathered momentum",factor:D(Game.Progression.hasSkill("1-2")?Game.CONFIG.PRESTIGE.skills["1-2"].generatorEnergyMultiplier:1),color:"quanta"});
+        entries.push({id:"living-field",label:"1-2-1 · Living field",factor:D(Game.Progression.hasSkill("1-2-1")?Game.CONFIG.PRESTIGE.skills["1-2-1"].generatorEnergyMultiplier:1),color:"quanta"});
+        entries.push({id:"perpetual-formation",label:"1-2-2 · Perpetual formation",factor:D(Game.Progression.hasSkill("1-2-2")?Game.CONFIG.PRESTIGE.skills["1-2-2"].productionMultiplier:1),color:"quanta"});
         entries.push({id:'resonance-patterns',label:'Purchased Gen 1 patterns and echoes',factor:Game.Patterns.multiplier('energyDisturbance'),color:'field'});
         entries.push({ id: "purchased-base", label: "1-3-1 · Accumulated disturbance", factor: amount.purchasedMultiplier, color: "quanta" });
         entries.push({ id: "field", label: "Gen 4 · Field Excitation", factor: amount.baseRate.add(amount.fieldBonus).div(amount.baseRate), color: "field" });
-        entries.push({ id: "shorter-intervals", label: "Production cycle bonuses · 4-3-2 / 1-4-2", factor: amount.cadence, color: "quanta" });
+        entries.push({ id: "shorter-intervals", label: "Production cycle bonuses · 4-3-2 / 1-4-2", factor: amount.cadence.mul(Game.Progression.hasSkill("4-3-2")?Game.CONFIG.PRESTIGE.skills["4-3-2"].productionMultiplier:1), color: "quanta" });
         entries.push({ id: "count-power", label: "1-3-2 · Gathering potential", factor: amount.countMultiplier, color: "quanta" });
         entries.push({ id: "generator-focus", label: "3-3 · Wandering rhythm", factor: amount.focus, color: "quanta" });
       }
@@ -95,7 +101,7 @@
       entries.push({ id: "condense-memory", label: "0-0 · Memory of condensation", factor: s.prestige.condenseMemory, color: "quanta" });
       entries.push({id:'stabilizations',label:'Stabilized field',factor:Game.Structure.multiplier(),color:'field'});
       entries.push({id:'condense-rebuild',label:'Condense history · faster rebuilding',factor:Game.Structure.condenseMemory(),color:'quanta'});
-      entries.push({id:'first-quanta',label:'First Quanta · foundation perks',factor:D(Game.Progression.hasSkill('1-1')?Game.CONFIG.PRESTIGE.skills['1-1'].foundationMultiplier:1).mul(Game.Progression.hasSkill('2-1')?Game.CONFIG.PRESTIGE.skills['2-1'].foundationMultiplier:1).mul(Game.Progression.hasSkill('4-1')?Game.CONFIG.PRESTIGE.skills['4-1'].foundationMultiplier:1),color:'quanta'});
+      entries.push({id:'first-quanta',label:'First Quanta · foundation perks',factor:D(Game.Progression.hasSkill('1-1')?Game.CONFIG.PRESTIGE.skills['1-1'].foundationMultiplier:1).mul(Game.Progression.hasSkill('2-1')?Game.CONFIG.PRESTIGE.skills['2-1'].foundationMultiplier:1).mul(Game.Progression.hasSkill('4-1')?Game.CONFIG.PRESTIGE.skills['4-1'].foundationMultiplier:1).mul(Game.Progression.hasSkill('3-1')?Game.CONFIG.PRESTIGE.skills['3-1'].foundationMultiplier:1),color:'quanta'});
       if(!generator) entries.push({id:'disturb-patterns',label:'Disturb resonance patterns',factor:D(Game.CONFIG.STRUCTURE.clickStrength).pow(Game.Patterns.state(Game.player.upgrades.clickPower).index),color:'field'});
       if (!generator) entries.push({ id: "skills", label: "1-1 · Focused disturbance", factor: s.prestige.clickMultiplier, color: "quanta" });
       if (!generator && !Game.Challenges.clicksAllowed()) entries.push({id:"challenge",label:"Hands off · clicks disabled",factor:D(0),color:"slowdown"});
@@ -188,7 +194,7 @@
           focus: Game.Progression.generatorFocusMultiplier("quantumFluctuation")
         },
         coherence: {
-          owned: coherenceOwned, bonus: generatorAchievements.mul(Game.Progression.hasSkill("4-1")?Game.CONFIG.PRESTIGE.skills["4-1"].coherenceMultiplier:1),
+          owned: coherenceOwned, bonus: coherenceOwned.gt(0)?Game.Coherence.outputPerCycle().div(coherenceOwned):D(1),
           perCycle: Game.Coherence.outputPerCycle(),
           quantum: p.resources.quantumResonance, energy: p.resources.energyResonance,
           quantumInterval: Game.Coherence.quantumInterval(), energyInterval: Game.Coherence.energyInterval(),

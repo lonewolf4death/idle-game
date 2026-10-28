@@ -76,7 +76,7 @@
         "2-1": { name: "Biased potential", cost: "1", positiveChanceBonus: 0.05, description: "Add +5 percentage points to positive Fluct chance and reduce negative chance by 5 percentage points. Stacks additively with other chance bonuses. Unlocking also reveals your current Fluct probabilities." },
         "1-2-1": { name: "A step through time", cost: "5", requires: "1-2", gameSeconds: "0.33", description: "Replace Captured instant's Energy-only payout. Each manual click now advances game time by 0.33 seconds for all generators, including Resonance, Fluct rolls, field growth, and Oscillation. Timed Energy is produced through the simulation; ordinary click Energy is still granted separately." },
         "2-1-2": { name: "Rebounding potential", cost: "10", requires: "2-1", secondsPerNegative: "1", minimumInterval: "1", description: "Each consecutive negative Fluct roll shortens the next roll interval by 1 game second. Two negatives shorten it by 2 seconds, three by 3, and so on. A positive roll resets the reduction. The interval cannot fall below 1 game second. Combines with Quickening potential." },
-        "3-2-1": { name: "Held in anticipation", cost: "5", requires: "3-2", freezeBeforePeak: "0.25", description: "Unlock a toggle on Gen 5 (Field Oscillation). When enabled, its cycle freezes 0.25 game seconds before peak. Click the Energy field or Release peak to apply the peak when you choose. Other generators and game time continue normally." },
+        "3-2-1": { name: "Held in anticipation", cost: "5", requires: "3-2", freezeBeforePeak: "0.25", description: "Unlock a toggle on Gen 5 (Field Oscillation). When enabled, its cycle freezes 0.25 game seconds before peak. Use Release peak to apply the peak when you choose. Other generators and game time continue normally." },
         "2-2": { name: "Quickening potential", cost: "5", requires: "2-1", rollInterval: "6.66666", description: "Gen 2 (Quantum Fluctuation) rolls every 6.66666 game seconds instead of 10. Keeps the current cycle's progress when unlocked." },
         "3-1": { name: "Lasting oscillation", cost: "1", peakSeconds: "10", description: "Gen 5 (Field Oscillation) rises for 50 seconds and holds its peak for 10 seconds. Total cycle: 60 seconds." },
         "3-2": { name: "First rhythm", cost: "10", requires: "3-1", startingOscillations: "1", description: "Begin each run with 1 free Gen 5 (Field Oscillation). Unlocking this skill also grants it to your current run. Free units count as added, not purchased." },
@@ -200,7 +200,7 @@
     {name:"Fading momentum",unlockEnergy:"1e125",startExponent:15,exponentStep:6,description:"Energy production falls continuously to 85% of its previous strength each real second. Any successful generator or Disturb purchase resets this suppression."}
   ];
   Game.CONFIG.CHALLENGES[4].unlockEnergy="1e95";
-  Game.CONFIG.SYMMETRY={cost:"10000",baseCost:"1e1000",costScaling:"1e10",costExponentGrowth:"2",starterPurchases:8,starterCostScaling:"1.1",production:"0.0003",unitProductionLimit:"0.00015",totalProductionLimit:"0.0006",upgradeCostAnchorFloor:1200,alignmentEnergyBase:"1e3",
+  Game.CONFIG.SYMMETRY={cost:"10000",baseCost:"1e1000",costScaling:"1e10",costExponentGrowth:"2",starterPurchases:8,starterCostScaling:"1.1",production:"0.0003",unitProductionLimit:"0.00015",totalProductionLimit:"0.000635",upgradeCostAnchorFloor:1200,alignmentEnergyBase:"1e3",
     lore:"The laws of physics are still indistinguishable from one another.",
     milestones:[
       {at:.1,type:'Aligned fields',reward:'Double raw Field Alignment generation. Alignment resistance still applies.'},
@@ -231,7 +231,7 @@
     Game.CONFIG.PRESTIGE.branches.find(function (branch) { return branch.id===Number(buyer.skill[0]); }).nodes.push(buyer.skill);
   });
   Game.CONFIG.STRUCTURE = {
-    economyVersion: 1, patterns: [4, 6, 8, 12], echoStrength: "1.10", pricePower:1.455, latePatternStart:32, latePatternResistance:.18, clickStrength:"1.15", clickPriceGrowth:4,
+    economyVersion: 1, patterns: [4, 6, 8, 12], echoStrength: "1.10", pricePower:1.436, latePatternStart:32, latePatternResistance:.35, clickStrength:"1.15", clickPriceGrowth:4,
     strengthPerStabilization: "12", maxStabilizations: 12,
     lore: "The field releases its accumulated energy. A pattern survives. What once emerged by chance can now be formed again.",
     basicBuyerInterval: 15
@@ -273,4 +273,45 @@
   skills["4-1"].description="Multiply all Energy by ×2 and both Coherent Energy Resonance outputs by ×2. Space Quantum Resonance soft-cap thresholds ×3.3 apart instead of ×3; the first remains at 100. A stronger foundation for rebuilding and Stabilizing.";
   skills["4-2"].energyMultiplier="2";
   skills["4-2"].description="Multiply all Energy gained by ×2. Combines multiplicatively with other Energy bonuses.";
+  Game.CONFIG.IDLE_FLOW={startingEnergy:"100",seedInterval:10,seedAmount:"1",growthInterval:60};
+  delete Game.CONFIG.STRUCTURE.maxStabilizations;
+  Game.CONFIG.GENERATORS[0].smoothAt=0;
+  Game.CONFIG.CLICK_ACHIEVEMENT.multiplier="1.03";Game.CONFIG.CLICK_ACHIEVEMENT.requiredClicks="1";
+  const idleSkills={
+    "1-1":{name:"Focused production",cost:"1",description:"Multiply all Energy production by ×4. Applies immediately and to every future run."},
+    "1-2":{name:"Gathered momentum",cost:"2",generatorEnergyMultiplier:"2",description:"Double Energy Disturbance output, including all accumulated Field Excitation growth."},
+    "1-2-1":{name:"Living field",cost:"4",generatorEnergyMultiplier:"1.25",description:"Multiply Energy Disturbance output by ×1.25. While it is producing, gain one added Energy Disturbance every 10 game seconds. Added units benefit from patterns without raising purchase prices."},
+    "1-2-2":{name:"Perpetual formation",cost:"12",interval:"10",productionMultiplier:"1.5",description:"Multiply Energy Disturbance production and both Coherent Energy and Field Excitation outputs by ×1.5. Applies continuously."},
+    "1-4-2":{cost:"3",description:"Purchased Energy Disturbances improve their production efficiency: multiply output by 30 / max(1, 30 − 0.025 × purchased). Added units receive the same efficiency bonus."},"1-3-1":{cost:"6"},"1-3-2":{cost:"8"},
+    "1-4-1":{name:"Shared foundation",cost:"10",supportPerPattern:"1.03",description:"Each completed purchased Energy Disturbance pattern multiplies both Resonance outputs and Field Excitation growth by ×1.03. Applies to past and future patterns."},
+    "1-5-1":{cost:"40"},
+    "1-5-2":{name:"Patient formation",cost:"8",description:"Every 60 game seconds, add one unit of each Primordial generator that is already owned and producing. These are added units; prices and purchased patterns are unchanged."},
+    "2-1-2":{cost:"1"},"2-2":{cost:"1",positiveStrengthMultiplier:"1.1",description:"Fluct rolls every 6.66666 game seconds instead of 10. Positive Fluct reinforcement is 10% stronger, applying ×1.32 around stable strength instead of ×1.20."},
+    "2-3-1":{cost:"4",resonanceOutputMultiplier:"1.5",quantumSlowdownSeconds:"0.5",description:"Multiply both Resonance outputs by ×1.5 and halve the rate at which Quantum Resonance production resistance grows. Payouts still arrive every second."},
+    "2-3-2":{cost:"4",description:"Energy Resonance output is calculated from 25 seconds of reference work instead of 30, increasing its production by 20%. Payouts still arrive every second."},
+    "2-3-3":{cost:"3",resonanceEffectMultiplier:"1.5",quantumSlowdownEvery:"20",description:"Quantum Resonance production resistance increases every 20 produced instead of every 10. Strengthen its contribution to Fluct by 50%. Combines with Gentler resistance."},
+    "2-4-1":{cost:"6",energyResonanceMultiplier:"1.25",description:"Normal Energy Resonance production is ×1.25 stronger. Every second, Quantum Resonance production also creates an equal amount of extra Energy Resonance."},
+    "2-4-2":{cost:"3",fieldOutputMultiplier:"1.25",description:"Multiply Field Excitation output by ×1.25. Quantum Resonance production also accelerates it. Each second contributes 15 divided by the current Quantum Resonance reference-work duration as extra seconds of field growth. Excess work carries forward."},
+    "3-1":{foundationMultiplier:"2",description:"Multiply all Energy by ×2. Start runs with one extra Stabilization, up to the four opening unlocks. Field Oscillation holds its peak for 10 seconds in its 60-second cycle. Applies immediately."},"3-2-2":{cost:"3",peakMultiplier:"1.5",description:"Strengthen the Field Oscillation peak by ×1.5. At peak, its multiplier and countdown are active only during positive Fluct. Negative Fluct returns output to the baseline and pauses the remaining peak time."},"3-2-3":{cost:"5"},"3-2":{cost:"5"},"3-3":{cost:"3",generatorMultiplier:"1.3",description:"A ×1.3 output-strength bonus moves through the seven Primordial generators, advancing every 30 game seconds. It strengthens the current generator's production or effect."},
+    "3-4-1":{cost:"8"},"3-4-2":{cost:"15"},"3-4-3":{cost:"10",generatorMultiplier:"1.5",description:"Wandering rhythm now strengthens two adjacent Primordial generators by ×1.5 each. The pair advances every 30 game seconds."},
+    "3-5-1":{cost:"100"},"3-5-2":{cost:"6"},
+    "4-3-1":{cost:"6",description:"Lifetime Condenses count twice for both Memory of condensation and the remembered Energy bonus. Applies retroactively; starting Stabilizations are unchanged."},"4-3-2":{name:"Efficient formation",cost:"4",intervalReduction:"0",productionMultiplier:"1.25",description:"Multiply Energy Disturbance production, both Resonance outputs and Field Excitation growth by ×1.25. Payouts keep their current cadence."},
+    "4-3-3":{cost:"10",description:"Each purchased Field Excitation multiplies its base-growth output by ×1.01. Added and coupled units benefit without increasing the exponent."},
+    "4-4-1":{cost:"4",fluctStrengthMultiplier:"1.25",description:"Multiply stable Fluct strength by ×1.25. Quantum Resonance effect resistance starts at 150 instead of 100; later thresholds shift with it."},"4-4-2":{cost:"15"}
+  };
+  Object.entries(idleSkills).forEach(function (entry) { Object.assign(Game.CONFIG.PRESTIGE.skills[entry[0]],entry[1]); });
+  delete Game.CONFIG.PRESTIGE.skills["1-1"].clickMultiplier;
+  ["1-2","1-2-1","1-4-1"].forEach(function (id) { delete Game.CONFIG.PRESTIGE.skills[id].productionSeconds;delete Game.CONFIG.PRESTIGE.skills[id].gameSeconds;delete Game.CONFIG.PRESTIGE.skills[id].outputSeconds; });
+  Game.CONFIG.PRESTIGE.branches[1].name="Foundation";
+  const idleAutomationParents=["1-2","2-2","2-3-2","4-3-3","3-2-1","3-4-1","3-4-2","4-3-1"],idleAutomationCosts=[10,15,20,25,30,40,50,50];
+  Game.CONFIG.AUTOMATION.buyers.forEach(function (buyer,index) {
+    const skill=Game.CONFIG.PRESTIGE.skills[buyer.skill];skill.cost=String(idleAutomationCosts[index]);skill.requires=idleAutomationParents[index];
+    skill.description=(index===7?"Automatically Condense when the available reward reaches your chosen Quanta target.":"Buy the maximum affordable "+Game.CONFIG.GENERATORS[index].name+" each activation.")+" Starts at one attempt every 5 real seconds. Its restricted-run challenge improves this to 1 second at level ten. Configure buyers in Automation. Requires at least one completed Condense.";
+  });
+  const replaceAchievement=function (id,changes) { Object.assign(Game.CONFIG.DISCOVERY_ACHIEVEMENTS.find(function (a) { return a.id===id; }),changes); };
+  replaceAchievement("thousandClicks",{name:"An assembled field",kind:"purchases",amount:"1000",reward:"generators",requirement:"Purchase 1,000 Primordial generators in one run."});
+  replaceAchievement("perfectDisturb",{name:"Resonant architecture",kind:"patterns",amount:"25",multiplier:"1.02",requirement:"Complete 25 purchased resonance patterns in one run."});
+  replaceAchievement("firstImpulse",{name:"A field that persists",kind:"passive",reward:"energy",multiplier:"1.02",requirement:"Receive the first added generator from Living field or Patient formation."});
+  Object.values(Game.CONFIG.PRESTIGE.skills).forEach(function (skill) { skill.description=skill.description.replace(/manually purchased/gi,"purchased"); });
+  Game.CONFIG.CHALLENGES.forEach(function (rule) { rule.description=rule.description.replace(/; click payouts are transformed once\./,".").replace(/, Disturb/g,"").replace(/ and Disturb/g,"").replace(/ or Disturb/g,"");if(rule.devDescription)rule.devDescription=rule.devDescription.replace(/ Disturb grants extra levels up to its normal cap\./,""); });
 })(window.CosmicIdle);
