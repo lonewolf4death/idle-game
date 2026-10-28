@@ -27,9 +27,20 @@
       const gen=Game.Energy.getGenerator(id),zero={count:D(0),cost:D(0),gain:D(0)};
       if(!Game.Energy.generatorEnabled(gen)) return zero;
       let n=Game.player.generators[id].purchased.toNumber(),count=0,cost=D(0),pattern=this.state(n);
-      const limit=Math.min(Game.Challenges.purchaseLimit(id),amount==='max'?Infinity:amount==='pattern'?pattern.remaining:Number(amount||1));
+      const max=amount==='max',requested=max?Infinity:amount==='pattern'?pattern.remaining:Number(amount===undefined?1:amount);
+      if(!max && (!Number.isSafeInteger(requested) || requested<=0 || requested>1000)) return zero;
+      const allowed=Game.Challenges.purchaseLimit(id),limit=max?allowed:requested;
       if(!(limit>0)) return zero;
       const budget=Game.player.resources.energy;
+      if(!max) {
+        while(count<limit) {
+          pattern=this.state(n);
+          const take=Math.min(pattern.remaining,limit-count);
+          cost=cost.add(this.price(gen,n).mul(take));count+=take;n+=take;
+        }
+        const affordable=requested<=allowed && cost.lte(budget);
+        return {count:D(affordable?requested:0),requested:D(requested),cost:cost,gain:D(affordable?requested:0).mul(Game.Challenges.purchaseQuantity())};
+      }
       while(count<limit) {
         pattern=this.state(n);
         const price=this.price(gen,n),space=Math.min(pattern.remaining,limit-count);
@@ -41,7 +52,7 @@
         cost=cost.add(price.mul(take));count+=take;n+=take;
         if(take<space) break;
       }
-      return {count:D(count),cost:cost,gain:D(count).mul(Game.Challenges.purchaseQuantity())};
+      return {count:D(count),requested:D(count || 1),cost:count?cost:this.price(gen),gain:D(count).mul(Game.Challenges.purchaseQuantity())};
     },
     completed: function (gen,before) {
       const crossed=this.forGenerator(gen.id).index-before;

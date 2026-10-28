@@ -7,9 +7,16 @@
     views: ["energy", "prestige", "achievements", "stats", "lore", "challenges", "automation", "settings"],
     generatorNodes: {},
     buyAmount: 1,
+    currentView: "energy",
+    previousView: "energy",
+
+    activateTab: function (name) {
+      this.selectView(name === this.currentView ? this.previousView : name);
+    },
 
     selectView: function (name, focusTab) {
       if(!this.views.includes(name) || !Game.Discovery.view(name)) name="energy";
+      if(name !== this.currentView) { this.previousView=this.currentView;this.currentView=name; }
       document.body.classList.toggle("condense-active", name === "prestige");
       document.body.classList.toggle("achievements-active", name === "achievements");
       document.body.classList.toggle("stats-active", name === "stats");
@@ -32,7 +39,7 @@
     },
 
     notifyAchievement: function (name, reward) {
-      Game.Experience.enqueue({ kind: "Achievement unlocked", title: name || "First sparks", text: reward || "×" + Game.CONFIG.CLICK_ACHIEVEMENT.multiplier + " Energy per click" });
+      Game.AchievementNotices.enqueue({ title: name || "Achievement unlocked", text: reward || "" });
     },
     autoClickFeedback: function () {
       if (Game.Loop && Game.Loop.catchingUp) return;
@@ -145,7 +152,7 @@
       Game.StatsUI.init();
       this.views.forEach(function (view) {
         const tab = byId(view + "-tab");
-        tab.addEventListener("click", function () { Game.UI.selectView(view); });
+        tab.addEventListener("click", function () { Game.UI.activateTab(view); });
         tab.addEventListener("keydown", function (event) {
           if (["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
             event.preventDefault();
@@ -301,8 +308,7 @@
       setText(byId("existence-structure"), p.lore.fieldSecondSeen ? "Fields" : "None");
       const production = Game.Energy.getProductionPerSecond();
       byId("energy-field").classList.toggle("is-resonant", Game.Energy.getOwned("energyDisturbance").gte(25));
-      setText(byId("energy-display"), Game.Format.number(p.resources.energy));
-      setText(byId("center-energy"), p.resources.energy.lt(1000) ? p.resources.energy.toNumber().toFixed(2) : Game.Format.number(p.resources.energy));
+      Game.EnergyDisplay.render(p.resources.energy);
       Game.Experience.updateLore();
       setText(byId("energy-rate"), "+" + Game.Format.number(production.mul(Game.Time.getGameSpeed())) + " / sec (average)");
       const focus = Game.Progression.generatorFocus();
@@ -371,7 +377,7 @@
           const description = "Base production: " + Game.Format.number(Game.Energy.getBaseRate(gen).mul(Game.Energy.burstInterval(gen)), 5) + " Energy every " + Game.Energy.burstInterval(gen).toString() + "s each · " + Game.Format.number(Game.Energy.getBaseRate(gen), 5) + " Energy/sec average";
           if (node.description.textContent !== description) node.description.textContent = description;
         }
-        setText(node.buy, quote.count.gt(0) ? "Buy " + Game.Format.number(quote.count, 0) + (quote.gain && quote.gain.gt(quote.count)?" → "+Game.Format.number(quote.gain,0)+" units":"") + " — " + Game.Format.number(quote.cost) + " Energy" : "Buy 1 — " + Game.Format.number(Game.Energy.getGeneratorCost(gen)) + " Energy");
+        setText(node.buy, "Buy " + Game.Format.number(quote.requested || quote.count, 0) + (quote.count.gt(0) && quote.gain && quote.gain.gt(quote.count)?" → "+Game.Format.number(quote.gain,0)+" units":"") + " — " + Game.Format.number(quote.cost) + " Energy");
         if (Game.Challenges.active() && !Game.Challenges.allowedGenerator(gen.id)) setText(node.buy,"Unavailable in this challenge");
         else if(Game.Challenges.purchaseLimit(gen.id)===0) setText(node.buy,"Challenge limit · 10 purchased");
         node.buy.disabled = quote.count.lte(0);

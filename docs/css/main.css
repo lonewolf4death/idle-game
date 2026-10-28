@@ -34,6 +34,15 @@ button.danger { color: var(--disturbance); }
 .muted { color: var(--muted); }
 .header-energy .label { font-size: 10px; letter-spacing: .18em; }
 #energy-display { color: var(--energy); font-size: 30px; font-weight: 400; line-height: 1.3; letter-spacing: -.03em; overflow-wrap: anywhere; animation: energy-breathe 6s ease-in-out infinite; }
+#energy-display,#center-energy { white-space:nowrap; overflow-wrap:normal; }
+.achievement-notice { position:fixed; z-index:60; top:14px; right:14px; width:min(340px,calc(100vw - 28px)); max-height:calc(100vh - 28px); overflow:auto; padding:16px 18px 12px; border:1px solid #6a6250; border-left:3px solid var(--energy); border-radius:3px; background:#11191df5; box-shadow:0 10px 32px #0007; font-size:12px; pointer-events:none; }
+.achievement-notice button { pointer-events:auto; }
+.achievement-notice .label { font-size:10px; color:var(--energy); }
+.achievement-notice h2 { font-size:15px; font-weight:400; margin:6px 0; }
+.achievement-notice p { margin:6px 0 12px; color:var(--muted); overflow-wrap:anywhere; }
+.achievement-notice-actions { display:flex; align-items:center; justify-content:space-between; gap:12px; color:var(--muted); font-size:10px; }
+.achievement-notice-actions button { padding:4px 10px; }
+.achievement-notice.is-dismissing { opacity:0; transition:opacity 2s ease-out; pointer-events:none; }
 .header-energy .muted { font-size: 11px; }
 #fluct-display { color: var(--fluct); }
 @keyframes energy-breathe { 0%,100% { opacity:.78; } 50% { opacity:1; } }

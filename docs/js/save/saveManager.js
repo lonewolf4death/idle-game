@@ -240,6 +240,7 @@
     hardReset: function () {
       if (!confirm('Erase all progress, including Primordial Quanta, achievements, lore, playtime, and recovery backups? This replaces your current save.')) return;
       Game.resetPlayer();
+      if (Game.AchievementNotices) Game.AchievementNotices.clear();
       [backupKey,protectedKey,loadedKey].forEach(function(key){try { localStorage.setItem(key,''); } catch(error) { /* Best effort after explicit reset. */ }});
       if (Game.Experience) Game.Experience.syncPlayer();
       this.save();

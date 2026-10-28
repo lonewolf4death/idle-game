@@ -45,7 +45,7 @@
       text(el('field-alignment-owned'),'Purchased: '+number(p.symmetry.alignment,0)+' + '+number(p.symmetry.alignmentAdded,0)+' added · Total: '+number(S.alignmentOwned(),0));
       text(el('field-alignment-output'),number(S.unitProduction().mul(100),5)+'% per level / game second before shared field resistance'+(S.reached(.1)?' · Aligned fields active':''));
       const quote=S.quote(Game.UI.buyAmount),buy=el('buy-field-alignment');buy.disabled=quote.count.lte(0);
-      text(buy,quote.count.gt(0)?'Buy '+number(quote.count,0)+' — '+number(quote.cost)+' Energy':'Buy 1 — '+number(S.cost())+' Energy');
+      text(buy,'Buy '+number(quote.requested || quote.count,0)+' — '+number(quote.cost)+' Energy');
       el('field-alignment-scaling').hidden=!reveal;text(el('field-alignment-scaling'),'SGen1 · first 8 prices scale ×1.1, then cost jumps ×1e10, ×1e20, ×1e40… · shared production limit '+number(Game.D(Game.CONFIG.SYMMETRY.totalProductionLimit).mul(100),5)+'% / game second');
       el('symmetry-locked-note').hidden=open;
       el('unified-interaction').hidden=!(S.discovered(.5)||reveal);

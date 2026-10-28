@@ -115,10 +115,61 @@
     }
   };
 
+  // Achievement notices never open a modal or move focus away from play.
+  // Keep this queue separate from lore so run resets cannot discard it.
+  Game.AchievementNotices = {
+    queue: [], timer: null, dismissTimer: null, dismissing: false,
+    place: function () {
+      const card=byId('achievement-notice');
+      if(card.hidden) return;
+      const header=document.querySelector('.topbar').getBoundingClientRect(),tabs=document.querySelector('.view-tabs').getBoundingClientRect();
+      // Short headers leave no room for a toast. Keep the tab row clear.
+      card.style.top=(header.bottom>=card.offsetHeight+22?14:Math.max(14,tabs.bottom+10))+'px';
+    },
+    enqueue: function (message) {
+      this.queue.push({title:message.title,text:message.text});
+      this.render();
+      if(this.queue.length===1) this.schedule();
+    },
+    render: function () {
+      const card=byId('achievement-notice'),message=this.queue[0];
+      card.hidden=!message;
+      if(!message) return;
+      const values={'achievement-notice-title':message.title,'achievement-notice-reward':message.text,'achievement-notice-count':this.queue.length>1?(this.queue.length-1)+' waiting':'1 notification'};
+      Object.keys(values).forEach(function (id) { if(byId(id).textContent!==values[id]) byId(id).textContent=values[id]; });
+      byId('achievement-notice-dismiss').disabled=this.dismissing;
+      this.place();
+    },
+    schedule: function () {
+      clearTimeout(this.timer);
+      if(this.queue.length && !this.dismissing && Game.player.settings.autoDismiss)
+        this.timer=setTimeout(function () { Game.AchievementNotices.dismiss(); },6000);
+    },
+    dismiss: function () {
+      if(!this.queue.length || this.dismissing) return;
+      this.dismissing=true;clearTimeout(this.timer);
+      byId('achievement-notice').classList.add('is-dismissing');this.render();
+      this.dismissTimer=setTimeout(function () {
+        const notices=Game.AchievementNotices;
+        notices.queue.shift();notices.dismissing=false;
+        byId('achievement-notice').classList.remove('is-dismissing');
+        notices.render();notices.schedule();
+      },2000);
+    },
+    clear: function () {
+      clearTimeout(this.timer);clearTimeout(this.dismissTimer);
+      this.queue=[];this.dismissing=false;
+      byId('achievement-notice').classList.remove('is-dismissing');this.render();
+    }
+  };
+
   Game.Experience = {
     queue: [], active: null, timer: null, dismissTimer: null, dismissing: false, loreKey: '',
     introduction: 'Existence contains potential, but no meaningful structure has formed.',
-    enqueue: function (message) { this.queue.push(message); this.next(); },
+    enqueue: function (message) {
+      if(message.kind==='Achievement unlocked') { Game.AchievementNotices.enqueue(message);return; }
+      this.queue.push(message); this.next();
+    },
     next: function () {
       if (this.active || !this.queue.length || byId('respec-dialog').open || byId('challenge-dialog').open || Game.CondenseFX && Game.CondenseFX.active) return;
       this.active = this.queue.shift();
@@ -179,6 +230,7 @@
       byId('setting-volume').value = settings.volume;
       byId('setting-visuals').value = settings.visuals;
       Game.Audio.updateVolume(); this.loreKey = ''; this.updateLore();
+      Game.AchievementNotices.schedule();
       if (deferMessages) return;
       this.resumeMessages();
     },
@@ -195,6 +247,12 @@
       document.addEventListener('pointerdown', function () { Game.Audio.start(true); }, {capture:true});
       document.addEventListener('keydown', function () { Game.Audio.start(true); }, {capture:true});
       byId('story-dismiss').addEventListener('click', function () { Game.Experience.dismiss(); });
+      byId('achievement-notice-dismiss').addEventListener('click', function () { Game.AchievementNotices.dismiss(); });
+      if(window.ResizeObserver) {
+        const observer=new ResizeObserver(function () { Game.AchievementNotices.place(); });
+        [byId('achievement-notice'),document.querySelector('.topbar'),document.querySelector('.view-tabs')].forEach(function (node) { observer.observe(node); });
+        Game.AchievementNotices.observer=observer;
+      }
       byId('story-dialog').addEventListener('click', function (event) { if (event.target === this) Game.Experience.dismiss(); });
       byId('story-dialog').addEventListener('cancel', function (event) { event.preventDefault(); });
       ['sound','muteUnfocused','perkSound','perkVisuals','generatorSound','fluctuationSound','coherentSound','fieldSound','condenseSound','condenseVisuals','autoDismiss','volume','visuals'].forEach(function (key) {
@@ -202,7 +260,7 @@
         input.addEventListener(key === 'volume' ? 'input' : 'change', function () {
           Game.player.settings[key] = this.type === 'checkbox' ? Number(this.checked) : Number(this.value);
           if (key === 'sound' && this.checked) Game.Audio.start();
-          Game.Audio.updateVolume(); Game.Experience.schedule(); Game.Save.save();
+          Game.Audio.updateVolume(); Game.Experience.schedule(); Game.AchievementNotices.schedule(); Game.Save.save();
           if (key === 'perkVisuals' && !this.checked) Game.PerkFX.clear();
             if (key === 'visuals') { byId('energy-effects').innerHTML = ''; Game.FieldWaves.clear();
       if (Game.PotentialBubble) Game.PotentialBubble.clear(); }

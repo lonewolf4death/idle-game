@@ -69,16 +69,18 @@
       if(amount==='pattern') amount=1;
       if(!this.unlocked()) return {count:D(0),cost:D(0)};
       const money=Game.player.resources.energy,start=Game.player.symmetry.alignment;
-      const limit=amount==='max'?Infinity:Math.max(0,Math.floor(Number(amount)||0));
+      const max=amount==='max',limit=max?Infinity:Number(amount===undefined?1:amount);
+      if(!max && (!Number.isSafeInteger(limit) || limit<=0 || limit>1000)) return {count:D(0),cost:D(0)};
       let count=0,cost=D(0);
       // Exponentially growing exponents bound Max to a few dozen affordable
       // levels, even with enormous Energy. Sum actual prices, not a geometric series.
       while(count<limit) {
         const next=cost.add(this.cost(start.add(count)));
-        if(!Number.isFinite(next.mantissa) || !Number.isFinite(next.exponent) || next.gt(money)) break;
+        if(max && (!Number.isFinite(next.mantissa) || !Number.isFinite(next.exponent) || next.gt(money))) break;
         cost=next;count++;
       }
-      return {count:D(count),cost:cost};
+      const affordable=Number.isFinite(cost.mantissa) && Number.isFinite(cost.exponent) && cost.lte(money);
+      return {count:D(!max && !affordable?0:count),requested:D(max?(count || 1):limit),cost:max && !count?this.cost():cost};
     },
     buy:function (amount) {
       const quote=this.quote(amount);if(quote.count.lte(0)) return false;
