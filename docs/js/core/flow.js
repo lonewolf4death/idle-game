@@ -51,7 +51,7 @@
   function knownCoherence() { return C.discovered() || Game.UI && false; }
   C.quantumWorkInterval=function () { const rules=this.rules();return P.productionInterval(D(rules.quantumInterval).add(Game.player.stats.totalQuantumResonance.div(rules.quantumSlowdownEvery).floor().mul(rules.quantumSlowdownSeconds))); };
   C.energyWorkInterval=function () { return P.productionInterval(this.rules().energyInterval); };
-  C.quantumInterval=C.energyInterval=function () { return D(1); };
+  C.quantumInterval=C.energyInterval=function () { return Game.Offline && Game.Offline.fastGameStep ? Decimal.max(1,Game.Offline.fastGameStep) : D(1); };
   C.quantumPerSecond=function () { return this.outputPerCycle().div(this.quantumWorkInterval()); };
   C.baseEnergyPerSecond=function () { return this.outputPerCycle().div(this.energyWorkInterval()).mul(P.hasSkill("2-4-1")?Game.CONFIG.PRESTIGE.skills["2-4-1"].energyResonanceMultiplier:1); };
   C.energyPerSecond=function () { return this.baseEnergyPerSecond().add(P.hasSkill('2-4-1')?this.quantumPerSecond():0); };
@@ -67,22 +67,25 @@
     const s=Game.player.coherence;
     // Snapshot both rates before granting QR; a payout never strengthens itself.
     const qr=this.quantumPerSecond(),er=this.baseEnergyPerSecond(),work=this.quantumWorkInterval();
-    if(s.quantumElapsed.add(1e-12).gte(1)) {
-      s.quantumElapsed=Decimal.max(0,s.quantumElapsed.sub(1));this.grantOutput('quantumResonance',qr);
-      if(P.hasSkill('2-4-1'))this.grantOutput('energyResonance',qr);
-      if(P.hasSkill('2-4-2')&&Game.Challenges.produces('fieldExcitation')&&E.getOwned('fieldExcitation').gt(0))Game.player.fieldExcitation.elapsed=Game.player.fieldExcitation.elapsed.add(D(Game.CONFIG.PRESTIGE.skills['2-4-2'].fieldSeconds).div(work));
+    const cadence=this.quantumInterval(),quantumCycles=s.quantumElapsed.add(1e-12).div(cadence).floor(),energyCycles=s.energyElapsed.add(1e-12).div(cadence).floor();
+    if(quantumCycles.gt(0)) {
+      const elapsed=cadence.mul(quantumCycles);
+      s.quantumElapsed=Decimal.max(0,s.quantumElapsed.sub(elapsed));this.grantOutput('quantumResonance',qr.mul(elapsed));
+      if(P.hasSkill('2-4-1'))this.grantOutput('energyResonance',qr.mul(elapsed));
+      if(P.hasSkill('2-4-2')&&Game.Challenges.produces('fieldExcitation')&&E.getOwned('fieldExcitation').gt(0))Game.player.fieldExcitation.elapsed=Game.player.fieldExcitation.elapsed.add(D(Game.CONFIG.PRESTIGE.skills['2-4-2'].fieldSeconds).div(work).mul(elapsed));
       if(Game.UI)Game.UI.resonanceFeedback('quantumResonance');
     }
-    if(s.energyElapsed.add(1e-12).gte(1)) {
-      s.energyElapsed=Decimal.max(0,s.energyElapsed.sub(1));this.grantOutput('energyResonance',er);
+    if(energyCycles.gt(0)) {
+      const elapsed=cadence.mul(energyCycles);
+      s.energyElapsed=Decimal.max(0,s.energyElapsed.sub(elapsed));this.grantOutput('energyResonance',er.mul(elapsed));
       if(Game.UI)Game.UI.resonanceFeedback('energyResonance');
     }
   };
   F.referenceInterval=function () { return P.productionInterval(Game.CONFIG.FIELD_EXCITATION.interval); };
-  F.interval=function () { return D(1); };
+  F.interval=function () { return C.quantumInterval(); };
   F.purchaseBoost=function () { return fieldOutput.call(this).mul(Game.Flow.supportMultiplier()).mul(P.hasSkill("2-4-2")?Game.CONFIG.PRESTIGE.skills["2-4-2"].fieldOutputMultiplier:1); };
-  F.boostPerCycle=function () { return this.purchaseBoost().div(this.referenceInterval()); };
-  F.growthPerSecond=function () { return this.boostPerCycle().mul(D(1).add(P.hasSkill('2-4-2')&&Game.Challenges.produces('coherentEnergy')&&E.getOwned('coherentEnergy').gt(0)?D(Game.CONFIG.PRESTIGE.skills['2-4-2'].fieldSeconds).div(C.quantumWorkInterval()):0)); };
+  F.boostPerCycle=function () { return this.purchaseBoost().div(this.referenceInterval()).mul(this.interval()); };
+  F.growthPerSecond=function () { return this.boostPerCycle().div(this.interval()).mul(D(1).add(P.hasSkill('2-4-2')&&Game.Challenges.produces('coherentEnergy')&&E.getOwned('coherentEnergy').gt(0)?D(Game.CONFIG.PRESTIGE.skills['2-4-2'].fieldSeconds).div(C.quantumWorkInterval()):0)); };
   const peak=Game.FieldDynamics.basePeak;
   Game.FieldDynamics.basePeak=function () { return peak.call(this).mul(P.hasSkill('3-2-2')?Game.CONFIG.PRESTIGE.skills['3-2-2'].peakMultiplier:1); };
   const matches=Game.Achievements.matches;

@@ -301,6 +301,7 @@
     },
 
     render: function () {
+      if(Game.Offline && Game.Offline.processing) return;
       const p = Game.player;
       Game.Discovery.sync();
       if (Game.PotentialBubble) Game.PotentialBubble.update();

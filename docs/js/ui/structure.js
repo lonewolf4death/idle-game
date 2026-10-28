@@ -92,5 +92,5 @@
   };
   const init=Game.UI.init,render=Game.UI.render;
   Game.UI.init=function () { init.call(this);Game.StructureUI.init(); };
-  Game.UI.render=function () { render.call(this);Game.StructureUI.render(); };
+  Game.UI.render=function () { if(Game.Offline && Game.Offline.processing)return;render.call(this);Game.StructureUI.render(); };
 })(window.CosmicIdle);

@@ -102,6 +102,7 @@
       if(fresh.prestige.skills['3-2']) fresh.generators.fieldOscillation.added=D(Game.CONFIG.PRESTIGE.skills['3-2'].startingOscillations);
       if(fresh.prestige.skills['3-4-2']) fresh.generators.fieldCoupling.added=D(Game.CONFIG.PRESTIGE.skills['3-4-2'].startingCouplings);
       Game.player=fresh;
+      if(Game.Offline && Game.Offline.processing)Game.Offline.stabilizations++;
       Game.Achievements.capture(fresh,true);
       if(Game.Loop && !automated) { Game.Loop.accumulator=0;Game.Loop.lastTime=performance.now(); }
       if(Game.Experience) Game.Experience.syncPlayer();

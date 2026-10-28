@@ -190,6 +190,7 @@
         if(this.observedRaw!==undefined && previous!==this.observedRaw) { protect(previous,'Another tab or game copy changed this save. Export this run before choosing which save to keep.');return false; }
         Game.player.lateEnergy.highest=Decimal.max(Game.player.lateEnergy.highest,Game.player.resources.energy);
         Game.Progression.captureAchievements();
+        Game.player.time.lastActiveAt=Game.Offline?Game.Offline.timestamp():Date.now();
         const raw=encode();if(previous && previous!==raw) preserve(previous,'Previous save');
         localStorage.setItem(Game.CONFIG.SAVE_KEY,raw);this.observedRaw=raw;
         status('Saved. Autosave every 10 seconds.');

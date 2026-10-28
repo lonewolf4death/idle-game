@@ -20,6 +20,8 @@ Progress saves in your browser. Settings includes Export, Import and rolling rec
 
 Auto-Stabilize unlocks after the first Condense and starts disabled. Its interval averages all other unlocked buyer intervals, including auto-Condense; disabled buyers still count. It supports individual/all toggles and later refinements. Ready auto-Condense rewards take priority. Challenges, reset confirmations and editing the Condense target pause it. Background catch-up and development time skips continue across automatic Stabilization.
 
+Offline progress uses a saved activity timestamp and a return panel for unprocessed gaps of ten seconds or more. Choose accurate simulation, faster approximate checkpoints, or skip the remaining time. Completed progress is retained when skipping; active challenges use accurate mode. The panel reports Energy balances, earned Quanta and automatic resets without revealing undiscovered systems. Pending autosaves preserve the unprocessed cursor, preventing duplicated rewards or lost pending time on refresh. Time already processed in the background is not counted again.
+
 ## Public edition
 
 The current game is in docs/, deployed by the GitHub Pages workflow. The public edition contains no developer reveal control, development multipliers, time skipping or development-only respec. Sound starts after your first interaction and can be adjusted in Settings. No installation, external assets or backend are required.

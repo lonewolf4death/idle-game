@@ -64,9 +64,13 @@
       }
     },
     pump: function (now) {
+      if(Game.Offline && Game.Offline.busy) { this.lastTime=now;return; }
       const elapsed = Math.max(0, (now - this.lastTime) / 1000);
       this.lastTime = now;
       this.accumulator += elapsed;
+      if(Game.Offline && this.accumulator>=10) {
+        const gap=this.accumulator;this.accumulator=0;Game.Offline.offer(gap);return;
+      }
       this.catchingUp = this.accumulator > 1;
       try {
         // Normal play stays at 20 TPS. Delayed timers catch up in one-second chunks;

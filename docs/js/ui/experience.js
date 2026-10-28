@@ -25,6 +25,7 @@
       } catch (error) { byId('audio-status').textContent = 'Sound is unavailable in this browser. You can keep playing silently.'; }
     },
     shouldMute: function () {
+      if(Game.Offline && Game.Offline.busy) return true;
       return !!Game.player.settings.muteUnfocused && (document.hidden || !document.hasFocus());
     },
     updateVolume: function () {
@@ -133,7 +134,7 @@
     },
     render: function () {
       const card=byId('achievement-notice'),message=this.queue[0];
-      card.hidden=!message;
+      card.hidden=!message || !!(Game.Offline && Game.Offline.busy);
       if(!message) return;
       const values={'achievement-notice-title':message.title,'achievement-notice-reward':message.text,'achievement-notice-count':this.queue.length>1?(this.queue.length-1)+' waiting':'1 notification'};
       Object.keys(values).forEach(function (id) { if(byId(id).textContent!==values[id]) byId(id).textContent=values[id]; });
@@ -142,6 +143,7 @@
     },
     schedule: function () {
       clearTimeout(this.timer);
+      if(Game.Offline && Game.Offline.busy) return;
       if(this.queue.length && !this.dismissing && Game.player.settings.autoDismiss)
         this.timer=setTimeout(function () { Game.AchievementNotices.dismiss(); },6000);
     },
@@ -171,6 +173,7 @@
       this.queue.push(message); this.next();
     },
     next: function () {
+      if(Game.Offline && Game.Offline.busy) return;
       if (this.active || !this.queue.length || byId('respec-dialog').open || byId('challenge-dialog').open || Game.CondenseFX && Game.CondenseFX.active) return;
       this.active = this.queue.shift();
       const dialog = byId('story-dialog');

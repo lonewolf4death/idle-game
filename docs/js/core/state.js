@@ -51,6 +51,7 @@
         gameSpeedMultiplier: D(1)
       },
       time: {
+        lastActiveAt: 0,
         realPlayed: 0,
         currentEnergyRunReal: 0,
         currentEnergyRunPartial: 0,

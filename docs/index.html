@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cosmic Idle — Energy</title>
-  <link rel="stylesheet" href="css/main.css?v=09b1d8e7536b" />
+  <link rel="stylesheet" href="css/main.css?v=f1d2c9042860" />
 </head>
 <body>
   <main class="game-shell">
@@ -327,6 +327,13 @@
       <span id="story-icon" aria-hidden="true"></span><span id="story-kind" class="label">Lore</span><h2 id="story-title">Before structure</h2><p id="story-text"></p><span id="story-hint">Click to continue</span>
     </button>
   </dialog>
+  <dialog id="offline-dialog" aria-labelledby="offline-title" aria-describedby="offline-description">
+    <span class="label">While you were away</span><h2 id="offline-title">Offline progress</h2>
+    <p id="offline-description"></p><progress id="offline-progress" max="1" value="0" aria-label="Offline time processed"></progress>
+    <p id="offline-status" role="status" aria-live="polite"></p><p id="offline-summary"></p>
+    <p id="offline-accuracy" class="settings-note">Accurate uses normal simulation rules. Fast checks purchases and timed production less often, so results can differ. Skipping keeps processed progress and discards the remaining time.</p>
+    <div class="offline-actions"><button id="offline-accurate">Simulate accurately</button><button id="offline-fast">Fast · less accurate</button><button id="offline-skip">Skip offline time</button><button id="offline-continue" hidden>Continue</button></div>
+  </dialog>
   <dialog id="condense-dialog" aria-labelledby="condense-cinematic-title" aria-describedby="condense-cinematic-reward"><canvas id="condense-canvas" aria-hidden="true"></canvas><div class="condense-cinematic-caption"><span class="label">The field remembers</span><h2 id="condense-cinematic-title">Condensing Energy</h2><p id="condense-cinematic-reward"></p></div><button id="skip-condense">Skip cinematic</button></dialog>
 
   <!-- Break Infinity: large-number library -->
@@ -336,8 +343,8 @@
   <script src="js/core/namespace.js?v=2be15fd41d03"></script>
   <script src="js/core/config.js?v=4c749788d96d"></script>
   <script src="js/numbers/decimal.js?v=072eb6e5da4d"></script>
-  <script src="js/core/state.js?v=d1e089dde432"></script>
-  <script src="js/core/automation.js?v=677b825a3ef2"></script>
+  <script src="js/core/state.js?v=814cede7031c"></script>
+  <script src="js/core/automation.js?v=ca8b9c56d0b6"></script>
   <script src="js/core/symmetry.js?v=417ed7038dba"></script>
   <script src="js/time/gameTime.js?v=a3b9af0ff87e"></script>
   <script src="js/core/modifiers.js?v=368e702616dc"></script>
@@ -348,13 +355,13 @@
   <script src="js/layers/energy/coherence.js?v=be5e46fdf999"></script>
   <script src="js/layers/energy/fieldExcitation.js?v=abb01bc2d45d"></script>
   <script src="js/layers/energy/fieldDynamics.js?v=76632361444f"></script>
-  <script src="js/core/structure.js?v=33987b7094e9"></script>
-  <script src="js/core/flow.js?v=3c912125646f"></script>
+  <script src="js/core/structure.js?v=fc127949f342"></script>
+  <script src="js/core/flow.js?v=d1f1f20dbab7"></script>
   <script src="js/core/productionStats.js?v=bd5b239b1adb"></script>
-  <script src="js/save/saveManager.js?v=12ca3404100f"></script>
+  <script src="js/save/saveManager.js?v=83cfcf90a025"></script>
   <script src="js/ui/format.js?v=7deb167be06e"></script>
   <script src="js/ui/icons.js?v=80b1b0ea0822"></script>
-  <script src="js/ui/experience.js?v=c2c6b52cf097"></script>
+  <script src="js/ui/experience.js?v=ad7bd47a7563"></script>
   <script src="js/ui/perkFX.js?v=6b1f5cb7c69e"></script>
   <script src="js/ui/condenseFX.js?v=a3923dd5d810"></script>
   <script src="js/ui/tooltips.js?v=003dcab9db72"></script>
@@ -366,9 +373,10 @@
   <script src="js/ui/treeMap.js?v=a5c9deae5458"></script>
   <script src="js/ui/automation.js?v=07c4d24a8ad4"></script>
   <script src="js/ui/symmetry.js?v=6d6c0dd5772e"></script>
-  <script src="js/ui/render.js?v=537fecc22175"></script>
-  <script src="js/ui/structure.js?v=a452375d9f49"></script>
-  <script src="js/core/gameLoop.js?v=d62712038f0b"></script>
-  <script src="js/main.js?v=d5fe113b6a29"></script>
+  <script src="js/ui/render.js?v=9f11edf9cecc"></script>
+  <script src="js/ui/structure.js?v=4e132fdacb42"></script>
+  <script src="js/core/gameLoop.js?v=4522cc2858ab"></script>
+  <script src="js/core/offline.js?v=a51364542072"></script>
+  <script src="js/main.js?v=e46e63cb9fc1"></script>
 </body>
 </html>

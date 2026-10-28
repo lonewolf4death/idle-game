@@ -12,7 +12,8 @@
         const buyers=Game.CONFIG.AUTOMATION.buyers.filter(function (buyer) { return Game.Automation.unlocked(buyer.id); });
         return buyers.length ? buyers.reduce(function (sum,buyer) { return sum+Game.Automation.interval(buyer.id); },0)/buyers.length : Game.CONFIG.STRUCTURE.basicBuyerInterval;
       }
-      return this.advanced(id) ? (50 - 4 * Game.player.automation.buyers[id].level) / 10 : Game.CONFIG.STRUCTURE.basicBuyerInterval;
+      const interval=this.advanced(id) ? (50 - 4 * Game.player.automation.buyers[id].level) / 10 : Game.CONFIG.STRUCTURE.basicBuyerInterval;
+      return Game.Offline && Game.Offline.fastRealStep ? Math.max(interval,Game.Offline.fastRealStep) : interval;
     },
     active: function (id) { return !Game.Challenges.active() && !Game.Challenges.confirming && !(Game.StructureUI && Game.StructureUI.confirming) && !((id==='condense'||id==='stabilize') && this.editingCondenseTarget) && this.unlocked(id) && !!Game.player.settings.autoBuyers[id]; },
     parseCondenseTarget: function (input) {
