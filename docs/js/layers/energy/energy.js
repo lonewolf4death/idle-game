@@ -310,7 +310,11 @@
         const state = Game.player.generators[gen.id];
         if (!Game.Challenges.produces(gen.id) || Game.Energy.getOwned(gen.id).lte(0)) return;
         if (gen.type) return;
-        if (!gen.burstInterval) { gain = gain.add(Game.Energy.rawGeneratorProduction(gen, D(1)).pow(power).mul(factor).mul(oscillation).mul(gameDelta)); return; }
+        if (!gen.burstInterval) {
+          gain = gain.add(Game.Energy.rawGeneratorProduction(gen, D(1)).pow(power).mul(factor).mul(oscillation).mul(gameDelta));
+          if(Game.UI && gameDelta.gt(0))Game.UI.streamGeneratorSparks(gen,Game.Energy.getOwned(gen.id),gameDelta);
+          return;
+        }
         const multiplier = Game.D(1).mul(Game.Progression.generatorMultiplier()).mul(Game.Energy.fluctMultiplier()).mul(Game.Progression.energyMultiplier()).mul(Game.Energy.getCountMultiplier(gen.id)).mul(Game.Progression.generatorFocusMultiplier(gen.id)).mul(Game.Symmetry.crossMultiplier(gen.id));
         const credit=Game.Energy.syncGeneratorTimers(gen,state).mul(multiplier).mul(Game.FieldDynamics.multiplier());
         const raw=Game.Energy.rawGeneratorProduction(gen);

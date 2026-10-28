@@ -91,6 +91,7 @@ button.danger { color: var(--disturbance); }
 .energy-spark::after { content: ""; position: absolute; inset: 30%; border: 1px solid #d6bd8066; border-radius: 50%; }
 .energy-spark.generator-spark { background: radial-gradient(circle,#ffe4df 0%,#ce8c82 10%,#ad5b5366 28%,transparent 70%); }
 .energy-spark.generator-spark::after { border-color: #ce8c8266; }
+.energy-spark.production-signal { animation-duration:1.5s; }
 .energy-spark.abstract-energy { width: clamp(100px,calc(var(--spark-size) * 3),400px); height: clamp(100px,calc(var(--spark-size) * 3),400px); margin-left: calc(clamp(100px,calc(var(--spark-size) * 3),400px) / -2); margin-top: calc(clamp(100px,calc(var(--spark-size) * 3),400px) / -2); filter: blur(20px); background: radial-gradient(ellipse,#d6bd80 0%,#a88d4a44 40%,transparent 70%); }
 .energy-spark.abstract-energy.generator-spark { background: radial-gradient(ellipse,#ce8c82 0%,#993f4b44 40%,transparent 70%); }
 .energy-spark.abstract-energy::after { display: none; }
@@ -860,13 +861,6 @@ summary.contribution-row { cursor:pointer; }
 @keyframes stabilization-dismiss { to { opacity:0; transform:scale(.97); } }
 @media(prefers-reduced-motion:reduce) { .is-pattern-complete { animation:none; }.stabilization-track span { transition:none; } }
 
-.first-quanta-choices { margin:0 0 12px; }
-.first-quanta-choices > div { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:8px; }
-.first-quanta-choices button { text-align:left; padding:10px 12px; border-color:#394950; }
-.first-quanta-choices button strong { display:block; color:#d5c194; font-size:11px; }
-.first-quanta-choices button span { display:block; font-size:10px; color:#9db8bd; margin-top:6px; line-height:1.6; }
-.first-quanta-choices .is-owned { border-color:#789a88; opacity:.65; }
-@media(max-width:600px) { .first-quanta-choices > div { grid-template-columns:1fr; }.first-quanta-choices button span { margin-top:3px; } }
 
 .stabilization-heading { align-items:center; }.stabilization-heading h2 { margin:0; font-size:12px; }.stabilization-heading strong { font-size:10px; text-align:right; }.stabilization-details { margin-top:10px; }.stabilization-details summary { font-size:10px; color:#9cb9bd; cursor:pointer; }
 

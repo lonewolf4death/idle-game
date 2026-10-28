@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cosmic Idle — Energy</title>
-  <link rel="stylesheet" href="css/main.css?v=326c6ba4cf2f" />
+  <link rel="stylesheet" href="css/main.css?v=09b1d8e7536b" />
 </head>
 <body>
   <main class="game-shell">
@@ -114,7 +114,7 @@
         </div>
       </section>
       <section id="prestige-view" class="achievements-view prestige-view" role="tabpanel" aria-labelledby="prestige-tab" tabindex="0" hidden>
-        <div class="prestige-heading"><div class="achievements-heading"><span class="label">First prestige</span><h2>Condense Energy</h2></div><p id="condense-earned" class="stats-note">0 earned · 0 condensations</p></div>
+        <div class="prestige-heading"><div class="achievements-heading"><h2>Condense Energy</h2></div><p id="condense-earned" class="stats-note">0 earned · 0 condensations</p></div>
         <section class="primordial-skills" aria-labelledby="skill-tree-title">
           <div class="skill-tree-heading"><h3 id="skill-tree-title">The first constellation</h3><p id="tree-view-help">Scroll to explore · Hover for details · Shift-click to buy</p><div class="tree-view-switch" role="group" aria-label="Skill tree view"><button id="respec-skills" title="Refund all skill costs and restart this run" disabled>Respec</button></div></div>
           <div class="tree-branch-nav" role="group" aria-label="Jump to a branch"><button data-tree-branch="1">Foundation</button><button data-tree-branch="2">Probability</button><button data-tree-branch="3">Rhythm</button><button data-tree-branch="4">Continuum</button></div>
@@ -123,7 +123,7 @@
         <section id="perfect-alignment-tree" class="perfect-alignment-tree" hidden><div><span class="label">90% discovery · persistent reveal</span><h3>Perfect Alignment</h3><p>This part of the perk tree is unlocked. Its perks are awaiting formation.</p></div><span class="perfect-perk-stub" aria-label="Future Perfect Alignment perk">◇</span><span class="perfect-perk-stub" aria-label="Future Perfect Alignment perk">◇</span></section>
         <section class="condense-panel" aria-label="Condensation preview">
           <div class="condense-summary"><span class="label">Condense now to receive</span><strong id="condense-reward">+0 Primordial Quanta</strong><p id="condense-requirement">Requires 1e50 held Energy.</p><p id="condense-next" class="muted"></p></div>
-          <p id="condense-rebuild-note" class="stats-note"></p><div class="condense-actions"><button id="condense-button" disabled>Condense Energy · +0 Quanta</button><details class="condense-reset-info"><summary>What resets?</summary><div><p>Resets Energy, purchased and added Primordial generators, Resonance, field growth, Symmetry, Field Alignment, Stabilizations and run timers. Condense history restores starting Stabilizations; starting skills apply to the fresh run.</p><p class="condense-keeps">Keeps achievements, lore, total playtime, Primordial Quanta, skills, Symmetry access and discoveries, purchased Unified Interaction upgrades, and settings.</p></div></details></div>
+          <p id="condense-rebuild-note" class="stats-note"></p><div class="condense-actions"><button id="condense-button" disabled>Condense Energy · +0 Quanta</button><details class="condense-reset-info"><summary>What resets?</summary><div><p id="condense-reset-description"></p><p id="condense-keep-description" class="condense-keeps"></p></div></details></div>
         </section>
       </section>
       <section id="stats-view" class="achievements-view stats-view" role="tabpanel" aria-labelledby="stats-tab" tabindex="0" hidden>
@@ -316,7 +316,7 @@
 
   <dialog id="challenge-dialog" aria-labelledby="challenge-confirm-title" aria-describedby="challenge-confirm-description"><span class="label">Alter the primordial field</span><h2 id="challenge-confirm-title"></h2><p id="challenge-confirm-description"></p><div class="respec-choices"><button id="challenge-cancel">Keep this run</button><button id="challenge-confirm">Restart run</button></div></dialog>
   <dialog id="respec-dialog" aria-labelledby="respec-title" aria-describedby="respec-description"><span class="label">Reform the constellation</span><h2 id="respec-title">Respec skills?</h2><strong id="respec-refund"></strong><p id="respec-description"></p><div class="respec-choices"><button id="cancel-respec">Keep my skills</button><button id="confirm-respec">Respec · restart run</button></div></dialog>
-  <dialog id="stabilization-dialog" aria-labelledby="stabilization-dialog-title"><span class="label">Release the Energy · retain the pattern</span><h2 id="stabilization-dialog-title">Stabilize the Field?</h2><p id="stabilization-dialog-reward"></p><p>Restart Energy, generators and Resonance in a stronger field. Keep earned achievements, lore, total playtime and permanent progress.</p><p>Keeps previous Stabilizations, achievements, lore, Quanta, skills, automation mastery, total playtime and this Condense run's elapsed time. Symmetry resets; purchased Unified Interaction upgrades remain.</p><div class="respec-choices"><button id="cancel-stabilization">Keep building</button><button id="confirm-stabilization">Stabilize</button></div></dialog>
+  <dialog id="stabilization-dialog" aria-labelledby="stabilization-dialog-title"><span class="label">Release the Energy · retain the pattern</span><h2 id="stabilization-dialog-title">Stabilize the Field?</h2><p id="stabilization-dialog-reward"></p><p>Restart Energy, generators and Resonance in a stronger field.</p><p id="stabilization-keeps"></p><div class="respec-choices"><button id="cancel-stabilization">Keep building</button><button id="confirm-stabilization">Stabilize</button></div></dialog>
   <p id="pattern-announcement" class="sr-only" role="status" aria-live="polite"></p>
   <aside id="achievement-notice" class="achievement-notice" aria-label="Achievement notifications" hidden>
     <div role="status" aria-live="polite" aria-atomic="true"><span class="label">Achievement unlocked</span><h2 id="achievement-notice-title"></h2><p id="achievement-notice-reward"></p></div>
@@ -334,7 +334,7 @@
 
   <!-- Load order matters because this version works directly from file:// -->
   <script src="js/core/namespace.js?v=2be15fd41d03"></script>
-  <script src="js/core/config.js?v=22e04fce1a7c"></script>
+  <script src="js/core/config.js?v=d7b10e83b90f"></script>
   <script src="js/numbers/decimal.js?v=072eb6e5da4d"></script>
   <script src="js/core/state.js?v=3e152fe84a63"></script>
   <script src="js/core/automation.js?v=1b530b8b1aef"></script>
@@ -342,13 +342,13 @@
   <script src="js/time/gameTime.js?v=a3b9af0ff87e"></script>
   <script src="js/core/modifiers.js?v=368e702616dc"></script>
   <script src="js/core/playtime.js?v=e3322b01d6fb"></script>
-  <script src="js/core/progression.js?v=9cfa9ba725d5"></script>
-  <script src="js/core/prestige.js?v=93cae92618cd"></script>
-  <script src="js/layers/energy/energy.js?v=3d14e79b80e9"></script>
+  <script src="js/core/progression.js?v=d53b14316d63"></script>
+  <script src="js/core/prestige.js?v=62ee4763618d"></script>
+  <script src="js/layers/energy/energy.js?v=6435c975ec5c"></script>
   <script src="js/layers/energy/coherence.js?v=be5e46fdf999"></script>
   <script src="js/layers/energy/fieldExcitation.js?v=abb01bc2d45d"></script>
   <script src="js/layers/energy/fieldDynamics.js?v=76632361444f"></script>
-  <script src="js/core/structure.js?v=28df93dca4d0"></script>
+  <script src="js/core/structure.js?v=d23c5a194005"></script>
   <script src="js/core/flow.js?v=3c912125646f"></script>
   <script src="js/core/productionStats.js?v=bd5b239b1adb"></script>
   <script src="js/save/saveManager.js?v=3646245eaab4"></script>
@@ -361,13 +361,13 @@
   <script src="js/ui/fieldWaves.js?v=c4d67537032d"></script>
   <script src="js/ui/stats.js?v=914dfd00bf46"></script>
   <script src="js/ui/achievements.js?v=17c5f1700e67"></script>
-  <script src="js/ui/prestige.js?v=9785a5f68701"></script>
-  <script src="js/ui/discovery.js?v=b3d205c9bf01"></script>
+  <script src="js/ui/prestige.js?v=665e616bd775"></script>
+  <script src="js/ui/discovery.js?v=76910acc7fb3"></script>
   <script src="js/ui/treeMap.js?v=a5c9deae5458"></script>
   <script src="js/ui/automation.js?v=2410b5992441"></script>
   <script src="js/ui/symmetry.js?v=6d6c0dd5772e"></script>
-  <script src="js/ui/render.js?v=1f9a7069d3d8"></script>
-  <script src="js/ui/structure.js?v=d8779cff5373"></script>
+  <script src="js/ui/render.js?v=537fecc22175"></script>
+  <script src="js/ui/structure.js?v=a452375d9f49"></script>
   <script src="js/core/gameLoop.js?v=d62712038f0b"></script>
   <script src="js/main.js?v=d5fe113b6a29"></script>
 </body>

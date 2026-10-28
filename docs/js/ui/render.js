@@ -95,8 +95,9 @@
     generatorSparkBudget: 0,
     streamGeneratorSparks: function (gen, owned, gameDelta) {
       if (Game.Loop && Game.Loop.catchingUp) { this.generatorSparkBudget = 0; return; }
-      // Preserve five sparks per generator cycle at 25; cap automatic feedback at 12/sec.
-      const rate = Decimal.min(12, owned.mul(gen.sparksPerBurst).div(Game.Energy.burstInterval(gen)).mul(Game.Time.getGameSpeed()));
+      // A few real-time glimmers express continuous production without making
+      // visual work grow with generator counts or game speed.
+      const rate=gen.burstInterval?Decimal.min(4,owned.mul(gen.sparksPerBurst).div(Game.Energy.burstInterval(gen)).mul(Game.Time.getGameSpeed())):Game.D(Math.min(4,.8+.35*Math.min(8,owned.add(1).log10())));
       if (Game.Time.getGameSpeed().lte(0)) return;
       const realDelta = gameDelta.div(Game.Time.getGameSpeed());
       this.generatorSparkBudget = Math.min(6, this.generatorSparkBudget + rate.mul(realDelta).toNumber());
@@ -109,7 +110,7 @@
       if (count > 0) Game.Audio.play("generator");
       if (byId("energy-view").hidden || document.hidden) return;
       for (let i = 0; i < count; i++) {
-        this.flashEnergy({ generator: true });
+        this.flashEnergy({ generator: true, production: true });
       }
     },
     visualPosition: function (width, height) {
@@ -126,9 +127,10 @@
       if (event.fluctuation) spark.classList.add("fluctuation-wave", Game.player.fluctuation.positive ? "fluct-positive" : "fluct-negative");
       if (event.resonance) spark.classList.add("coherence-pulse", event.resonance === "quantumResonance" ? "quantum-resonance-pulse" : "energy-resonance-pulse");
       if (event.dynamics) spark.classList.add("dynamics-pulse", event.dynamics);
+      if (event.production) spark.classList.add('production-signal');
       const appearance = Game.Progression.sparkAppearance();
       spark.style.setProperty("--spark-size", appearance.size + "px");
-      spark.style.setProperty("--spark-opacity", appearance.opacity * (Game.player.settings.visuals === 1 ? .16 : 1));
+      spark.style.setProperty("--spark-opacity", appearance.opacity * (Game.player.settings.visuals === 1 ? (event.production ? .4 : .16) : 1));
       const position = this.visualPosition(bounds.width, bounds.height);
       spark.style.left = position.x + "px";
       spark.style.top = position.y + "px";
@@ -136,7 +138,7 @@
       // Bound the effect count while allowing quick clicks to overlap.
       if (effects.children.length >= 160) effects.firstElementChild.remove();
       effects.appendChild(spark);
-      const lifetime=(event.resonance || event.dynamics)?2200:event.fluctuation?1600:700,intensity=Game.Symmetry.intensity();
+      const lifetime=(event.resonance || event.dynamics)?2200:event.fluctuation||event.production?1600:700,intensity=Game.Symmetry.intensity();
       if(intensity>.001) {
         const mirror=spark.cloneNode(true),holder=document.createElement('span');mirror.classList.add('symmetry-echo');holder.className='symmetry-echo-container';holder.style.opacity=String(intensity);holder.appendChild(mirror);
         if(effects.children.length>=160) effects.firstElementChild.remove();effects.appendChild(holder);setTimeout(function () { holder.remove(); },lifetime);

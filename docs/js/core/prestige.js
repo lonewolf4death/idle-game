@@ -24,7 +24,6 @@
       Game.player.prestige.skills[id] = 1;
       const buyer=Game.CONFIG.AUTOMATION.buyers.find(function (entry) { return entry.skill===id; });
       if(buyer) Game.player.automation.buyers[buyer.id].elapsed=0;
-      if (id === "3-1" && Game.player.structure.stabilizations.lt(4)) Game.player.structure.stabilizations=Game.player.structure.stabilizations.add(1);
       if (id === "1-4-2") Game.Energy.rescaleBurstTimers(oldBurstInterval);
       if (id === "3-2-3") {
         const state=Game.player.fieldDynamics, rules=Game.FieldDynamics.rules();

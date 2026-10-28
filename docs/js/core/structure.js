@@ -75,10 +75,9 @@
       const goal=this.goal();return Game.player.resources.energy.gte(goal.energy) && Game.Patterns.total()>=goal.patterns && Game.player.resources.quantumResonance.gte(goal.quantum);
     },
     seed: function (fresh) {
-      // Condense history compresses already-learned opening loops. Challenges
-      // bypass structural gates but retain their own starting restrictions.
-      const count=fresh.challenges.active?4:Math.min(4,fresh.prestige.times.toNumber()+(fresh.prestige.skills['3-1']?1:0));
-      fresh.structure.stabilizations=D(fresh.achievements.allChallenges?4:count);
+      // Normal runs rebuild Stabilization from zero. Challenge runs retain
+      // their structural access because Stabilization is unavailable there.
+      fresh.structure.stabilizations=D(fresh.challenges.active?4:0);
       fresh.resources.energy=Decimal.max(fresh.resources.energy,Game.CONFIG.IDLE_FLOW.startingEnergy);
     },
     advance: function (realSeconds) {

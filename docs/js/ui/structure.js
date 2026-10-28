@@ -7,10 +7,6 @@
     confirming:false,owner:null,
     init:function () {
       const ui=this;
-      const choices=document.createElement('div');choices.id='first-quanta-choices';choices.className='first-quanta-choices';
-      choices.innerHTML='<p class="label">Your first Quanta · choose a new beginning</p><div><button data-first-skill="1-1"><strong>Foundation · 1 Quanta</strong><span>×4 all Energy production</span></button><button data-first-skill="2-1"><strong>Probability · 1 Quanta</strong><span>×3 all Energy · positive chance +5 points</span></button><button data-first-skill="3-1"><strong>Rhythm · 1 Quanta</strong><span>×2 Energy · extra Stabilization · longer peak</span></button><button data-first-skill="4-1"><strong>Continuum · 1 Quanta</strong><span>×2 all Energy · ×2 Resonance output</span></button></div>';
-      byId('prestige-view').insertBefore(choices,byId('prestige-view').firstChild);
-      choices.querySelectorAll('button').forEach(function (button) { button.addEventListener('click',function (event) { Game.PrestigeUI.activateNode(button.dataset.firstSkill,event); }); });
       Game.CONFIG.GENERATORS.forEach(function (gen) {
         const node=Game.UI.generatorNodes[gen.id],status=document.createElement('div');status.className='pattern-summary';
         status.innerHTML='<div class="pattern-pips" aria-hidden="true"></div><p class="pattern-status"></p><p class="pattern-echo muted"><span data-pattern-strength></span> · <button class="info-term" data-tip="echoes">Echoes</button> <span data-echo-strength></span><span data-echo-target></span></p>';
@@ -52,7 +48,7 @@
     stabilizationFeedback:function () { if(Game.Audio) Game.Audio.play('stabilize'); },
     render:function () {
       const p=Game.player,level=p.structure.stabilizations.toNumber(),reveal=false;
-      const choices=byId('first-quanta-choices');if(choices) { choices.hidden=p.prestige.totalQuanta.gte(5);choices.querySelectorAll('button').forEach(function (button) { button.classList.toggle('is-owned',Game.Progression.hasSkill(button.dataset.firstSkill)); }); }
+      text(byId('stabilization-keeps'),Game.Discovery.resetSummary(true).keep);
       byId('stabilization-panel').hidden=!(reveal || level>0 || p.generators.coherentEnergy.purchased.gt(0));
       text(byId('stabilization-level'),level<4?level+' / 4 established':'4 established · '+(level-4)+' refinements');
       text(byId('stabilization-reward'),this.rewardText());

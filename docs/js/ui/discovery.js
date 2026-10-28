@@ -1,5 +1,18 @@
 (function (Game) {
   Game.Discovery = {
+    resetSummary: function (stabilizing) {
+      const p=Game.player,reveal=false,reset=['Energy','purchased and added generators'],keep=['achievements','lore','total playtime'];
+      if(reveal || Game.Coherence.discovered() || p.lore.coherenceSeen)reset.push('Resonance');
+      if(reveal || Game.FieldExcitation.discovered() || p.lore.fieldFirstSeen)reset.push('field growth');
+      if(stabilizing)keep.push('previous Stabilizations',"this run’s elapsed time");
+      else {reset.push('Stabilizations','run timers');keep.push('Primordial Quanta','purchased skills');}
+      if(stabilizing && (reveal || p.prestige.times.gt(0)))keep.push('Primordial Quanta','purchased skills');
+      if(stabilizing && (reveal || Game.CONFIG.AUTOMATION.buyers.some(function (b) { return p.automation.buyers[b.id].level>0; })))keep.push('automation mastery');
+      if(reveal || Game.Symmetry.unlocked()) {reset.push('Symmetry','Field Alignment');keep.push('Symmetry access and discoveries');}
+      if(reveal || Game.Symmetry.discovered(.5))keep.push('purchased Unified Interaction upgrades');
+      keep.push('settings');
+      return {reset:'Resets '+reset.join(', ')+'.',keep:'Keeps '+keep.join(', ')+'.'};
+    },
     generator: function (id) {
       const gen=Game.Energy.getGenerator(id),state=Game.player.generators[id];
       return Boolean(gen && (state.purchased.add(state.added).gt(0) || Game.Energy.generatorEnabled(gen) && Game.player.resources.energy.gte(gen.unlockEnergy)));

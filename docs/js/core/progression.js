@@ -166,8 +166,8 @@
       return Math.max(0, Math.min(1, total.add(1).log10() / goal.add(1).log10()));
     },
     sparkAppearance: function () {
-      const strength = Math.max(0, this.clickBaseGain().mul(this.clickMultiplier()).mul(this.clickSkillMultiplier()).mul(Game.Energy.fluctMultiplier()).mul(this.energyMultiplier()).log10());
-      return { size: Math.min(280, 12 + strength * 52), opacity: Math.min(1, .18 + strength * .28) };
+      const strength=Math.log10(1+Math.max(0,Game.Energy.getProductionPerSecond().add(1).log10()));
+      return {size:Math.min(180,28+strength*50),opacity:Math.min(.7,.3+strength*.12)};
     }
   };
   Game.Achievements = {
