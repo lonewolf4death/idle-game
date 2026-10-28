@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cosmic Idle — Energy</title>
-  <link rel="stylesheet" href="css/main.css?v=18f360d7fa72" />
+  <link rel="stylesheet" href="css/main.css?v=f245c6d97588" />
 </head>
 <body>
   <main class="game-shell">
@@ -53,7 +53,7 @@
 
     </div>
     <div id="symmetry-controls" hidden>
-      <section class="symmetry-overview"><span class="label">The emerging laws</span><strong id="symmetry-total">0.000%</strong><span id="symmetry-energy-bonus">×1 Energy</span><span id="symmetry-production">0% / game second</span><span id="symmetry-starting" hidden></span></section>
+      <section class="symmetry-overview"><span class="label">The emerging laws</span><strong id="symmetry-total">0.000%</strong><span id="symmetry-energy-bonus">×1 Energy</span><span id="symmetry-production">0% / game second</span><span id="symmetry-achievement-bonus" hidden></span><span id="symmetry-starting" hidden></span></section>
       <p id="symmetry-locked-note" class="muted">Unlock Symmetry in the Condense tree for 10,000 Quanta.</p>
       <section class="panel symmetry-generator-panel"><h2>Symmetry generators</h2>
         <article class="generator-card symmetry-generator"><h3><span class="alignment-symbol" aria-hidden="true">◈</span> <span id="alignment-dev-label" hidden>SGen1 · </span>Field Alignment</h3><p>Bring the fields into alignment. Each level contributes to Symmetry, with diminishing returns from alignment capacity and shared field resistance. Symmetry cannot exceed 100%.</p><div class="generator-meta"><strong id="field-alignment-owned">Purchased: 0</strong><span id="field-alignment-output"></span><span id="field-alignment-scaling" class="muted" hidden></span><button id="buy-field-alignment">Buy 1 — 1e1000 Energy</button></div></article>
@@ -346,17 +346,17 @@
 
   <!-- Load order matters because this version works directly from file:// -->
   <script src="js/core/namespace.js?v=2be15fd41d03"></script>
-  <script src="js/core/config.js?v=1f994a4ee88d"></script>
+  <script src="js/core/config.js?v=fa59e4f42d3f"></script>
   <script src="js/numbers/decimal.js?v=072eb6e5da4d"></script>
-  <script src="js/core/state.js?v=5362e0a269c6"></script>
+  <script src="js/core/state.js?v=207699b809f9"></script>
   <script src="js/core/automation.js?v=b58f0ed9d0a8"></script>
-  <script src="js/core/symmetry.js?v=0724e8f1a677"></script>
+  <script src="js/core/symmetry.js?v=3bdf460685fd"></script>
   <script src="js/time/gameTime.js?v=a3b9af0ff87e"></script>
   <script src="js/core/modifiers.js?v=368e702616dc"></script>
   <script src="js/core/playtime.js?v=e3322b01d6fb"></script>
-  <script src="js/core/progression.js?v=d53b14316d63"></script>
-  <script src="js/core/prestige.js?v=06d57d041259"></script>
-  <script src="js/layers/energy/energy.js?v=6435c975ec5c"></script>
+  <script src="js/core/progression.js?v=a6e79cfdc001"></script>
+  <script src="js/core/prestige.js?v=4c69b77ec834"></script>
+  <script src="js/layers/energy/energy.js?v=1841461d6a4f"></script>
   <script src="js/layers/energy/coherence.js?v=be5e46fdf999"></script>
   <script src="js/layers/energy/fieldExcitation.js?v=abb01bc2d45d"></script>
   <script src="js/layers/energy/fieldDynamics.js?v=76632361444f"></script>
@@ -365,25 +365,26 @@
   <script src="js/core/productionStats.js?v=9cdac373e95e"></script>
   <script src="js/save/saveManager.js?v=df573e42b3fd"></script>
   <script src="js/ui/format.js?v=7deb167be06e"></script>
-  <script src="js/ui/icons.js?v=80b1b0ea0822"></script>
-  <script src="js/ui/experience.js?v=b15e1372ab97"></script>
+  <script src="js/ui/icons.js?v=dba1c53e8fa3"></script>
+  <script src="js/ui/experience.js?v=d90718becd55"></script>
   <script src="js/ui/perkFX.js?v=f9d0cee3875c"></script>
   <script src="js/ui/condenseFX.js?v=a3923dd5d810"></script>
-  <script src="js/ui/tooltips.js?v=003dcab9db72"></script>
+  <script src="js/ui/breakFX.js?v=c1d28e489191"></script>
+  <script src="js/ui/tooltips.js?v=45c8a56323d6"></script>
   <script src="js/ui/fieldWaves.js?v=4245ba353309"></script>
   <script src="js/ui/stats.js?v=914dfd00bf46"></script>
   <script src="js/ui/achievements.js?v=17c5f1700e67"></script>
   <script src="js/ui/prestige.js?v=f57351f4cb58"></script>
-  <script src="js/ui/discovery.js?v=091b40b5cb5e"></script>
+  <script src="js/ui/discovery.js?v=54d147b0f6a0"></script>
   <script src="js/ui/treeMap.js?v=63e38f61743f"></script>
   <script src="js/ui/automation.js?v=07c4d24a8ad4"></script>
-  <script src="js/ui/symmetry.js?v=94919d7728e3"></script>
+  <script src="js/ui/symmetry.js?v=3f74105993ae"></script>
   <script src="js/ui/render.js?v=4bdcbb4f2056"></script>
   <script src="js/ui/structure.js?v=9cbe2a9105a3"></script>
   <script src="js/core/gameLoop.js?v=4522cc2858ab"></script>
   <script src="js/core/offline.js?v=a51364542072"></script>
   <script src="js/ui/asymmetry.js?v=4c9fb123a561"></script>
-  <script src="js/ui/presentation.js?v=7ee679ca1595"></script>
+  <script src="js/ui/presentation.js?v=8a81bd4c94ef"></script>
   <script src="js/ui/audioDirections.js?v=9a340ce5aa93"></script>
   <script src="js/main.js?v=e46e63cb9fc1"></script>
 </body>

@@ -46,7 +46,7 @@
     },
     convergenceBand:function (amount) { const bounds=Game.CONFIG.SYMMETRY.convergence.bounds;return bounds.findIndex(function (end,i) { return i>0 && amount<end-1e-12; })-1; },
     speedMultiplier:function (amount) {
-      return this.perfectFactor('symmetrySpeed').mul(amount>=.94-1e-12?this.perfectFactor('lateSymmetrySpeed'):1).mul(amount>=.5-1e-12?this.perfectFactor('unifiedSymmetrySpeed'):1).mul(Game.Asymmetry.effect('brokenHarmonics'));
+      return this.perfectFactor('symmetrySpeed').mul(amount>=.94-1e-12?this.perfectFactor('lateSymmetrySpeed'):1).mul(amount>=.5-1e-12?this.perfectFactor('unifiedSymmetrySpeed'):1).mul(Game.Asymmetry.effect('brokenHarmonics')).mul(Game.Achievements.multiplier('symmetrySpeed'));
     },
     rateAt:function (amount) {
       if(!this.unlocked() || amount>=1-1e-12) return D(0);
@@ -81,8 +81,10 @@
       p.best=Decimal.max(p.best,p.amount);
       this.captureUpgradePricing(Game.player);
       Game.CONFIG.SYMMETRY.milestones.forEach(function (m) {
-        if(before.add(1e-12).lt(m.at) && p.best.add(1e-12).gte(m.at) && Game.Experience) Game.Experience.enqueue({kind:'Symmetry milestone',title:m.type,text:m.reward});
+        const narrated=Game.CONFIG.STORY.some(function (entry) {return entry.kind==='symmetry' && Game.D(entry.amount).eq(m.at);});
+        if(!narrated && before.add(1e-12).lt(m.at) && p.best.add(1e-12).gte(m.at) && Game.Experience) Game.Experience.enqueue({kind:'Symmetry milestone',title:m.type,text:m.reward});
       });
+      Game.Achievements.capture(Game.player,true);
     },
     advance:function (seconds) {
       if(this.perSecond().lte(0)) return;
@@ -130,7 +132,7 @@
     buy:function (amount) {
       const quote=this.quote(amount);if(quote.count.lte(0)) return false;
       Game.player.lateEnergy.highest=Decimal.max(Game.player.lateEnergy.highest,Game.player.resources.energy);Game.player.resources.energy=Game.player.resources.energy.sub(quote.cost);Game.player.symmetry.alignment=Game.player.symmetry.alignment.add(quote.count);
-      if(Game.Audio) Game.Audio.play('alignment');Game.Save.save();return true;
+      Game.Achievements.capture(Game.player,true);if(Game.Audio) Game.Audio.play('alignment');Game.Save.save();return true;
     },
     captureUpgradePricing:function (player) {
       const p=player||Game.player;
@@ -194,11 +196,13 @@
     breakSymmetry:function () {
       const reward=this.reward();if(reward.lte(0)) return false;
       const p=Game.player,s=p.symmetry;
+      Game.Achievements.capture(p,true);
       p.asymmetry.amount=p.asymmetry.amount.add(reward);p.asymmetry.total=p.asymmetry.total.add(reward);p.asymmetry.times=p.asymmetry.times.add(1);
       s.amount=D(0);s.alignment=D(0);s.alignmentAdded=D(0);s.pulseElapsed=D(0);s.upgradeCostAnchor=D(0);
       Object.keys(s.upgrades).forEach(function (id) { s.upgrades[id]=0; });
       Game.Symmetry.applyStarting(p);
       Game.Symmetry.captureUpgradePricing(p);
+      Game.Achievements.capture(p,true);
       if(Game.Loop) { Game.Loop.accumulator=0;Game.Loop.lastTime=performance.now(); }
       Game.Save.save();if(Game.UI)Game.UI.render();
       if(Game.Presentation)Game.Presentation.reset('break');

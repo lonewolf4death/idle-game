@@ -130,9 +130,11 @@
       Game.Structure.seed(fresh);
       Game.player = fresh;
       if (Game.Loop && !automated) { Game.Loop.accumulator = 0; Game.Loop.lastTime = performance.now(); }
+      Game.Achievements.capture(fresh,true);
       if (Game.UI) Game.UI.generatorSparkBudget = 0;
       const finish = function () {
         if (Game.player !== fresh) return;
+        Game.Achievements.capture(fresh,true);
         if (Game.Experience) Game.Experience.resumeMessages();
         if (first && Game.UI) Game.UI.notifyAchievement("First condensation", "×1.05 all Energy production");
       };

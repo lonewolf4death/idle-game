@@ -177,11 +177,17 @@
       if(definition.kind==='stabilizations') return p.structure.stabilizations.gte(definition.amount);
       if(definition.kind==='challenge') return p.automation.buyers[Game.CONFIG.AUTOMATION.buyers[definition.track-1].id].level>=1;
       if(definition.kind==='allChallenges') return Game.CONFIG.AUTOMATION.buyers.every(function (b) { return p.automation.buyers[b.id].level>=1; });
+      if(definition.kind==='allGenerators')return Game.CONFIG.GENERATORS.every(function (gen) {return p.generators[gen.id].purchased.gte(definition.amount);});
+      if(definition.kind==='resonance')return p.stats.totalQuantumResonance.gte(definition.amount);
+      if(definition.kind==='condenses')return p.prestige.times.gte(definition.amount);
+      if(definition.kind==='symmetry')return !!p.prestige.symmetry && p.symmetry.best.gte(definition.amount);
+      if(definition.kind==='asymmetry')return p.asymmetry.times.gte(definition.amount);
+      if(definition.kind==='alignment')return !!p.prestige.symmetry && (definition.exact?p.symmetry.alignment.eq(definition.amount):p.symmetry.alignment.gte(definition.amount));
       const amount=definition.kind==="purchased" ? p.generators[definition.generator].purchased : definition.kind==="clicks" ? p.stats.manualClicks : definition.kind==="autoClicks" ? p.stats.autoClicks : p.upgrades.clickPower;
       const required=definition.amount==="max" ? Game.Modifiers.getClickUpgradeRules().maxLevel : definition.amount;
       return definition.exact ? amount.eq(required) : amount.gte(required);
     },
-    rewardText: function (definition) { if(definition.reward==='none') return 'Milestone only · no production reward';if(definition.reward==='power') return 'All Energy gains raised to '+definition.multiplier+' (generator rate per game second)';return "×"+definition.multiplier+" "+({clicks:"click Energy",generators:"generator production",energy:"all Energy"}[definition.reward]); },
+    rewardText: function (definition) { if(definition.reward==='none') return 'Milestone only · no production reward';if(definition.reward==='power') return 'All Energy gains raised to '+definition.multiplier+' (generator rate per game second)';return "×"+definition.multiplier+" "+({clicks:"click Energy",generators:"generator production",energy:"all Energy",symmetrySpeed:'Symmetry speed'}[definition.reward]); },
     capture: function (player, notify) {
       const p=player||Game.player;
       Game.CONFIG.DISCOVERY_ACHIEVEMENTS.forEach(function (definition) {
@@ -191,6 +197,8 @@
         }
       });
       Game.Progression.keepDisturbMaxed(p);
+      Game.Story.capture(p);
+      if(notify && p===Game.player && Game.Experience && Game.Experience.queueStory)Game.Experience.queueStory();
     },
     multiplier: function (kind) {
       return Game.CONFIG.DISCOVERY_ACHIEVEMENTS.reduce(function (product, definition) { return product.mul(definition.reward===kind && Game.player.achievements[definition.id] ? definition.multiplier : 1); },D(1));
@@ -210,5 +218,19 @@
         if (Game.UI) Game.UI.notifyAchievement("Against the current · Complete","All levels unlocked · +10 percentage points positive chance. Positive Fluct chance is now at least 80%.");
       }
     }
+  };
+  Game.Story={
+    matches:function (entry,p) {
+      if(entry.kind==='achievement')return !!p.achievements[entry.achievement];
+      if(entry.kind==='generator')return p.generators[entry.generator].purchased.add(p.generators[entry.generator].added).gt(0);
+      if(entry.kind==='skills')return Object.values(p.prestige.skills).some(Boolean);
+      if(entry.kind==='condenses')return p.prestige.times.gte(entry.amount);
+      if(entry.kind==='symmetry')return !!p.prestige.symmetry && p.symmetry.best.gte(entry.amount);
+      if(entry.kind==='asymmetry')return p.asymmetry.times.gte(entry.amount);
+      if(entry.kind==='challengeAny')return Game.CONFIG.AUTOMATION.buyers.some(function (buyer) {return p.automation.buyers[buyer.id].level>0;});
+      if(entry.kind==='challengeAll')return Game.CONFIG.AUTOMATION.buyers.every(function (buyer) {return p.automation.buyers[buyer.id].level>0;});
+      return false;
+    },
+    capture:function (player) {const p=player||Game.player;Game.CONFIG.STORY.forEach(function (entry) {if(!p.lore[entry.id] && Game.Story.matches(entry,p))p.lore[entry.id]=1;});}
   };
 })(window.CosmicIdle);

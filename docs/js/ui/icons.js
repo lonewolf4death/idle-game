@@ -2,6 +2,8 @@
   // One engraved, scalable icon family. Paths use currentColor so locked,
   // available and earned states inherit the existing game palette.
   const shapes = {
+    symmetry:'<circle cx="16" cy="16" r="13"/><path d="M16 3v26M3 16h26M7 7l18 18M7 25L25 7"/><path d="M16 8l8 8-8 8-8-8Z"/>',
+    asymmetry:'<path d="M14 3l-3 10 7 3-5 13M19 3l3 8 7 3-5 10-7 5M9 5L3 13l4 12 4 4"/><path d="M19 17l8 8M4 9l6 3"/>',
     spark: '<path d="M16 3l3.5 9.5L29 16l-9.5 3.5L16 29l-3.5-9.5L3 16l9.5-3.5Z"/><path d="M23 4l1 3 3 1M5 24l3 1 1 3"/>',
     engine: '<circle cx="16" cy="16" r="5"/><ellipse cx="16" cy="16" rx="14" ry="8" transform="rotate(-35 16 16)"/><circle cx="26" cy="8" r="2" fill="currentColor"/>',
     growing: '<path d="M5 25V15h5v10M13.5 25V9h5v16M22 25V3h5v22M3 29h26"/><path d="M4 9l8-5 7 1"/>',

@@ -3,7 +3,7 @@
   const effects=[
     {id:'condense',name:'Condense Energy',duration:6.8,text:'The original inward compression, particle trails and Primordial Quanta core. Plays the original Condense score.'},
     {id:'stabilize',name:'Stabilization',duration:2,text:'Field rings align into a retained pattern, then fade.'},
-    {id:'break',name:'Break Symmetry',duration:6,text:'An off-center impact spreads cracks across the field. Mirrored shards hold, tilt and fall into darkness before the field returns.'},
+    {id:'break',name:'Break Symmetry',duration:7.5,text:'Light strains against a mirrored field. Cracks spread, reflective shards fall into darkness, and a small Asymmetry remnant survives. Includes its own fracture score.'},
     {id:'field',name:'Field Excitation',duration:6,text:'The current field-wave renderer. Switch visual directions to compare contour drift and spectral orbital traces.'},
     {id:'production',name:'Energy flow',duration:2,text:'Fading generator-production signals, using the actual in-game effect styles.'},
     {id:'fluct-positive',name:'Positive Fluct',duration:2,text:'The positive Quantum Fluctuation pulse and its audio cue.'},
@@ -49,6 +49,7 @@
     stopAudio:function () {
       this.audioToken++;this.audioMode=null;this.audioTimers.forEach(clearTimeout);this.audioTimers=[];
       Game.AudioDirections.stopPreview();if(Game.Audio.condenseScore)Game.Audio.condenseScore.stop();
+      if(Game.Audio.breakScore)Game.Audio.breakScore.stop();
       if(Game.Audio.context)Game.Audio.master.gain.setTargetAtTime(0,Game.Audio.context.currentTime,.025);
       document.querySelectorAll('.gallery-audio-card').forEach(card=>card.classList.remove('is-playing'));
       el('gallery-status').textContent='Audio stopped. Choose a sample or replay an animation.';
@@ -65,13 +66,14 @@
       Game.CondenseFX.canvas=canvas;Game.CondenseFX.context=canvas.getContext('2d');Game.CondenseFX.context.setTransform(ratio,0,0,ratio,0,0);Game.CondenseFX.width=width;Game.CondenseFX.height=height;
       if(this.width&&this.height)el('energy-effects').querySelectorAll('.energy-spark').forEach(spark=>{spark.style.left=parseFloat(spark.style.left)*width/this.width+'px';spark.style.top=parseFloat(spark.style.top)*height/this.height+'px';});
       this.width=width;this.height=height;Game.FieldWaves.resize();
+      if(Game.BreakFX)Game.BreakFX.resize();
     },
     prepare:function () {
       const id=this.effect.id,p=Game.player,muted=p.settings.sound;p.settings.sound=0;
       Game.Presentation.clearReset();Game.PerkFX.clear();Game.FieldWaves.clear();el('energy-effects').replaceChildren();el('gallery-perk').hidden=true;el('gallery-perk').classList.remove('is-new-unlock');el('discovery-flair').hidden=true;
       Game.Presentation.apply();p.fluctuation.positive=Number(id!=='fluct-negative');p.symmetry.amount=Game.D(.6);el('condense-preview').hidden=id!=='condense';el('energy-view').hidden=id==='condense';
       this.duration=matchMedia('(prefers-reduced-motion: reduce)').matches?(id==='condense'?2.2:['break','stabilize'].includes(id)?.65:this.effect.duration):this.effect.duration;this.resize();
-      if(id==='break'||id==='stabilize'){Game.Presentation.reset(id);clearTimeout(Game.Presentation.resetTimer);}
+      if(id==='break'||id==='stabilize'){Game.Presentation.reset(id);clearTimeout(Game.Presentation.resetTimer);if(Game.BreakFX)Game.BreakFX.pause();}
       else if(id==='perk'){
         el('gallery-perk').hidden=false;Game.PerkFX.play('preview');clearTimeout(Game.PerkFX.timer);
         const layer=Game.PerkFX.layer;if(layer){el('preview-stage').appendChild(layer);const bounds=el('preview-stage').getBoundingClientRect();layer.querySelectorAll('span,i').forEach(part=>{part.style.left=parseFloat(part.style.left)-bounds.left+'px';part.style.top=parseFloat(part.style.top)-bounds.top+'px';});}
@@ -88,6 +90,7 @@
       const id=this.effect.id,time=Math.min(this.duration,Math.max(0,this.time));this.animations.forEach(animation=>{animation.currentTime=time*1000;});
       if(id==='condense')Game.CondenseFX.draw(matchMedia('(prefers-reduced-motion: reduce)').matches?6.2:time);
       else{
+        if(id==='break' && !matchMedia('(prefers-reduced-motion: reduce)').matches)Game.BreakFX.draw(time);
         if(id==='symmetry')Game.player.symmetry.amount=Game.D(Math.min(1,time/this.duration));
         const amount=Game.Symmetry.amount();el('energy-field').style.setProperty('--symmetry-strength',String(Game.Symmetry.intensity()));el('energy-field').style.setProperty('--symmetry-hue',String(268-110*amount));el('gallery-symmetry').textContent=(amount*100).toFixed(3)+'%';el('gallery-symmetry-type').textContent=Game.Symmetry.type();
         if(id==='field'||id==='symmetry'){const ms=time*1000;Game.FieldWaves.waves=this.baseWaves.filter(wave=>ms>=wave.started&&ms-wave.started<Game.CONFIG.FIELD_EXCITATION.waveDuration*1000);Game.FieldWaves.color='#a8c6d3';Game.FieldWaves.draw(ms);}
@@ -114,6 +117,7 @@
       const cycle=function () {
         if(token!==gallery.audioToken || !Game.player.settings.sound)return;
         if(id==='condense')Game.Audio.playCondenseMusic();
+        else if(id==='break')Game.Audio.playBreakMusic();
         else {
           const kind=id==='production'?'generator':id==='field'?'fieldExcitation':id==='symmetry'?'alignment':id.startsWith('fluct-')?'fluctuation':id;
           const repeated=['production','field','symmetry','fluct-positive','fluct-negative'].includes(id),step=id==='fluct-negative'?1.2:.9;

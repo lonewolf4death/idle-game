@@ -2,7 +2,7 @@
   const el=function (id) { return document.getElementById(id); };
   Game.Presentation={
     last:{},steps:{},announced:{},resetTimer:null,flairTimer:null,lastFlair:-Infinity,
-    breakDuration:6000,
+    breakDuration:7500,
     animationOptions:[['production','Energy flow'],['positiveFluct','Positive Fluct'],['negativeFluct','Negative Fluct'],['quantumResonance','Quantum Resonance'],['energyResonance','Energy Resonance'],['fieldExcitation','Field Excitation waves'],['fieldOscillation','Field Oscillation'],['fieldResonance','Field Resonance'],['fieldCoupling','Field Coupling'],['alignment','Field Alignment'],['symmetry','Symmetry geometry and echoes'],['stabilize','Stabilization'],['break','Break Symmetry'],['discovery','Discovery and unlock highlights'],['background','Energy number pulse'],['pattern','Purchased pattern completion']],
     animationEnabled:function (key) {
       const settings=Game.player.settings;
@@ -158,9 +158,9 @@
         osc.start(start);osc.stop(start+duration+.03);voices.push(osc);
       });
     },
-    clearReset:function () { clearTimeout(this.resetTimer);const layer=el('reset-presentation');if(layer) { layer.hidden=true;layer.removeAttribute('data-kind'); } },
+    clearReset:function () { clearTimeout(this.resetTimer);if(Game.BreakFX)Game.BreakFX.stop();const layer=el('reset-presentation');if(layer) { layer.hidden=true;layer.removeAttribute('data-kind'); } },
     reset:function (kind) {
-      if(kind==='break')this.playTone('break');
+      if(kind==='break')Game.Audio.playBreakMusic();
       if(!this.animationEnabled(kind) || document.hidden || Game.Loop.catchingUp)return;
       this.clearReset();
       const layer=el('reset-presentation'),geometry=layer.querySelector('.reset-geometry'),reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -174,6 +174,7 @@
         svg+='<path d="M0 500H1000M500 0V1000"/>';
       }
       geometry.innerHTML=svg+'</svg>';layer.hidden=false;
+      if(kind==='break' && !reduced)Game.BreakFX.start(layer);
       this.resetTimer=setTimeout(function () { Game.Presentation.clearReset(); },reduced?650:kind==='break'?this.breakDuration:2000);
     },
     mirrorGeometry:function () {

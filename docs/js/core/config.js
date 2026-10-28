@@ -340,4 +340,30 @@
     fracturedPerfection:{name:'Fractured perfection',cost:10,scaling:6,max:5,effect:1.25,description:'Each level multiplies Asymmetry gained by ×1.25. Rewards round down after all bonuses.'},
     residualOrder:{name:'Residual order',cost:5,scaling:4,max:5,startingSymmetry:.02,description:'Each level adds 2 percentage points of starting Symmetry, up to +10 points. Adds to Perfect Alignment starting bonuses. Applies on the next reset.'}
   }};
+  Game.CONFIG.DISCOVERY_ACHIEVEMENTS.push(
+    {id:'resonantReserve',name:'A thousand quiet answers',kind:'resonance',amount:'1000',reward:'generators',multiplier:'1.02',icon:'quantumResonance',requirement:'Produce 1,000 Quantum Resonance over your lifetime.'},
+    {id:'steadyOrbit',name:'A rhythm of its own',kind:'purchased',generator:'fieldOscillation',amount:'1',reward:'energy',multiplier:'1.01',icon:'fieldOscillation',requirement:'Purchase your first Field Oscillation.'},
+    {id:'completeField',name:'Nothing exists alone',kind:'allGenerators',amount:'1',reward:'generators',multiplier:'1.02',icon:'fieldCoupling',requirement:'Have at least one purchased unit of every Primordial generator in the same field.'},
+    {id:'returningUniverse',name:'The shape of returning',kind:'condenses',amount:'10',reward:'energy',multiplier:'1.02',icon:'condense',requirement:'Condense Energy 10 times.'},
+    {id:'measuredAlignment',name:'Five points of agreement',kind:'alignment',amount:'5',exact:true,reward:'energy',multiplier:'1.01',icon:'coherent',requirement:'Finish a purchase with exactly 5 purchased Field Alignment levels.'},
+    {id:'perfectSymmetry',name:'Perfection remembered',kind:'symmetry',amount:'1',reward:'symmetrySpeed',multiplier:'1.025',icon:'symmetry',requirement:'Reach 100% Symmetry for the first time.'},
+    {id:'firstFracture',name:'A difference survives',kind:'asymmetry',amount:'1',reward:'energy',multiplier:'1.02',icon:'asymmetry',requirement:'Break Symmetry for the first time.'}
+  );
+  Game.CONFIG.STORY=[
+    {id:'echoes',order:3.2,title:'A reply in the field',kind:'achievement',achievement:'firstPattern',text:'The disturbance no longer fades without an answer. Across the field, another pattern responds. For the first time, one event leaves a trace in another.'},
+    {id:'fluctuatingWorld',order:3.5,title:'A world of differences',kind:'generator',generator:'quantumFluctuation',text:'Potential gathers unevenly. One region brightens as another grows quiet. These differences are fleeting, but a perfectly still universe could never become anything else.'},
+    {id:'firstRhythm',order:6.2,title:'A rhythm with no clock',kind:'generator',generator:'fieldOscillation',text:'The field rises, falls, and rises again. No clock measures the interval; the repetition is the first thing a clock could measure.'},
+    {id:'coupledField',order:6.5,title:'Nothing moves alone',kind:'generator',generator:'fieldCoupling',text:'A disturbance in one pattern changes the possibilities of another. What seemed separate was only distant. The field begins to behave as a whole.'},
+    {id:'chosenPossibility',order:7.2,title:'A chosen possibility',kind:'skills',text:'Countless arrangements could have persisted. One is held more firmly than the rest. The next beginning will carry the shape of this choice.'},
+    {id:'returningShape',order:7.4,title:'The shape of returning',kind:'condenses',amount:'10',text:'Again, the field falls silent. Again, it returns with something remembered. Repetition is no longer an ending; it is a way of becoming.'},
+    {id:'otherLaws',order:7.6,title:'A different law',kind:'challengeAny',text:'For a moment, existence follows a different rule. Familiar patterns struggle, adapt, and persist. The form of a universe depends on what it is allowed to do.'},
+    {id:'eightFacets',order:7.8,title:'Eight ways to exist',kind:'challengeAll',text:'Eight constraints have shaped eight different paths through the same field. Beneath them, something endured. The laws may change; the possibility of structure remains.'},
+    {id:'commonMeasure',order:8.25,title:'A common measure',kind:'symmetry',amount:'.25',text:'Patterns that once seemed unrelated begin to share a measure. Their differences remain, but they can now be described in the same language.'},
+    {id:'oneLanguage',order:8.5,title:'One language',kind:'symmetry',amount:'.5',text:'The field no longer needs a separate rule for every interaction. Beneath their different appearances, the same relationship repeats. The laws are beginning to recognize one another.'},
+    {id:'fieldConversation',order:8.75,title:'A field in conversation',kind:'symmetry',amount:'.75',text:'Each pattern changes the conditions in which the others exist. The field is no longer a collection of independent motions. Every part carries an answer from the whole.'},
+    {id:'almostIndistinguishable',order:8.9,title:'Almost indistinguishable',kind:'symmetry',amount:'.9',text:'Differences that once defined the field have become difficult to find. Order grows more exact, and each remaining imperfection becomes more significant.'},
+    {id:'smallestDifference',order:8.95,title:'The smallest difference',kind:'symmetry',amount:'.95',text:'Almost every transformation leaves the field unchanged. Yet almost is not the same as always. A single difference is enough to leave another possibility open.'},
+    {id:'noPreferredDirection',order:9,title:'No preferred direction',kind:'symmetry',amount:'1',text:'No direction is favored. No part of the field can distinguish its own place from another. The symmetry is complete, and for a moment, every possibility is held in perfect balance.'},
+    {id:'survivingDifference',order:10,title:'A difference survives',kind:'asymmetry',amount:'1',text:'The perfect image fractures. Most of its order falls away, but a small difference remains, unable to cancel itself out. Existence has acquired something it cannot mirror.'}
+  ];
 })(window.CosmicIdle);

@@ -49,6 +49,11 @@
       if(definition.kind==='stabilizations') return p.structure.stabilizations.gt(0) || this.generator('coherentEnergy');
       if(definition.kind==='challenge') return this.challenge(definition.track);
       if(definition.kind==='allChallenges') return Game.CONFIG.AUTOMATION.buyers.every(function (_,i) { return Game.Discovery.challenge(i+1); });
+      if(definition.kind==='allGenerators')return this.generator('fieldCoupling');
+      if(definition.kind==='resonance')return this.generator('coherentEnergy')||!!p.lore.coherenceSeen;
+      if(definition.kind==='condenses')return p.prestige.times.gt(0);
+      if(definition.kind==='alignment'||definition.kind==='symmetry')return Game.Symmetry.unlocked();
+      if(definition.kind==='asymmetry')return Game.Asymmetry.discovered();
       return true;
     },
     sync: function () {

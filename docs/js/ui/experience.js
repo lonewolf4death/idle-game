@@ -178,6 +178,7 @@
     loreKey: '',
     introduction: 'Existence contains potential, but no meaningful structure has formed.',
     loreFlag: function (message) {
+      if(message.milestoneLore)return message.milestoneLore+'Read';
       if(message.introduction) return 'introductionSeen';
       if(message.coherence) return 'coherenceSeen';
       if(message.fieldLesson) return message.fieldLesson===1?'fieldFirstSeen':'fieldSecondSeen';
@@ -192,6 +193,16 @@
     enqueue: function (message) {
       Game.AchievementNotices.enqueue(message);
     },
+    queueStory:function () {
+      const p=Game.player,key=Game.CONFIG.STORY.map(function (entry) {return p.lore[entry.id]+':'+p.lore[entry.id+'Read'];}).join('|');
+      if(this.storyOwner===p && this.storyQueueKey===key)return;
+      this.storyOwner=p;this.storyQueueKey=key;
+      Game.CONFIG.STORY.forEach(function (entry) {
+        if(!p.lore[entry.id] || p.lore[entry.id+'Read'])return;
+        const milestone=entry.kind==='symmetry' && Game.CONFIG.SYMMETRY.milestones.find(function (m) {return Game.D(entry.amount).eq(m.at);});
+        Game.Experience.enqueue({kind:'Lore',title:entry.title,text:entry.text+(milestone?'\n\n'+milestone.reward:''),milestoneLore:entry.id});
+      });
+    },
     next: function () {
       // The loop calls this every tick. Only touch layout when visibility changes.
       const hidden=!Game.AchievementNotices.queue.length || !!(Game.Offline && Game.Offline.busy);
@@ -204,6 +215,7 @@
       Game.AchievementNotices.dismiss();
     },
     syncPlayer: function (deferMessages) {
+      this.storyQueueKey='';
       Game.PrestigeUI.hideDetails();
       if (Game.CondenseFX && Game.CondenseFX.active) Game.CondenseFX.cancel();
       Game.FieldWaves.clear();
@@ -229,7 +241,7 @@
       if (Game.Coherence.discovered() && !Game.player.lore.coherenceSeen) Game.Coherence.showLore();
       Game.FieldExcitation.checkUnlock();
       if (Game.player.prestige.times.gt(0) && !Game.player.lore.condenseSeen) this.enqueue({kind:'Lore · 07', title:'Discrete states', text:Game.CONFIG.PRESTIGE.lore, condense:true});
-      Game.Symmetry.showLore();this.next();
+      Game.Symmetry.showLore();Game.Story.capture();this.queueStory();this.next();
     },
     init: function () {
       ["focus", "blur"].forEach(function (event) { window.addEventListener(event, function () { Game.Audio.updateVolume(); }); });
@@ -261,31 +273,33 @@
       this.syncPlayer();
     },
     updateLore: function () {
+      Game.Story.capture();this.queueStory();
       const clicked = Game.player.stats.generatorsBought.gte(1), generated = Game.player.lore.generatorSeen || Game.player.stats.generatorsBought.gte(1);
       const coherent = Game.Coherence.discovered();
       const field = Game.FieldExcitation.discovered() || Game.player.lore.fieldFirstSeen || Game.player.lore.fieldSecondSeen;
       const condensed = Game.player.prestige.times.gt(0);
-      const key = String(clicked) + String(generated) + String(coherent) + String(field) + String(condensed)+String(Game.Symmetry.unlocked())+String(Game.player.lore.stabilizationSeen);
+      const key = String(clicked) + String(generated) + String(coherent) + String(field) + String(condensed)+String(Game.Symmetry.unlocked())+String(Game.player.lore.stabilizationSeen)+Game.CONFIG.STORY.map(function (entry) {return Game.player.lore[entry.id];}).join('');
       if (this.loreKey === key) return;
       this.loreKey = key;
-      const entries = [{title:'01 · Before structure',text:this.introduction}];
-      if (clicked) entries.push({title:'02 · A disturbance',text:'A faint difference interrupts the stillness. It has no shape, no boundary—only the possibility of becoming something.'});
-      if (generated) entries.push({title:'03 · Returning potential',text:'The disturbance returns without your touch. A rhythm emerges, but rhythm is not yet structure. Nothing has learned to hold its form.'});
-      if (coherent) entries.push({title:'04 · Coherent Energy',text:Game.CONFIG.COHERENCE.lore});
-      if (Game.player.lore.stabilizationSeen) entries.push({title:'A pattern remembered',text:Game.CONFIG.STRUCTURE.lore});
+      const entries = [{title:'01 · Before structure',text:this.introduction,order:1}];
+      if (clicked) entries.push({title:'02 · A disturbance',text:'A faint difference interrupts the stillness. It has no shape, no boundary—only the possibility of becoming something.',order:2});
+      if (generated) entries.push({title:'03 · Returning potential',text:'The disturbance returns without your touch. A rhythm emerges, but rhythm is not yet structure. Nothing has learned to hold its form.',order:3});
+      if (coherent) entries.push({title:'04 · Coherent Energy',text:Game.CONFIG.COHERENCE.lore,order:4});
+      if (Game.player.lore.stabilizationSeen) entries.push({title:'A pattern remembered',text:Game.CONFIG.STRUCTURE.lore,order:4.5});
       if (field) {
-        entries.push({title:'05 · Beyond Energy',text:Game.CONFIG.FIELD_EXCITATION.lore[0]});
-        entries.push({title:'06 · Fields',text:Game.CONFIG.FIELD_EXCITATION.lore[1]});
+        entries.push({title:'05 · Beyond Energy',text:Game.CONFIG.FIELD_EXCITATION.lore[0],order:5});
+        entries.push({title:'06 · Fields',text:Game.CONFIG.FIELD_EXCITATION.lore[1],order:6});
       }
-      if (condensed) entries.push({title:'07 · Discrete states',text:Game.CONFIG.PRESTIGE.lore});
-      if(Game.Symmetry.unlocked()) entries.push({title:'08 · Indistinguishable laws',text:Game.CONFIG.SYMMETRY.lore});
+      if (condensed) entries.push({title:'07 · Discrete states',text:Game.CONFIG.PRESTIGE.lore,order:7});
+      if(Game.Symmetry.unlocked()) entries.push({title:'08 · Indistinguishable laws',text:Game.CONFIG.SYMMETRY.lore,order:8});
+      Game.CONFIG.STORY.forEach(function (entry) {if(Game.player.lore[entry.id])entries.push(entry);});entries.sort(function (a,b) {return a.order-b.order;});
       const container = byId('lore-entries'); container.innerHTML = '';
       entries.forEach(function (entry) {
         const card = document.createElement('article'); card.className = 'lore-entry';
         const heading = document.createElement('h3'); heading.textContent = entry.title;
         const paragraph = document.createElement('p'); paragraph.textContent = entry.text;
         const replay = document.createElement('button'); replay.textContent = 'Read';
-        replay.addEventListener('click', function () { Game.Experience.enqueue({kind:'Lore',title:entry.title,text:entry.text}); });
+        replay.addEventListener('click', function () { const message={kind:'Lore',title:entry.title,text:entry.text};if(entry.id && !Game.player.lore[entry.id+'Read'])message.milestoneLore=entry.id;Game.Experience.enqueue(message); });
         card.append(heading,paragraph,replay); container.appendChild(card);
       });
     }

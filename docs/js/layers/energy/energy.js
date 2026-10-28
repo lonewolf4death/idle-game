@@ -300,6 +300,7 @@
         }
         // Resolve the ending generator's resource events before moving the bonus.
         Game.Progression.advanceGeneratorFocus(segment);
+        Game.Achievements.capture(Game.player,true);
       }
     },
     tickProduction: function (gameDelta) {
