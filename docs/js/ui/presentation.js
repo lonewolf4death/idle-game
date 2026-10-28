@@ -15,8 +15,16 @@
         });
       });
       el('preview-direction').addEventListener('click',function () {
-        if(Game.player.settings.audioTheme===1)presentation.playTone('preview');else Game.Audio.play('perk');
+        const stop=el('stop-direction-preview'),status=el('direction-preview-status');
+        Game.AudioDirections.stopPreview();
+        const token=(presentation.previewDirectionToken||0)+1;presentation.previewDirectionToken=token;
+        if(!Game.player.settings.sound || !Game.player.settings.volume) { status.textContent='Enable Sound and raise the volume to hear the preview.';return; }
+        stop.hidden=false;status.textContent='Playing '+Game.AudioDirections.names[Game.player.settings.audioTheme]+' · same event sequence for each direction';
+        Game.AudioDirections.previewSelected(function () { if(token!==presentation.previewDirectionToken)return;stop.hidden=true;status.textContent='Preview stopped. Choose another direction to compare.'; });
       });
+      el('stop-direction-preview').addEventListener('click',function () { Game.AudioDirections.stopPreview(); });
+      el('setting-audioTheme').addEventListener('change',function () { Game.AudioDirections.stopPreview(); });
+      el('setting-sound').addEventListener('change',function () { Game.AudioDirections.stopPreview(); });
       const acknowledge=function (event) {
         let target=event.target.closest('[data-attention]'),changed=false;
         while(target) {
@@ -78,6 +86,7 @@
       pendingByNode.forEach(function (pending,node) { if(node.classList.contains('is-new-unlock')!==pending)node.classList.toggle('is-new-unlock',pending); });
     },
     playTone:function (kind) {
+      if(Game.player.settings.audioTheme>=2 && Game.AudioDirections) { Game.AudioDirections.play(kind);return; }
       const audio=Game.Audio,p=Game.player,settings=p.settings;
       if(!settings.sound || !settings.volume || audio.shouldMute() || Game.Loop.catchingUp)return;
       if((kind==='discovery'||kind==='break') && !settings.perkSound)return;

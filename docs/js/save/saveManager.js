@@ -125,7 +125,7 @@
     if (!player.fluctuation.rollReductionStacks.eq(player.fluctuation.rollReductionStacks.floor())) throw new Error('Invalid Fluct reduction stack');
     if (player.generatorFocus.elapsed.gte(Game.D(Game.CONFIG.PRESTIGE.skills["3-3"].focusSeconds).mul(Game.CONFIG.GENERATORS.length))) throw new Error('Invalid generator focus timer');
     const settings = player.settings;
-    if(![0,1].includes(settings.audioTheme) || ![0,1].includes(settings.visualTheme) || ![0,1].includes(settings.resetVisuals)) throw new Error('Invalid presentation settings');
+    if(![0,1,2,3].includes(settings.audioTheme) || ![0,1].includes(settings.visualTheme) || ![0,1].includes(settings.resetVisuals)) throw new Error('Invalid presentation settings');
     if(!Object.values(player.ui.attention).every(function (value) { return Number.isSafeInteger(value) && value>=0; })) throw new Error('Invalid discovery acknowledgement');
     const asymmetry=player.asymmetry;
     if(![asymmetry.amount,asymmetry.total,asymmetry.times].every(function (value) { return value.eq(value.floor()); }) || asymmetry.amount.gt(asymmetry.total)) throw new Error('Invalid Asymmetry');

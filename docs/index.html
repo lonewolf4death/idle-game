@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cosmic Idle — Energy</title>
-  <link rel="stylesheet" href="css/main.css?v=e0cfb6db797d" />
+  <link rel="stylesheet" href="css/main.css?v=fadb43cb297a" />
 </head>
 <body>
   <main class="game-shell">
@@ -277,11 +277,11 @@
         <p id="save-status" class="settings-note" role="status">Autosave enabled.</p>
         <div class="save-recovery-controls"><button id="export-stored-button">Export protected stored save</button><label>Recovery backup<select id="save-backup-select" aria-label="Recovery backup"></select></label><button id="restore-backup-button">Restore selected backup</button><p class="settings-note">Imports and recovery keep the previous data as a backup. A failed load pauses autosaving instead of replacing your progress.</p></div>
         <div class="settings-list">
-          <label><span>Sound direction</span><select id="setting-audioTheme"><option value="0">Eventide · original</option><option value="1">Celestial score · new</option></select></label>
+          <label><span>Sound direction</span><select id="setting-audioTheme"><option value="0">Eventide · original</option><option value="1">Celestial score</option><option value="2">Glass observatory · new</option><option value="3">Redshift · new</option></select></label>
           <label><span>Visual direction</span><select id="setting-visualTheme"><option value="0">Deep Signal · original</option><option value="1">Spectral lattice · new</option></select></label>
           <label><span>Stabilization and Break Symmetry animations</span><input id="setting-resetVisuals" type="checkbox"></label>
           <p class="settings-note">Sound and visual directions can be mixed. Both preserve the original Condense music and cinematic.</p>
-          <button id="preview-direction">Preview selected sound</button>
+          <div class="audio-preview-actions"><button id="preview-direction">Preview selected sound</button><button id="stop-direction-preview" hidden>Stop preview</button><a href="gallery.html" target="_blank" rel="noopener">Animation &amp; sound gallery ↗</a></div><p id="direction-preview-status" class="settings-note" role="status">Compare the same short event sequence in each sound direction.</p>
           <label><span>Sound</span><input id="setting-sound" type="checkbox"></label>
           <label><span>Mute sounds while unfocused</span><input id="setting-muteUnfocused" type="checkbox"></label>
           
@@ -362,10 +362,10 @@
   <script src="js/core/structure.js?v=4762d080104f"></script>
   <script src="js/core/flow.js?v=d1f1f20dbab7"></script>
   <script src="js/core/productionStats.js?v=9cdac373e95e"></script>
-  <script src="js/save/saveManager.js?v=8571c1bb4661"></script>
+  <script src="js/save/saveManager.js?v=5a423ff596cc"></script>
   <script src="js/ui/format.js?v=7deb167be06e"></script>
   <script src="js/ui/icons.js?v=80b1b0ea0822"></script>
-  <script src="js/ui/experience.js?v=6ac5729136d2"></script>
+  <script src="js/ui/experience.js?v=b15e1372ab97"></script>
   <script src="js/ui/perkFX.js?v=6b1f5cb7c69e"></script>
   <script src="js/ui/condenseFX.js?v=a3923dd5d810"></script>
   <script src="js/ui/tooltips.js?v=003dcab9db72"></script>
@@ -382,7 +382,8 @@
   <script src="js/core/gameLoop.js?v=4522cc2858ab"></script>
   <script src="js/core/offline.js?v=a51364542072"></script>
   <script src="js/ui/asymmetry.js?v=4c9fb123a561"></script>
-  <script src="js/ui/presentation.js?v=771af84bfcd6"></script>
+  <script src="js/ui/presentation.js?v=03a8e7174dbb"></script>
+  <script src="js/ui/audioDirections.js?v=544436777023"></script>
   <script src="js/main.js?v=e46e63cb9fc1"></script>
 </body>
 </html>

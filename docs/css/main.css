@@ -915,6 +915,8 @@ summary.contribution-row { cursor:pointer; }
 #break-dialog p { font-size:13px; line-height:1.9; color:var(--muted); }
 .dialog-actions { display:flex; flex-wrap:wrap; gap:12px; margin-top:24px; }
 .settings-list select { color:var(--text); background:var(--surface); border:1px solid var(--border); padding:8px; max-width:55%; }
+.audio-preview-actions { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin:12px 0; }
+.audio-preview-actions a { color:#a9d8d1; font-size:12px; }
 .is-new-unlock { animation:possibility-highlight 2.4s ease-in-out infinite; }
 @keyframes possibility-highlight { 0%,100% { box-shadow:inset 0 0 0 1px #d8c28e36,0 0 0 #c6b6e000; } 50% { box-shadow:inset 0 0 0 1px #d8c28eae,0 0 16px #aa9ac02e; } }
 #discovery-flair { position:fixed; right:20px; bottom:130px; z-index:30; max-width:min(360px,calc(100vw - 40px)); padding:14px 22px; border-left:2px solid #b5ddcf; background:linear-gradient(100deg,#133536ed,#14232600); color:#d0eee5; font-size:12px; pointer-events:none; animation:discovery-bloom 3.5s ease-out forwards; }

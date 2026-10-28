@@ -61,7 +61,7 @@
       if (dynamics && !settings.fieldSound) return;
       const enabled = kind === 'bubbleCollect' || kind === 'bubbleForm' ? settings.bubbleSound : (kind === 'perk' || kind === 'stabilize') ? settings.perkSound : kind === 'autoClick' ? settings.autoClickSound : kind === 'click' ? settings.clickSound : kind === 'fluctuation' ? settings.fluctuationSound : (kind === 'quantumResonance' || kind === 'energyResonance') ? settings.coherentSound : (kind === 'fieldExcitation' || dynamics) ? settings.fieldSound : settings.generatorSound;
       if (!settings.sound || !settings.volume || !enabled || this.shouldMute() || (Game.Loop && Game.Loop.catchingUp)) return;
-      if(settings.audioTheme===1 && Game.Presentation) { Game.Presentation.playTone(kind);return; }
+      if(settings.audioTheme>0 && Game.Presentation) { Game.Presentation.playTone(kind);return; }
       this.start();
       if (!this.context || this.context.state !== 'running' || this.voices >= Game.CONFIG.AUDIO.maxVoices) return;
       const now = this.context.currentTime;

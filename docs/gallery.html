@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Preview Cosmic Idle animations and compare four audio directions without a game save."><title>Cosmic Idle · Animation & sound gallery</title><link rel="stylesheet" href="css/main.css?v=fadb43cb297a"><link rel="stylesheet" href="css/gallery.css?v=374940700c1a"></head>
+<body class="gallery presentation-spectral">
+ <header class="gallery-header"><div><a class="gallery-brand" href="index.html">Cosmic Idle</a><h1>Animation &amp; sound gallery</h1><p>Explore the current effects without a playthrough.</p></div><a class="gallery-game-link" href="index.html">Open the game ↗</a></header>
+ <main class="gallery-layout">
+  <section class="gallery-workbench" aria-label="Animation preview">
+   <div class="gallery-stage-heading"><div><span class="label">Current animation</span><h2 id="gallery-effect-title">Condense Energy</h2></div><button id="gallery-fullscreen">Expand preview</button></div>
+   <p id="gallery-effect-description" class="gallery-description"></p>
+   <div id="preview-stage" class="gallery-stage">
+    <div id="energy-view"><div id="energy-field" class="energy-field" role="img" aria-label="Animation preview field">
+     <svg class="potential-contours" viewBox="0 0 700 500" preserveAspectRatio="none" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="0.6"><path d="M-40 290 C140 130 210 410 370 240 S570 170 740 235"/><path d="M-40 302 C140 142 210 422 370 252 S570 182 740 247"/><path d="M-40 314 C140 154 210 434 370 264 S570 194 740 259"/><path d="M-40 326 C140 166 210 446 370 276 S570 206 740 271"/><path d="M-40 338 C140 178 210 458 370 288 S570 218 740 283"/></g></svg>
+     <div class="field-caption"><span class="label">Primordial Energy</span><strong>1e1000</strong><div class="existence-state"><p><span>State:</span><b>Excited</b></p><p><span>Structure:</span><b>Fields</b></p><p><span>Time:</span><b>Undefined</b></p><div class="symmetry-counter"><span>Symmetry</span><strong id="gallery-symmetry">60.000%</strong><small id="gallery-symmetry-type">Unified interaction</small></div></div></div>
+     <svg class="symmetry-mandala" viewBox="0 0 500 500" aria-hidden="true"><defs><linearGradient id="symmetry-colors" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#b093e4"/><stop offset=".5" stop-color="#72d9d4"/><stop offset="1" stop-color="#ead39b"/></linearGradient></defs><g fill="none" stroke="url(#symmetry-colors)" stroke-width=".7"><circle cx="250" cy="250" r="186"/><circle cx="250" cy="250" r="134"/><path d="M250 64L411 157V343L250 436L89 343V157Z M250 116L366 317H134Z M250 384L134 183H366Z M64 250H436M250 64V436"/><ellipse cx="250" cy="250" rx="186" ry="70"/><ellipse cx="250" cy="250" rx="186" ry="70" transform="rotate(60 250 250)"/><ellipse cx="250" cy="250" rx="186" ry="70" transform="rotate(120 250 250)"/></g></svg>
+     <canvas id="field-waves" aria-hidden="true"></canvas><div id="energy-effects" class="energy-effects" aria-hidden="true"></div>
+     <button id="gallery-perk" class="gallery-perk" hidden><span aria-hidden="true">◇</span>Clear harmonics<small>Skill purchase preview</small></button>
+    </div></div>
+    <div id="condense-preview"><canvas id="condense-canvas" aria-hidden="true"></canvas><div class="condense-cinematic-caption"><span class="label">The field remembers</span><h2 id="condense-cinematic-title">Drawing the field inward</h2><p id="condense-cinematic-reward">Animation preview · no resources awarded</p></div></div>
+    <div id="reset-presentation" hidden aria-hidden="true"><div class="reset-geometry"></div><div class="reset-blackout"></div><p class="reset-caption"></p></div>
+    <div id="discovery-flair" hidden aria-hidden="true">New possibility · Unified Interaction</div>
+   </div>
+   <div class="gallery-transport"><button id="gallery-play">Play animation</button><button id="gallery-replay">Replay</button><label class="gallery-timeline-label" for="gallery-timeline">Timeline <output id="gallery-time">0.0 / 6.8s</output></label><input id="gallery-timeline" type="range" min="0" max="6.8" step=".01" value="0"><button id="gallery-stop-audio">Stop audio</button></div>
+   <p class="gallery-note">Preview only. This page never loads or writes a game save. Drag the timeline to inspect a frame. Condense keeps its original music.</p>
+  </section>
+  <aside class="gallery-library"><h2>Animations</h2><div id="gallery-effects" class="gallery-effects" role="group" aria-label="Choose an animation"></div>
+   <div class="gallery-options"><label>Visual direction<select id="gallery-visual"><option value="0">Deep Signal · original</option><option value="1" selected>Spectral lattice</option></select></label><label>Sound direction<select id="gallery-audio"><option value="0">Eventide · original</option><option value="1">Celestial score</option><option value="2" selected>Glass observatory · new</option><option value="3">Redshift · new</option></select></label><label class="gallery-sound-toggle">Sound<input id="gallery-sound" type="checkbox" checked></label><label>Volume<input id="gallery-volume" type="range" min="0" max="1" step=".01" value=".3"></label></div>
+  </aside>
+  <section class="gallery-audio-library" aria-labelledby="gallery-audio-heading"><div><span class="label">Listen &amp; compare</span><h2 id="gallery-audio-heading">Four audio directions</h2><p>Each sample plays the same short sequence of generator, field and discovery sounds.</p></div><div id="gallery-audio-cards" class="gallery-audio-cards"></div><p id="gallery-status" role="status">Choose an animation or play an audio sample. Nothing plays automatically.</p><p id="audio-status" role="status"></p></section>
+ </main>
+ <script src="js/numbers/break_infinity.min.js?v=e5052a9b24a3"></script>
+ <script src="js/core/namespace.js?v=2be15fd41d03"></script>
+ <script src="js/core/config.js?v=1f994a4ee88d"></script>
+ <script src="js/numbers/decimal.js?v=072eb6e5da4d"></script>
+ <script src="js/core/state.js?v=b77891d3374e"></script>
+ <script src="js/core/automation.js?v=b58f0ed9d0a8"></script>
+ <script src="js/core/symmetry.js?v=0724e8f1a677"></script>
+ <script src="js/time/gameTime.js?v=a3b9af0ff87e"></script>
+ <script src="js/core/modifiers.js?v=368e702616dc"></script>
+ <script src="js/core/playtime.js?v=e3322b01d6fb"></script>
+ <script src="js/core/progression.js?v=d53b14316d63"></script>
+ <script src="js/core/prestige.js?v=06d57d041259"></script>
+ <script src="js/layers/energy/energy.js?v=6435c975ec5c"></script>
+ <script src="js/layers/energy/coherence.js?v=be5e46fdf999"></script>
+ <script src="js/layers/energy/fieldExcitation.js?v=abb01bc2d45d"></script>
+ <script src="js/layers/energy/fieldDynamics.js?v=76632361444f"></script>
+ <script src="js/core/structure.js?v=4762d080104f"></script>
+ <script src="js/core/flow.js?v=d1f1f20dbab7"></script>
+ <script src="js/ui/format.js?v=7deb167be06e"></script>
+ <script src="js/ui/icons.js?v=80b1b0ea0822"></script>
+ <script src="js/ui/experience.js?v=b15e1372ab97"></script>
+ <script src="js/ui/perkFX.js?v=6b1f5cb7c69e"></script>
+ <script src="js/ui/condenseFX.js?v=a3923dd5d810"></script>
+ <script src="js/ui/fieldWaves.js?v=fa132db192d3"></script>
+ <script src="js/ui/render.js?v=647f7e967ea3"></script>
+ <script src="js/ui/presentation.js?v=03a8e7174dbb"></script>
+ <script src="js/ui/audioDirections.js?v=544436777023"></script>
+ <script src="js/ui/gallery.js?v=f15ea1c3fd26"></script>
+</body></html>
