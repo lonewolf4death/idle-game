@@ -5,6 +5,17 @@
   function number(value) { return Game.Format.number(value, 0); }
   Game.PrestigeUI = {
     selected: "1-1", nodes: {}, pinned: false,
+    activateNode: function (id, event) {
+      if (event && event.shiftKey) {
+        Game.Loop.pump(performance.now());
+        if (Game.Prestige.canBuySkill(id)) {
+          this.selected=id;this.hideDetails();
+          if(Game.Prestige.buySkill(id)) byId('skill-purchase-status').textContent='Skill '+id+' unlocked.';
+          return;
+        }
+      }
+      this.showDetails(id,true);
+    },
     showDetails: function (id, pin) {
       clearTimeout(this.showTimer);clearTimeout(this.hideTimer);
       const node = this.nodes[id];
@@ -58,7 +69,7 @@
           node.classList.toggle("is-root", !definition.requires);
           node.dataset.skill = id;
           node.innerHTML = "<span class='skill-label-title'>" + Game.Icons.svg("skill-" + id) + "<b>" + id + "</b><span>" + definition.name + "</span></span><span class='skill-node-state'></span>";
-          node.setAttribute("aria-label", id + ": " + (definition ? definition.name : "Unformed skill") + ". Inspect skill.");
+          node.setAttribute("aria-label", id + ": " + (definition ? definition.name : "Unformed skill") + ". Inspect skill. Shift-click to purchase immediately.");
           node.setAttribute("aria-haspopup", "dialog");node.setAttribute("aria-controls", "skill-detail");node.setAttribute("aria-expanded", "false");
           node.addEventListener("pointerenter", function (event) { if (event.pointerType !== "touch") Game.PrestigeUI.scheduleDetails(id); });
           node.addEventListener("pointerleave", function (event) { if (!byId("skill-detail").contains(event.relatedTarget)) Game.PrestigeUI.queueHide(); });
@@ -73,7 +84,7 @@
             Game.PrestigeUI.scheduleDetails(id);
           });
           node.addEventListener("blur", function (event) { if (!byId("skill-detail").contains(event.relatedTarget)) { Game.PrestigeUI.pinned = false;Game.PrestigeUI.queueHide(); } });
-          node.addEventListener("click", function () { Game.PrestigeUI.showDetails(id, true); });
+          node.addEventListener("click", function (event) { Game.PrestigeUI.activateNode(id,event); });
           Game.PrestigeUI.nodes[id] = node;
           tree.appendChild(node);
         });

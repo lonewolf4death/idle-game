@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cosmic Idle — Energy</title>
-  <link rel="stylesheet" href="css/main.css" />
+  <link rel="stylesheet" href="css/main.css?v=07a4f7be0490" />
 </head>
 <body>
   <main class="game-shell">
@@ -26,6 +26,8 @@
       </article>
     </section>
     </header>
+
+    <section id="save-recovery-warning" class="save-recovery-warning" role="alert" hidden><strong>Your stored save is protected.</strong><span id="save-warning-text"></span><button id="open-save-recovery">Open save recovery</button></section>
 
     <div class="game-layout">
     <aside class="control-panel" aria-label="Energy controls">
@@ -305,6 +307,7 @@
           <button id="reset-button" class="danger">Hard Reset</button>
         </div>
         <p id="save-status" class="settings-note" role="status">Autosave enabled.</p>
+        <div class="save-recovery-controls"><button id="export-stored-button">Export protected stored save</button><label>Recovery backup<select id="save-backup-select" aria-label="Recovery backup"></select></label><button id="restore-backup-button">Restore selected backup</button><p class="settings-note">Imports and recovery keep the previous data as a backup. A failed load pauses autosaving instead of replacing your progress.</p></div>
         <div class="settings-list">
           <label><span>Sound</span><input id="setting-sound" type="checkbox"></label>
           <label><span>Mute sounds while unfocused</span><input id="setting-muteUnfocused" type="checkbox"></label>
@@ -354,44 +357,44 @@
   <dialog id="condense-dialog" aria-labelledby="condense-cinematic-title" aria-describedby="condense-cinematic-reward"><canvas id="condense-canvas" aria-hidden="true"></canvas><div class="condense-cinematic-caption"><span class="label">The field remembers</span><h2 id="condense-cinematic-title">Condensing Energy</h2><p id="condense-cinematic-reward"></p></div><button id="skip-condense">Skip cinematic</button></dialog>
 
   <!-- Break Infinity: large-number library -->
-  <script src="js/numbers/break_infinity.min.js"></script>
+  <script src="js/numbers/break_infinity.min.js?v=e5052a9b24a3"></script>
 
   <!-- Load order matters because this version works directly from file:// -->
-  <script src="js/core/namespace.js"></script>
-  <script src="js/core/config.js"></script>
-  <script src="js/numbers/decimal.js"></script>
-  <script src="js/core/state.js"></script>
-  <script src="js/core/automation.js"></script>
-  <script src="js/core/symmetry.js"></script>
-  <script src="js/time/gameTime.js"></script>
-  <script src="js/core/modifiers.js"></script>
-  <script src="js/core/playtime.js"></script>
-  <script src="js/core/progression.js"></script>
-  <script src="js/core/prestige.js"></script>
-  <script src="js/layers/energy/energy.js"></script>
-  <script src="js/layers/energy/coherence.js"></script>
-  <script src="js/layers/energy/fieldExcitation.js"></script>
-  <script src="js/layers/energy/fieldDynamics.js"></script>
-  <script src="js/core/productionStats.js"></script>
-  <script src="js/save/saveManager.js"></script>
-  <script src="js/ui/format.js"></script>
-  <script src="js/ui/icons.js"></script>
-  <script src="js/ui/experience.js"></script>
-  <script src="js/ui/perkFX.js"></script>
-  <script src="js/ui/potentialBubble.js"></script>
-  <script src="js/ui/condenseFX.js"></script>
-  <script src="js/ui/tooltips.js"></script>
-  <script src="js/ui/fieldWaves.js"></script>
-  <script src="js/ui/stats.js"></script>
-  <script src="js/ui/achievements.js"></script>
-  <script src="js/ui/prestige.js"></script>
-  <script src="js/vendor/three.min.js"></script>
-  <script src="js/ui/treeCamera.js"></script>
-  <script src="js/ui/treeMap.js"></script>
-  <script src="js/ui/automation.js"></script>
-  <script src="js/ui/symmetry.js"></script>
-  <script src="js/ui/render.js"></script>
-  <script src="js/core/gameLoop.js"></script>
-  <script src="js/main.js"></script>
+  <script src="js/core/namespace.js?v=2be15fd41d03"></script>
+  <script src="js/core/config.js?v=4bdaa486a272"></script>
+  <script src="js/numbers/decimal.js?v=072eb6e5da4d"></script>
+  <script src="js/core/state.js?v=6295fc2f21dd"></script>
+  <script src="js/core/automation.js?v=c9e7b70e2a8f"></script>
+  <script src="js/core/symmetry.js?v=88f88728f59a"></script>
+  <script src="js/time/gameTime.js?v=a3b9af0ff87e"></script>
+  <script src="js/core/modifiers.js?v=368e702616dc"></script>
+  <script src="js/core/playtime.js?v=e3322b01d6fb"></script>
+  <script src="js/core/progression.js?v=d4e02ab66668"></script>
+  <script src="js/core/prestige.js?v=6990334c7138"></script>
+  <script src="js/layers/energy/energy.js?v=1ca8cc1bd55b"></script>
+  <script src="js/layers/energy/coherence.js?v=be5e46fdf999"></script>
+  <script src="js/layers/energy/fieldExcitation.js?v=875297a0ad8a"></script>
+  <script src="js/layers/energy/fieldDynamics.js?v=76632361444f"></script>
+  <script src="js/core/productionStats.js?v=018a98292542"></script>
+  <script src="js/save/saveManager.js?v=284aded2db92"></script>
+  <script src="js/ui/format.js?v=18b24fb44594"></script>
+  <script src="js/ui/icons.js?v=80b1b0ea0822"></script>
+  <script src="js/ui/experience.js?v=da316bb66e55"></script>
+  <script src="js/ui/perkFX.js?v=6b1f5cb7c69e"></script>
+  <script src="js/ui/potentialBubble.js?v=a912eb2bf7fa"></script>
+  <script src="js/ui/condenseFX.js?v=a3923dd5d810"></script>
+  <script src="js/ui/tooltips.js?v=4532e4dab1f9"></script>
+  <script src="js/ui/fieldWaves.js?v=c4d67537032d"></script>
+  <script src="js/ui/stats.js?v=c410be456f8a"></script>
+  <script src="js/ui/achievements.js?v=63dbdb261617"></script>
+  <script src="js/ui/prestige.js?v=754ea0bd61c4"></script>
+  <script src="js/vendor/three.min.js?v=170c6789f432"></script>
+  <script src="js/ui/treeCamera.js?v=e042f2436cbe"></script>
+  <script src="js/ui/treeMap.js?v=cbfab2c4e32c"></script>
+  <script src="js/ui/automation.js?v=d574f7d4878f"></script>
+  <script src="js/ui/symmetry.js?v=3d62625d2f83"></script>
+  <script src="js/ui/render.js?v=a19962326dda"></script>
+  <script src="js/core/gameLoop.js?v=1748baf3c85e"></script>
+  <script src="js/main.js?v=bc63880a417f"></script>
 </body>
 </html>

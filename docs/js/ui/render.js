@@ -26,6 +26,7 @@
       Game.Tooltips.hide();
       Game.PrestigeUI.hideDetails();
       Game.TreeCamera.setActive(name === "prestige" && !Game.player.ui.skillTree2D);
+      if(name==='settings')this.updateSaveRecovery();
       this.render();
     },
 
@@ -279,6 +280,10 @@
       byId("export-button").addEventListener("click", function () { Game.Save.exportSave(); });
       byId("import-button").addEventListener("click", function () { Game.Save.importSave(); });
       byId("reset-button").addEventListener("click", function () { Game.Save.hardReset(); });
+      if(byId('export-stored-button'))byId('export-stored-button').addEventListener('click',function(){Game.Save.exportStored();});
+      if(byId('restore-backup-button'))byId('restore-backup-button').addEventListener('click',function(){Game.Save.recoverBackup(byId('save-backup-select').value);});
+      if(byId('open-save-recovery'))byId('open-save-recovery').addEventListener('click',function(){Game.UI.selectView('settings',true);});
+      this.setSaveStatus(Game.Save.lastMessage||'Autosave enabled.');
     },
 
     updateCompactBuy: function (compact, full, name) {
@@ -290,7 +295,20 @@
 
     setSaveStatus: function (message) {
       setText(byId("save-status"), message);
-
+      if(!byId('save-recovery-warning'))return;
+      byId('save-recovery-warning').hidden=!Game.Save.writeProtected;
+      setText(byId('save-warning-text'),Game.Save.writeProtected?message:'');
+      this.updateSaveRecovery();
+    },
+    updateSaveRecovery:function () {
+      if(!byId('save-backup-select'))return;
+      const select=byId('save-backup-select'),entries=Game.Save.backupEntries(),previous=this.recoveryRows&&this.recoveryRows[Number(select.value)];
+      this.recoveryRows=entries;
+      select.replaceChildren();
+      entries.forEach(function(entry,index){const option=document.createElement('option');option.value=String(index);let suffix='';try{const p=JSON.parse(entry.raw);suffix=' · '+Object.values(p.achievements||{}).filter(Boolean).length+' achievements · '+(p.prestige&&p.prestige.totalQuanta||0)+' lifetime Quanta';}catch(error){suffix=' · inspect by importing';}option.textContent=(entry.at?new Date(entry.at).toLocaleString():entry.label)+suffix;select.appendChild(option);});
+      if(!entries.length){const option=document.createElement('option');option.textContent='No backups yet';select.appendChild(option);}
+      else if(previous){const index=entries.findIndex(function(entry){return entry.raw===previous.raw;});if(index>=0)select.value=String(index);}
+      byId('restore-backup-button').disabled=!entries.length;
     },
 
     render: function () {

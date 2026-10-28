@@ -10,6 +10,7 @@
     setInterval(function () {
       Game.Save.save(false);
     }, Game.CONFIG.AUTOSAVE_MS);
+    window.addEventListener('pagehide',function(){Game.Save.save();});
   }
 
   if (document.readyState === "loading") {

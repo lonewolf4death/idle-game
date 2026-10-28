@@ -41,6 +41,10 @@ button.danger { color: var(--disturbance); }
 .control-panel { min-width: 0; padding: 22px 20px; border-right: 1px solid var(--border); }
 .settings-save-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
 .settings-save-actions button { padding: 8px 12px; font-size: 12px; }
+.save-recovery-controls { display:flex; flex-wrap:wrap; align-items:center; gap:12px; margin:14px 0 24px; }.save-recovery-controls label { display:grid; gap:6px; font-size:11px; color:var(--muted); }.save-recovery-controls select { max-width:min(100%,440px); }.save-recovery-controls .settings-note { flex-basis:100%; }
+.save-recovery-warning { padding:12px 24px; border-block:1px solid #9b7252; background:#2a201e; color:#e7c4a2; display:flex; align-items:center; flex-wrap:wrap; gap:12px; font-size:12px; }.save-recovery-warning span { flex:1; min-width:180px; line-height:1.6; }
+.game-shell:has(#save-recovery-warning:not([hidden])) { grid-template-rows:auto auto minmax(0,1fr) auto; }
+.save-recovery-controls label { min-width:0; max-width:100%; flex:1 1 260px; grid-template-columns:minmax(0,1fr); }.save-recovery-controls select { width:100%; min-width:0; }
 .buy-amounts > div { display: flex; gap: 5px; margin-top: 10px; }
 .buy-amounts button { flex: 1; padding: 6px 0; font-size: 11px; }
 .buy-amounts button[aria-pressed=true] { color: var(--energy); border-color: var(--energy); background: var(--energy-wash); }

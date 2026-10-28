@@ -46,7 +46,7 @@
       document.getElementById("skill-tree").hidden=flat;this.port.hidden=!flat;
       document.getElementById("tree-view-2d").setAttribute("aria-pressed",String(flat));
       document.getElementById("tree-view-3d").setAttribute("aria-pressed",String(!flat));
-      document.getElementById("tree-view-help").textContent=flat?"Scroll to explore · Hover for details · Select a node to unlock":"Drag to orbit · Shift / right-drag to pan · Scroll or pinch to zoom";
+      document.getElementById("tree-view-help").textContent=flat?"Scroll to explore · Hover for details · Shift-click to buy":"Drag to orbit · Shift / right-drag to pan · Shift-click to buy · Scroll to zoom";
       const world=flat?this.world:document.getElementById("skill-world");
       (flat?this.world:document.getElementById("skill-tree")).appendChild(document.getElementById("symmetry-placeholder"));
       Object.entries(Game.PrestigeUI.nodes).forEach(function (entry) {

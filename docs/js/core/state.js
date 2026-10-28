@@ -68,5 +68,6 @@
 
   Game.resetPlayer = function resetPlayer() {
     Game.player = Game.createDefaultPlayer();
+    if(Game.Save) Game.Save.beginNewSession();
   };
 })(window.CosmicIdle);

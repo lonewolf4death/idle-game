@@ -144,13 +144,36 @@
     Game.Progression.captureAchievements(player);
     Game.player = player;
   }
-  function status(message) { if (Game.UI) Game.UI.setSaveStatus(message); }
+  const backupKey=Game.CONFIG.SAVE_KEY+':backups',protectedKey=Game.CONFIG.SAVE_KEY+':protected',loadedKey=Game.CONFIG.SAVE_KEY+':lastLoaded';
+  function status(message) { Game.Save.lastMessage=message;if (Game.UI) Game.UI.setSaveStatus(message); }
+  function backups() { try { const rows=JSON.parse(localStorage.getItem(backupKey)||'[]');return Array.isArray(rows)?rows.filter(function(row){return row&&typeof row.raw==='string';}).slice(0,5):[]; } catch(error) { return []; } }
+  function preserve(raw,label) {
+    if(!raw) return;
+    try { const rows=backups().filter(function(row){return row.raw!==raw;});rows.unshift({raw:raw,label:label,at:Date.now()});localStorage.setItem(backupKey,JSON.stringify(rows.slice(0,5))); } catch(error) { /* Saving remains usable if backup storage is full. */ }
+  }
+  function protect(raw,message) {
+    Game.Save.writeProtected=true;Game.Save.protectionReason=message;
+    try { if(raw && !localStorage.getItem(protectedKey)) localStorage.setItem(protectedKey,raw); } catch(error) { /* The primary remains untouched. */ }
+    status(message+' Autosave paused; the stored save has not been replaced.');
+  }
+  function exportRaw(raw,title) { if(raw) prompt(title,btoa(unescape(encodeURIComponent(raw)))); }
   Game.Save = {
+    writeProtected:false,protectionReason:'',lastMessage:'',observedRaw:undefined,
+    beginNewSession:function () { this.writeProtected=false;this.protectionReason='';try { this.observedRaw=localStorage.getItem(Game.CONFIG.SAVE_KEY); } catch(error) { this.observedRaw=undefined; } },
+    backupEntries:function () {
+      const rows=backups();
+      try { const raw=localStorage.getItem(loadedKey);if(raw && !rows.some(function(row){return row.raw===raw;})) rows.push({raw:raw,label:'Last successfully loaded save',at:0}); } catch(error) { /* Optional checkpoint. */ }
+      return rows;
+    },
     save: function () {
+      if(this.writeProtected) { status(this.protectionReason+' Autosave paused; the stored save has not been replaced.');return false; }
       try {
+        const previous=localStorage.getItem(Game.CONFIG.SAVE_KEY);
+        if(this.observedRaw!==undefined && previous!==this.observedRaw) { protect(previous,'Another tab or game copy changed this save. Export this run before choosing which save to keep.');return false; }
         Game.player.lateEnergy.highest=Decimal.max(Game.player.lateEnergy.highest,Game.player.resources.energy);
         Game.Progression.captureAchievements();
-        localStorage.setItem(Game.CONFIG.SAVE_KEY, encode());
+        const raw=encode();if(previous && previous!==raw) preserve(previous,'Previous save');
+        localStorage.setItem(Game.CONFIG.SAVE_KEY,raw);this.observedRaw=raw;
         status('Saved. Autosave every 10 seconds.');
         return true;
       } catch (error) {
@@ -159,31 +182,49 @@
       }
     },
     load: function () {
+      let raw;
       try {
-        const raw = localStorage.getItem(Game.CONFIG.SAVE_KEY);
-        if (!raw) return false;
+        raw = localStorage.getItem(Game.CONFIG.SAVE_KEY);this.observedRaw=raw;
+        if (!raw) { this.writeProtected=false;return false; }
         restore(raw);
+        this.writeProtected=false;this.protectionReason='';
+        try { localStorage.setItem(loadedKey,raw); } catch(error) { /* Optional checkpoint. */ }
+        status('Save loaded. Autosave enabled.');
         return true;
       } catch (error) {
-        status('Save unavailable. You can play and export your progress.');
+        protect(raw,'Save could not load: '+error.message+'. Open Settings to export the stored save or recover a backup.');
         return false;
       }
     },
-    exportSave: function () { Game.Progression.captureAchievements(); prompt('Copy your save:', btoa(encode())); },
+    exportSave: function () { Game.Progression.captureAchievements();exportRaw(encode(),'Copy your current run:'); },
+    exportStored:function () { try { exportRaw(localStorage.getItem(protectedKey)||localStorage.getItem(Game.CONFIG.SAVE_KEY),'Copy the protected stored save:'); } catch(error) { status('Stored save could not be read.'); } },
+    importRaw:function (raw) {
+      const old=Game.player,oldRun=encode();
+      try {
+        restore(raw);
+      } catch(error) { Game.player=old;status('Import failed: '+error.message+'. Your current run and stored save were not changed.');return false; }
+      preserve(oldRun,'Before import or recovery');
+      try { preserve(localStorage.getItem(Game.CONFIG.SAVE_KEY),'Before import or recovery'); } catch(error) { /* Storage may be unavailable. */ }
+      this.beginNewSession();
+      if(Game.Loop){Game.Loop.accumulator=0;Game.Loop.lastTime=performance.now();}
+      const saved=this.save();
+      if(Game.Experience) Game.Experience.syncPlayer();if(Game.UI)Game.UI.render();
+      if(saved)status('Save imported. Previous data retained in backups.');
+      return true;
+    },
+    recoverBackup:function (index) { const entry=this.backupEntries()[Number(index)];return !!entry && this.importRaw(entry.raw); },
     importSave: function () {
       const encoded = prompt('Paste your Energy-only save:');
       if (!encoded) return;
       try {
-        restore(atob(encoded.trim()));
-        if (Game.Experience) Game.Experience.syncPlayer();
-        const saved = this.save();
-        Game.UI.render();
-        if (saved) status('Save imported.');
+        let raw=atob(encoded.trim());try { raw=decodeURIComponent(escape(raw)); } catch(error) { /* Legacy Latin-1 export. */ }
+        if(!this.importRaw(raw)) alert('That save could not be loaded. Your existing data has been kept.');
       } catch (error) { alert('That save is invalid or belongs to a different version. Your game has not changed.'); }
     },
     hardReset: function () {
-      if (!confirm('Erase all progress, including Primordial Quanta, achievements, lore, and playtime? This replaces your current save.')) return;
+      if (!confirm('Erase all progress, including Primordial Quanta, achievements, lore, playtime, and recovery backups? This replaces your current save.')) return;
       Game.resetPlayer();
+      [backupKey,protectedKey,loadedKey].forEach(function(key){try { localStorage.setItem(key,''); } catch(error) { /* Best effort after explicit reset. */ }});
       if (Game.Experience) Game.Experience.syncPlayer();
       this.save();
       Game.UI.render();

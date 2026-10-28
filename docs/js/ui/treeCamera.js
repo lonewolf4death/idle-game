@@ -78,7 +78,7 @@
         if (performance.now()<(view.suppressUntil||0)) { event.preventDefault();event.stopImmediatePropagation();return; }
         if (event.target!==view.canvas) return;
         const id=view.pick(event.clientX,event.clientY);
-        if (id) Game.PrestigeUI.showDetails(id,true);
+        if (id) Game.PrestigeUI.activateNode(id,event);
       },true);
       port.addEventListener("keydown",function (event) {
         if (event.target.closest(".tree-camera-controls,.tree-branch-nav")) return;
