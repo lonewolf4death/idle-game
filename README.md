@@ -24,7 +24,9 @@ Offline progress uses a saved activity timestamp and a return panel for unproces
 
 ## Public edition
 
-The current game is in docs/, deployed by the GitHub Pages workflow. The public edition contains no developer reveal control, development multipliers, time skipping or development-only respec. Sound starts after your first interaction and can be adjusted in Settings. No installation, external assets or backend are required.
+The Energy screen's footer Condense action performs the reset directly and keeps the current view. Lore, achievements and milestone notifications share a nonblocking queue at the top right. Click anywhere on the card, or focus it and press Enter/Space, to dismiss with a two-second fade. The optional six-second automatic dismissal applies to the shared queue. Lore acknowledgements are saved immediately, and pending lore survives run resets without duplicates. Read discovered entries again in Lore.
+
+The current game is in docs/, deployed by the GitHub Pages workflow. The public edition contains no developer reveal control, development multipliers, Quanta grants, time skipping or development-only respec. Sound starts after your first interaction and can be adjusted in Settings. No installation, external assets or backend are required.
 
 The older root scaffold remains in the repository; Pages serves only docs/.
 

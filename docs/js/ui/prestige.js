@@ -110,16 +110,13 @@
       document.addEventListener("visibilitychange", function () { Game.PrestigeUI.hideDetails(); });
       window.addEventListener("blur", function () { Game.PrestigeUI.hideDetails(); });
       window.addEventListener("resize", function () { Game.PrestigeUI.positionDetails(); });
-      byId("condense-button").addEventListener("click", function () {
+      const condense = function () {
         Game.Loop.pump(performance.now());
+        if (Game.Offline && Game.Offline.busy) return;
         Game.Prestige.condense();
-      });
-      byId("milestone-condense").addEventListener("click", function () {
-        Game.Loop.pump(performance.now());
-        if(Game.player.prestige.times.eq(0) && !false) {
-          if(Game.Prestige.condense()) Game.UI.selectView("prestige",true);
-        } else { Game.UI.selectView("prestige",true);byId("condense-button").scrollIntoView({block:"center"}); }
-      });
+      };
+      byId("condense-button").addEventListener("click", condense);
+      byId("milestone-condense").addEventListener("click", condense);
       byId("respec-skills").addEventListener("click", function () {
         if (!Game.Prestige.canRespec()) return;
         const dialog=byId("respec-dialog");
@@ -159,6 +156,7 @@
       setText(byId('condense-reset-description'),resetSummary.reset);setText(byId('condense-keep-description'),resetSummary.keep);
       setText(byId("condense-requirement"), Game.Challenges.active() ? "Condense is unavailable during a challenge. Complete its Energy goal or exit the challenge first." : ready ? "Ready to condense. Your current run will reset." : "Requires " + number(Game.CONFIG.PROGRESSION.prestigeEnergy) + " held Energy.");
       byId("condense-button").disabled = !ready;
+      byId("milestone-condense").disabled = !ready;
       setText(byId("condense-button"), "Condense Energy · +" + number(reward) + " Quanta");
       byId("prestige-view").classList.toggle("can-condense", ready);
       byId("milestone-condense").hidden = !(ready || experienced || reveal);

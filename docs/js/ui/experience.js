@@ -116,8 +116,8 @@
     }
   };
 
-  // Achievement notices never open a modal or move focus away from play.
-  // Keep this queue separate from lore so run resets cannot discard it.
+  // Achievements, lore and milestones share one nonblocking queue.
+  // Run resets keep pending notices; automatic lore is deduplicated by its saved flag.
   Game.AchievementNotices = {
     queue: [], timer: null, dismissTimer: null, dismissing: false,
     place: function () {
@@ -128,7 +128,9 @@
       card.style.top=(header.bottom>=card.offsetHeight+22?14:Math.max(14,tabs.bottom+10))+'px';
     },
     enqueue: function (message) {
-      this.queue.push({title:message.title,text:message.text});
+      const flag=Game.Experience.loreFlag(message);
+      if(flag && (Game.player.lore[flag] || this.queue.some(function (pending) { return Game.Experience.loreFlag(pending)===flag; }))) return;
+      this.queue.push(Object.assign({kind:'Achievement unlocked'},message));
       this.render();
       if(this.queue.length===1) this.schedule();
     },
@@ -136,9 +138,12 @@
       const card=byId('achievement-notice'),message=this.queue[0];
       card.hidden=!message || !!(Game.Offline && Game.Offline.busy);
       if(!message) return;
-      const values={'achievement-notice-title':message.title,'achievement-notice-reward':message.text,'achievement-notice-count':this.queue.length>1?(this.queue.length-1)+' waiting':'1 notification'};
+      const lore=/^Lore/.test(message.kind);
+      card.classList.toggle('is-lore',lore);
+      card.setAttribute('aria-label','Dismiss '+message.kind+': '+message.title);
+      card.setAttribute('aria-disabled',String(this.dismissing));
+      const values={'achievement-notice-kind':message.kind,'achievement-notice-title':message.title,'achievement-notice-reward':message.text,'achievement-notice-count':this.queue.length>1?(this.queue.length-1)+' waiting':'1 notification'};
       Object.keys(values).forEach(function (id) { if(byId(id).textContent!==values[id]) byId(id).textContent=values[id]; });
-      byId('achievement-notice-dismiss').disabled=this.dismissing;
       this.place();
     },
     schedule: function () {
@@ -150,6 +155,9 @@
     dismiss: function () {
       if(!this.queue.length || this.dismissing) return;
       this.dismissing=true;clearTimeout(this.timer);
+      // Save acknowledgement immediately, so a reset or refresh during the fade
+      // cannot present the same lore again.
+      Game.Experience.acknowledge(this.queue[0]);
       byId('achievement-notice').classList.add('is-dismissing');this.render();
       this.dismissTimer=setTimeout(function () {
         const notices=Game.AchievementNotices;
@@ -166,58 +174,33 @@
   };
 
   Game.Experience = {
-    queue: [], active: null, timer: null, dismissTimer: null, dismissing: false, loreKey: '',
+    loreKey: '',
     introduction: 'Existence contains potential, but no meaningful structure has formed.',
+    loreFlag: function (message) {
+      if(message.introduction) return 'introductionSeen';
+      if(message.coherence) return 'coherenceSeen';
+      if(message.fieldLesson) return message.fieldLesson===1?'fieldFirstSeen':'fieldSecondSeen';
+      if(message.condense) return 'condenseSeen';
+      if(message.symmetry) return 'symmetrySeen';
+      return null;
+    },
+    acknowledge: function (message) {
+      const flag=this.loreFlag(message);
+      if(flag && !Game.player.lore[flag]) { Game.player.lore[flag]=1;Game.Save.save(); }
+    },
     enqueue: function (message) {
-      if(message.kind==='Achievement unlocked') { Game.AchievementNotices.enqueue(message);return; }
-      this.queue.push(message); this.next();
+      Game.AchievementNotices.enqueue(message);
     },
     next: function () {
-      if(Game.Offline && Game.Offline.busy) return;
-      if (this.active || !this.queue.length || byId('respec-dialog').open || byId('challenge-dialog').open || Game.CondenseFX && Game.CondenseFX.active) return;
-      this.active = this.queue.shift();
-      const dialog = byId('story-dialog');
-      dialog.classList.remove('is-dismissing');
-      byId('story-dismiss').removeAttribute('aria-disabled');
-      this.previousFocus = document.activeElement;
-      byId('story-kind').textContent = this.active.kind;
-      byId('story-icon').innerHTML = Game.Icons.svg(this.active.kind === "Achievement unlocked" ? Game.Icons.achievement(this.active.title) : "lore");
-      byId('story-title').textContent = this.active.title;
-      byId('story-text').textContent = this.active.text;
-      byId('story-hint').textContent = Game.player.settings.autoDismiss ? 'Click to continue · closes after 6 seconds' : 'Click to continue';
-      dialog.showModal();
-      byId('story-dismiss').focus();
-      this.schedule();
+      // The loop calls this every tick. Only touch layout when visibility changes.
+      const hidden=!Game.AchievementNotices.queue.length || !!(Game.Offline && Game.Offline.busy);
+      if(byId('achievement-notice').hidden!==hidden) Game.AchievementNotices.render();
     },
     schedule: function () {
-      clearTimeout(this.timer);
-      if (this.active && !this.dismissing && Game.player.settings.autoDismiss) this.timer = setTimeout(function () { Game.Experience.dismiss(); }, 6000);
+      Game.AchievementNotices.schedule();
     },
     dismiss: function () {
-      if (!this.active || this.dismissing) return;
-      this.dismissing = true;
-      clearTimeout(this.timer);
-      byId('story-dialog').classList.add('is-dismissing');
-      byId('story-dismiss').setAttribute('aria-disabled', 'true');
-      const experience = this;
-      this.dismissTimer = setTimeout(function () { experience.finishDismiss(); }, 2000);
-    },
-    finishDismiss: function () {
-      if (!this.dismissing || !this.active) return;
-      const message = this.active;
-      clearTimeout(this.dismissTimer);
-      this.active = null; this.dismissing = false;
-      byId('story-dialog').close();
-      byId('story-dialog').classList.remove('is-dismissing');
-      byId('story-dismiss').removeAttribute('aria-disabled');
-      if (message.introduction) Game.player.lore.introductionSeen = 1;
-      if (message.coherence) Game.player.lore.coherenceSeen = 1;
-      if (message.fieldLesson) Game.player.lore[message.fieldLesson === 1 ? 'fieldFirstSeen' : 'fieldSecondSeen'] = 1;
-      if (message.condense) Game.player.lore.condenseSeen = 1;
-      if (message.symmetry) Game.player.lore.symmetrySeen=1;
-      if (message.introduction || message.coherence || message.fieldLesson || message.condense || message.symmetry) Game.Save.save();
-      if (this.previousFocus && this.previousFocus.isConnected) this.previousFocus.focus();
-      this.next();
+      Game.AchievementNotices.dismiss();
     },
     syncPlayer: function (deferMessages) {
       Game.PrestigeUI.hideDetails();
@@ -226,14 +209,14 @@
       if (Game.PotentialBubble) Game.PotentialBubble.clear();
       if (Game.PerkFX) Game.PerkFX.clear();
       byId('energy-effects').replaceChildren();
-      this.queue = []; this.active = null; this.coherenceQueued = false; this.fieldQueued = false;this.symmetryQueued=false; this.dismissing = false; clearTimeout(this.timer); clearTimeout(this.dismissTimer); byId('story-dialog').close(); byId('story-dialog').classList.remove('is-dismissing'); byId('story-dismiss').removeAttribute('aria-disabled');
+      this.coherenceQueued = false; this.fieldQueued = false;this.symmetryQueued=false;
       if (Game.UI.syncCollapseState) Game.UI.syncCollapseState();
       const settings = Game.player.settings;
       ['sound', 'muteUnfocused', 'perkSound', 'perkVisuals', 'generatorSound', 'fluctuationSound', 'coherentSound', 'fieldSound', 'condenseSound', 'condenseVisuals', 'autoDismiss'].forEach(function (key) { byId('setting-' + key).checked = !!settings[key]; });
       byId('setting-volume').value = settings.volume;
       byId('setting-visuals').value = settings.visuals;
       Game.Audio.updateVolume(); this.loreKey = ''; this.updateLore();
-      Game.AchievementNotices.schedule();
+      Game.AchievementNotices.render();Game.AchievementNotices.schedule();
       if (deferMessages) return;
       this.resumeMessages();
     },
@@ -249,15 +232,16 @@
       document.addEventListener("visibilitychange", function () { Game.Audio.updateVolume(); });
       document.addEventListener('pointerdown', function () { Game.Audio.start(true); }, {capture:true});
       document.addEventListener('keydown', function () { Game.Audio.start(true); }, {capture:true});
-      byId('story-dismiss').addEventListener('click', function () { Game.Experience.dismiss(); });
-      byId('achievement-notice-dismiss').addEventListener('click', function () { Game.AchievementNotices.dismiss(); });
+      const notice=byId('achievement-notice');
+      notice.addEventListener('click', function () { Game.AchievementNotices.dismiss(); });
+      notice.addEventListener('keydown', function (event) {
+        if(event.key==='Enter' || event.key===' ') { event.preventDefault();Game.AchievementNotices.dismiss(); }
+      });
       if(window.ResizeObserver) {
         const observer=new ResizeObserver(function () { Game.AchievementNotices.place(); });
         [byId('achievement-notice'),document.querySelector('.topbar'),document.querySelector('.view-tabs')].forEach(function (node) { observer.observe(node); });
         Game.AchievementNotices.observer=observer;
       }
-      byId('story-dialog').addEventListener('click', function (event) { if (event.target === this) Game.Experience.dismiss(); });
-      byId('story-dialog').addEventListener('cancel', function (event) { event.preventDefault(); });
       ['sound','muteUnfocused','perkSound','perkVisuals','generatorSound','fluctuationSound','coherentSound','fieldSound','condenseSound','condenseVisuals','autoDismiss','volume','visuals'].forEach(function (key) {
         const input = byId('setting-' + key);
         input.addEventListener(key === 'volume' ? 'input' : 'change', function () {

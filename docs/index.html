@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cosmic Idle — Energy</title>
-  <link rel="stylesheet" href="css/main.css?v=f1d2c9042860" />
+  <link rel="stylesheet" href="css/main.css?v=d8e05061c3d5" />
 </head>
 <body>
   <main class="game-shell">
@@ -318,15 +318,10 @@
   <dialog id="respec-dialog" aria-labelledby="respec-title" aria-describedby="respec-description"><span class="label">Reform the constellation</span><h2 id="respec-title">Respec skills?</h2><strong id="respec-refund"></strong><p id="respec-description"></p><div class="respec-choices"><button id="cancel-respec">Keep my skills</button><button id="confirm-respec">Respec · restart run</button></div></dialog>
   <dialog id="stabilization-dialog" aria-labelledby="stabilization-dialog-title"><span class="label">Release the Energy · retain the pattern</span><h2 id="stabilization-dialog-title">Stabilize the Field?</h2><p id="stabilization-dialog-reward"></p><p>Restart Energy, generators and Resonance in a stronger field.</p><p id="stabilization-keeps"></p><div class="respec-choices"><button id="cancel-stabilization">Keep building</button><button id="confirm-stabilization">Stabilize</button></div></dialog>
   <p id="pattern-announcement" class="sr-only" role="status" aria-live="polite"></p>
-  <aside id="achievement-notice" class="achievement-notice" aria-label="Achievement notifications" hidden>
-    <div role="status" aria-live="polite" aria-atomic="true"><span class="label">Achievement unlocked</span><h2 id="achievement-notice-title"></h2><p id="achievement-notice-reward"></p></div>
-    <div class="achievement-notice-actions"><span id="achievement-notice-count"></span><button id="achievement-notice-dismiss">Dismiss</button></div>
+  <aside id="achievement-notice" class="achievement-notice" role="button" tabindex="0" aria-label="Dismiss notification" hidden>
+    <div role="status" aria-live="polite" aria-atomic="true"><span id="achievement-notice-kind" class="label">Achievement unlocked</span><h2 id="achievement-notice-title"></h2><p id="achievement-notice-reward"></p></div>
+    <div class="achievement-notice-actions"><span id="achievement-notice-count"></span><span>Click anywhere to dismiss</span></div>
   </aside>
-  <dialog id="story-dialog" aria-labelledby="story-title" aria-describedby="story-text">
-    <button id="story-dismiss" class="story-card" aria-label="Dismiss message">
-      <span id="story-icon" aria-hidden="true"></span><span id="story-kind" class="label">Lore</span><h2 id="story-title">Before structure</h2><p id="story-text"></p><span id="story-hint">Click to continue</span>
-    </button>
-  </dialog>
   <dialog id="offline-dialog" aria-labelledby="offline-title" aria-describedby="offline-description">
     <span class="label">While you were away</span><h2 id="offline-title">Offline progress</h2>
     <p id="offline-description"></p><progress id="offline-progress" max="1" value="0" aria-label="Offline time processed"></progress>
@@ -361,14 +356,14 @@
   <script src="js/save/saveManager.js?v=83cfcf90a025"></script>
   <script src="js/ui/format.js?v=7deb167be06e"></script>
   <script src="js/ui/icons.js?v=80b1b0ea0822"></script>
-  <script src="js/ui/experience.js?v=ad7bd47a7563"></script>
+  <script src="js/ui/experience.js?v=968bfa822e64"></script>
   <script src="js/ui/perkFX.js?v=6b1f5cb7c69e"></script>
   <script src="js/ui/condenseFX.js?v=a3923dd5d810"></script>
   <script src="js/ui/tooltips.js?v=003dcab9db72"></script>
   <script src="js/ui/fieldWaves.js?v=c4d67537032d"></script>
   <script src="js/ui/stats.js?v=914dfd00bf46"></script>
   <script src="js/ui/achievements.js?v=17c5f1700e67"></script>
-  <script src="js/ui/prestige.js?v=665e616bd775"></script>
+  <script src="js/ui/prestige.js?v=5555ba6bc554"></script>
   <script src="js/ui/discovery.js?v=76910acc7fb3"></script>
   <script src="js/ui/treeMap.js?v=a5c9deae5458"></script>
   <script src="js/ui/automation.js?v=07c4d24a8ad4"></script>
