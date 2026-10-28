@@ -2,6 +2,7 @@
   Game.FieldWaves = {
     active: false, frame: null, waves: [], streamBudget: 0,
     canShow: function () {
+      if(Game.Presentation && !Game.Presentation.animationEnabled('fieldExcitation'))return false;
       return !!Game.player.settings.visuals && !document.hidden && !document.getElementById("energy-view").hidden && !(Game.Loop && Game.Loop.catchingUp);
     },
     init: function () {

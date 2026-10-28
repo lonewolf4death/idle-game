@@ -120,6 +120,8 @@
     },
     flashEnergy: function (event) {
       if (!Game.player.settings.visuals) return;
+      const animation=event.fluctuation?(Game.player.fluctuation.positive?'positiveFluct':'negativeFluct'):event.resonance||event.dynamics||'production';
+      if(Game.Presentation && !Game.Presentation.animationEnabled(animation))return;
       const field = byId("energy-field");
       const bounds = field.getBoundingClientRect();
       const spark = document.createElement("span");
@@ -140,7 +142,7 @@
       if (effects.children.length >= 160) effects.firstElementChild.remove();
       effects.appendChild(spark);
       const lifetime=(event.resonance || event.dynamics)?2200:event.fluctuation||event.production?1600:700,intensity=Game.Symmetry.intensity();
-      if(intensity>.001) {
+      if(intensity>.001 && (!Game.Presentation || Game.Presentation.animationEnabled('symmetry'))) {
         const mirror=spark.cloneNode(true),holder=document.createElement('span');mirror.classList.add('symmetry-echo');holder.className='symmetry-echo-container';holder.style.opacity=String(intensity);holder.appendChild(mirror);
         if(effects.children.length>=160) effects.firstElementChild.remove();effects.appendChild(holder);setTimeout(function () { holder.remove(); },lifetime);
       }

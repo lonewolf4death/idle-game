@@ -48,12 +48,12 @@
         partial.start(start);carrier.start(start);partial.stop(start+duration+.02);carrier.stop(start+duration+.04);
       });
     },
-    stopPreview:function () {
+    stopPreview:function (completed) {
       this.previewSerial++;const preview=this.preview;if(!preview)return;
       this.preview=null;preview.timers.forEach(clearTimeout);
       preview.bus.gain.cancelScheduledValues(preview.context.currentTime);preview.bus.gain.setTargetAtTime(0,preview.context.currentTime,.015);
       setTimeout(function () { preview.bus.disconnect();preview.delay.disconnect();preview.echo.disconnect(); },6500);
-      if(preview.done)preview.done(false);
+      if(preview.done)preview.done(!!completed);
     },
     previewSelected:async function (done) {
       this.stopPreview();const serial=this.previewSerial,audio=Game.Audio;
@@ -72,7 +72,7 @@
           try { Game.Audio.play(entry[1]); } finally { audio.master=prior.master;audio.delay=prior.delay;audio.steps=prior.steps;audio.last=prior.last;Game.Presentation.steps=prior.scoreSteps;Game.Presentation.last=prior.scoreLast;directions.steps=prior.directionSteps;directions.last=prior.directionLast; }
         },entry[0]*1000));
       });
-      preview.timers.push(setTimeout(function () { if(directions.preview===preview)directions.stopPreview(); },11000));return true;
+      preview.timers.push(setTimeout(function () { if(directions.preview===preview)directions.stopPreview(true); },11000));return true;
     }
   };
 })(window.CosmicIdle);

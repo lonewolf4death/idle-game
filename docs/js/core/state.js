@@ -50,7 +50,9 @@
       fieldExcitation: { elapsed: D(0), baseRateBonus: D(0) },
       fieldDynamics: { elapsed: D(0), held: 0 },
       upgrades: { clickPower: D(0) },
-      settings: { audioTheme:0, visualTheme:0, resetVisuals:1, autoBuyers:autoBuyers, autoCondenseTarget:D(1), sound: 1, muteUnfocused: 1, clickSound: 1, autoClickSound: 1, bubbleSound: 1, perkSound: 1, perkVisuals: 1, generatorSound: 1, fluctuationSound: 1, coherentSound: 1, fieldSound: 1, condenseSound: 1, condenseVisuals: 1, volume: 0.3, visuals: 1, autoDismiss: 0, oscillationFreeze: 0 },
+      settings: { audioTheme:0, visualTheme:0, resetVisuals:1,
+        animations:{production:1,positiveFluct:1,negativeFluct:1,quantumResonance:1,energyResonance:1,fieldExcitation:1,fieldOscillation:1,fieldResonance:1,fieldCoupling:1,alignment:1,symmetry:1,stabilize:1,break:1,discovery:1,background:1,pattern:1},
+        autoBuyers:autoBuyers, autoCondenseTarget:D(1), sound: 1, muteUnfocused: 1, clickSound: 1, autoClickSound: 1, bubbleSound: 1, perkSound: 1, perkVisuals: 1, generatorSound: 1, fluctuationSound: 1, coherentSound: 1, fieldSound: 1, condenseSound: 1, condenseVisuals: 1, volume: 0.3, visuals: 1, autoDismiss: 0, oscillationFreeze: 0 },
       lore: { introductionSeen: 0, clickSeen: 0, generatorSeen: 0, coherenceSeen: 0, fieldFirstSeen: 0, fieldSecondSeen: 0, condenseSeen: 0, symmetrySeen:0, stabilizationSeen:0 },
       meta: {
         gameSpeedMultiplier: D(1)

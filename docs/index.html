@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cosmic Idle — Energy</title>
-  <link rel="stylesheet" href="css/main.css?v=fadb43cb297a" />
+  <link rel="stylesheet" href="css/main.css?v=18f360d7fa72" />
 </head>
 <body>
   <main class="game-shell">
@@ -279,7 +279,7 @@
         <div class="settings-list">
           <label><span>Sound direction</span><select id="setting-audioTheme"><option value="0">Eventide · original</option><option value="1">Celestial score</option><option value="2">Glass observatory · new</option><option value="3">Redshift · new</option></select></label>
           <label><span>Visual direction</span><select id="setting-visualTheme"><option value="0">Deep Signal · original</option><option value="1">Spectral lattice · new</option></select></label>
-          <label><span>Stabilization and Break Symmetry animations</span><input id="setting-resetVisuals" type="checkbox"></label>
+          <label><span>Reset animations</span><input id="setting-resetVisuals" type="checkbox"></label>
           <p class="settings-note">Sound and visual directions can be mixed. Both preserve the original Condense music and cinematic.</p>
           <div class="audio-preview-actions"><button id="preview-direction">Preview selected sound</button><button id="stop-direction-preview" hidden>Stop preview</button><a href="gallery.html" target="_blank" rel="noopener">Animation &amp; sound gallery ↗</a></div><p id="direction-preview-status" class="settings-note" role="status">Compare the same short event sequence in each sound direction.</p>
           <label><span>Sound</span><input id="setting-sound" type="checkbox"></label>
@@ -297,6 +297,7 @@
           <label><span>Condense cinematic</span><input id="setting-condenseVisuals" type="checkbox"></label>
           <label><span>Volume</span><input id="setting-volume" type="range" min="0" max="1" step="0.01" aria-label="Volume"></label>
           <label><span>Visual feedback</span><select id="setting-visuals"><option value="0">None — sound only</option><option value="1">Faint abstract glow</option><option value="2">Classic sparks</option></select></label>
+          <details class="animation-settings"><summary>Individual animations</summary><p>Choose which effects play. Sound is controlled separately.</p><label><span>All animations</span><input id="animation-all" type="checkbox"></label><div id="animation-options"></div></details>
           <label><span>Automatically dismiss lore and notifications after 6 seconds</span><input id="setting-autoDismiss" type="checkbox"></label>
         </div>
         <p class="settings-note">Popups wait for a click by default. Generator hotkeys: 1–9 and 0 buy generators in the selected Primordial or Symmetry layer, when available. Uses the selected buy amount in the Energy tab. Sounds begin after your first interaction. Settings are saved with your progress.</p><div class="sound-previews"><button id="preview-perk-sound">Preview skill purchase</button></div><p id="music-stage" class="settings-note"></p><p id="audio-status" class="settings-note" role="status"></p>
@@ -347,7 +348,7 @@
   <script src="js/core/namespace.js?v=2be15fd41d03"></script>
   <script src="js/core/config.js?v=1f994a4ee88d"></script>
   <script src="js/numbers/decimal.js?v=072eb6e5da4d"></script>
-  <script src="js/core/state.js?v=b77891d3374e"></script>
+  <script src="js/core/state.js?v=5362e0a269c6"></script>
   <script src="js/core/automation.js?v=b58f0ed9d0a8"></script>
   <script src="js/core/symmetry.js?v=0724e8f1a677"></script>
   <script src="js/time/gameTime.js?v=a3b9af0ff87e"></script>
@@ -362,14 +363,14 @@
   <script src="js/core/structure.js?v=4762d080104f"></script>
   <script src="js/core/flow.js?v=d1f1f20dbab7"></script>
   <script src="js/core/productionStats.js?v=9cdac373e95e"></script>
-  <script src="js/save/saveManager.js?v=5a423ff596cc"></script>
+  <script src="js/save/saveManager.js?v=df573e42b3fd"></script>
   <script src="js/ui/format.js?v=7deb167be06e"></script>
   <script src="js/ui/icons.js?v=80b1b0ea0822"></script>
   <script src="js/ui/experience.js?v=b15e1372ab97"></script>
-  <script src="js/ui/perkFX.js?v=6b1f5cb7c69e"></script>
+  <script src="js/ui/perkFX.js?v=f9d0cee3875c"></script>
   <script src="js/ui/condenseFX.js?v=a3923dd5d810"></script>
   <script src="js/ui/tooltips.js?v=003dcab9db72"></script>
-  <script src="js/ui/fieldWaves.js?v=fa132db192d3"></script>
+  <script src="js/ui/fieldWaves.js?v=4245ba353309"></script>
   <script src="js/ui/stats.js?v=914dfd00bf46"></script>
   <script src="js/ui/achievements.js?v=17c5f1700e67"></script>
   <script src="js/ui/prestige.js?v=f57351f4cb58"></script>
@@ -377,13 +378,13 @@
   <script src="js/ui/treeMap.js?v=63e38f61743f"></script>
   <script src="js/ui/automation.js?v=07c4d24a8ad4"></script>
   <script src="js/ui/symmetry.js?v=94919d7728e3"></script>
-  <script src="js/ui/render.js?v=647f7e967ea3"></script>
+  <script src="js/ui/render.js?v=4bdcbb4f2056"></script>
   <script src="js/ui/structure.js?v=9cbe2a9105a3"></script>
   <script src="js/core/gameLoop.js?v=4522cc2858ab"></script>
   <script src="js/core/offline.js?v=a51364542072"></script>
   <script src="js/ui/asymmetry.js?v=4c9fb123a561"></script>
-  <script src="js/ui/presentation.js?v=03a8e7174dbb"></script>
-  <script src="js/ui/audioDirections.js?v=544436777023"></script>
+  <script src="js/ui/presentation.js?v=7ee679ca1595"></script>
+  <script src="js/ui/audioDirections.js?v=9a340ce5aa93"></script>
   <script src="js/main.js?v=e46e63cb9fc1"></script>
 </body>
 </html>

@@ -2,12 +2,55 @@
   const el=function (id) { return document.getElementById(id); };
   Game.Presentation={
     last:{},steps:{},announced:{},resetTimer:null,flairTimer:null,lastFlair:-Infinity,
+    breakDuration:6000,
+    animationOptions:[['production','Energy flow'],['positiveFluct','Positive Fluct'],['negativeFluct','Negative Fluct'],['quantumResonance','Quantum Resonance'],['energyResonance','Energy Resonance'],['fieldExcitation','Field Excitation waves'],['fieldOscillation','Field Oscillation'],['fieldResonance','Field Resonance'],['fieldCoupling','Field Coupling'],['alignment','Field Alignment'],['symmetry','Symmetry geometry and echoes'],['stabilize','Stabilization'],['break','Break Symmetry'],['discovery','Discovery and unlock highlights'],['background','Energy number pulse'],['pattern','Purchased pattern completion']],
+    animationEnabled:function (key) {
+      const settings=Game.player.settings;
+      return !!settings.visuals && (!settings.animations || settings.animations[key]!==0) && (!['break','stabilize'].includes(key)||!!settings.resetVisuals);
+    },
+    animationDiscovered:function (key) {
+      if(false || !Game.Discovery)return true;
+      const gen={positiveFluct:'quantumFluctuation',negativeFluct:'quantumFluctuation',quantumResonance:'coherentEnergy',energyResonance:'coherentEnergy',fieldExcitation:'fieldExcitation',fieldOscillation:'fieldOscillation',fieldResonance:'fieldResonance',fieldCoupling:'fieldCoupling'}[key];
+      if(gen)return Game.Discovery.generator(gen);
+      if(key==='alignment'||key==='symmetry')return Game.Symmetry.unlocked();
+      if(key==='break')return Game.Asymmetry.discovered();
+      if(key==='stabilize')return Game.player.structure.stabilizations.gt(0)||Game.Discovery.generator('coherentEnergy');
+      return true;
+    },
+    syncAnimationSettings:function () {
+      if(!el('animation-all') || el('settings-view').hidden)return;
+      const settings=Game.player.settings,presentation=this,values=this.animationOptions.map(function (entry) { const input=el('animation-'+entry[0]);if(input){if(input.checked!==!!settings.animations[entry[0]])input.checked=!!settings.animations[entry[0]];const label=input.closest('label'),hidden=!presentation.animationDiscovered(entry[0]);if(label.hidden!==hidden)label.hidden=hidden;}return !!settings.animations[entry[0]]; });
+      values.push(!!settings.condenseVisuals,!!settings.perkVisuals,!!settings.resetVisuals,!!settings.visuals);
+      const all=el('animation-all');all.checked=values.every(Boolean);all.indeterminate=!all.checked && values.some(Boolean);
+      ['condenseVisuals','perkVisuals','resetVisuals'].forEach(function (key) {el('setting-'+key).checked=!!settings[key];});el('setting-visuals').value=settings.visuals;
+    },
+    clearAnimations:function () {
+      Game.FieldWaves.clear();Game.PerkFX.clear();this.clearReset();
+      el('energy-effects').replaceChildren();el('discovery-flair').hidden=true;
+    },
     apply:function () {
       document.body.classList.toggle('presentation-spectral',Game.player.settings.visualTheme===1);
-      if(!Game.player.settings.visuals || !Game.player.settings.resetVisuals) this.clearReset();
+      const presentation=this;['background','discovery','pattern','symmetry'].forEach(function (key) { document.body.classList.toggle('animation-no-'+key,!presentation.animationEnabled(key)); });
+      const reset=el('reset-presentation');if(reset && !reset.hidden && !this.animationEnabled(reset.dataset.kind))this.clearReset();
+      this.syncAnimationSettings();
     },
     init:function () {
       const presentation=this;
+      this.animationOptions.forEach(function (entry) {
+        const label=document.createElement('label'),text=document.createElement('span'),input=document.createElement('input');text.textContent=entry[1];input.type='checkbox';input.id='animation-'+entry[0];
+        input.addEventListener('change',function () {
+          const settings=Game.player.settings;settings.animations[entry[0]]=Number(this.checked);
+          if(this.checked){if(!settings.visuals)settings.visuals=1;if(['break','stabilize'].includes(entry[0]))settings.resetVisuals=1;}
+          presentation.clearAnimations();presentation.apply();Game.Save.save();
+        });label.append(text,input);el('animation-options').appendChild(label);
+      });
+      // Keep the existing saved preferences and expose them with the other effects.
+      ['condenseVisuals','perkVisuals'].forEach(function (key) { el('animation-options').appendChild(el('setting-'+key).closest('label')); });
+      el('animation-all').addEventListener('change',function () {
+        const settings=Game.player.settings,value=Number(this.checked);Object.keys(settings.animations).forEach(function (key) {settings.animations[key]=value;});
+        settings.condenseVisuals=value;settings.perkVisuals=value;settings.resetVisuals=value;settings.visuals=value?Math.max(1,settings.visuals):0;
+        presentation.clearAnimations();presentation.apply();Game.Save.save();
+      });
       ['audioTheme','visualTheme','resetVisuals'].forEach(function (key) {
         el('setting-'+key).addEventListener('change',function () {
           Game.player.settings[key]=Number(this.type==='checkbox'?this.checked:this.value);
@@ -53,7 +96,7 @@
         const now=performance.now();
         if(now-this.lastFlair>2500 && !(Game.Offline && Game.Offline.busy)) {
           this.lastFlair=now;if(Game.player.settings.perkSound)this.playTone('discovery');
-          if(Game.player.settings.visuals && Game.player.settings.perkVisuals) {
+          if(this.animationEnabled('discovery')) {
             const flair=el('discovery-flair');flair.textContent='New possibility · '+(node.getAttribute('data-discovery-name')||node.textContent.trim().slice(0,48));flair.hidden=false;
             clearTimeout(this.flairTimer);this.flairTimer=setTimeout(function () { flair.hidden=true; },3500);
           }
@@ -118,23 +161,34 @@
     clearReset:function () { clearTimeout(this.resetTimer);const layer=el('reset-presentation');if(layer) { layer.hidden=true;layer.removeAttribute('data-kind'); } },
     reset:function (kind) {
       if(kind==='break')this.playTone('break');
-      if(!Game.player.settings.resetVisuals || !Game.player.settings.visuals || document.hidden || Game.Loop.catchingUp)return;
+      if(!this.animationEnabled(kind) || document.hidden || Game.Loop.catchingUp)return;
       this.clearReset();
       const layer=el('reset-presentation'),geometry=layer.querySelector('.reset-geometry'),reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
       layer.dataset.kind=kind;layer.classList.toggle('reduced-motion',reduced);
       layer.querySelector('.reset-caption').textContent=kind==='break'?'Difference remains.':'A pattern survives.';
       let svg='<svg viewBox="0 0 1000 1000" preserveAspectRatio="none">';
       if(kind==='break') {
-        for(let i=0;i<14;i++) {
-          const a=i*Math.PI*2/14,b=(i+1)*Math.PI*2/14,x=500+Math.cos(a)*1300,y=500+Math.sin(a)*1300,x2=500+Math.cos(b)*1300,y2=500+Math.sin(b)*1300;
-          svg+='<polygon points="500,500 '+x+','+y+' '+x2+','+y2+'" style="--tx:'+Math.cos((a+b)/2)*50+'px;--ty:'+Math.sin((a+b)/2)*50+'px;--turn:'+(i%2?1:-1)*3+'deg"/>';
-        }
+        svg=this.mirrorGeometry();
       } else {
         for(let i=0;i<14;i++)svg+='<ellipse cx="500" cy="500" rx="'+(90+i*34)+'" ry="'+(30+i*18)+'" style="--delay:'+i*20+'ms"/>';
         svg+='<path d="M0 500H1000M500 0V1000"/>';
       }
       geometry.innerHTML=svg+'</svg>';layer.hidden=false;
-      this.resetTimer=setTimeout(function () { Game.Presentation.clearReset(); },reduced?650:kind==='break'?3300:2000);
+      this.resetTimer=setTimeout(function () { Game.Presentation.clearReset(); },reduced?650:kind==='break'?this.breakDuration:2000);
+    },
+    mirrorGeometry:function () {
+      // An irregular, shared mesh keeps the cracks continuous before shards fall.
+      const cx=435,cy=445,count=12,radii=[125,350,1450],angles=Array.from({length:count},function (_,i) {return i*Math.PI*2/count+.09*Math.sin(i*2.4);});
+      const rings=radii.map(function (radius,ring) {return angles.map(function (angle,i) {const r=radius*(1+.16*Math.sin(i*3.1+ring));return [cx+Math.cos(angle)*r,cy+Math.sin(angle)*r];});});
+      let svg='<svg viewBox="0 0 1000 1000" preserveAspectRatio="none"><defs><linearGradient id="mirror-silver" x2=".8" y2="1"><stop stop-color="#c6e4eb" stop-opacity=".19"/><stop offset=".42" stop-color="#132733" stop-opacity=".07"/><stop offset=".6" stop-color="#a6b8d7" stop-opacity=".23"/><stop offset="1" stop-color="#0b111b" stop-opacity=".1"/></linearGradient><radialGradient id="mirror-impact"><stop stop-color="#e0eaf4" stop-opacity=".8"/><stop offset="1" stop-color="#a4b9d7" stop-opacity="0"/></radialGradient><g id="mirror-reflection"><rect width="1000" height="1000" fill="url(#mirror-silver)"/>';
+      for(let band=0;band<8;band++)svg+='<path d="M-100 '+(240+band*65)+'C240 '+(30+band*90)+' 590 '+(870-band*50)+' 1100 '+(330+band*48)+'" fill="none" stroke="'+(band%2?'#adcbd2':'#c3b2db')+'" stroke-width="2"/>';
+      svg+='</g></defs><circle class="mirror-impact" cx="'+cx+'" cy="'+cy+'" r="160" fill="url(#mirror-impact)"/>';
+      let index=0;
+      rings.forEach(function (ring,level) {ring.forEach(function (point,i) {
+        const next=(i+1)%count,points=(level?[rings[level-1][i],point,ring[next],rings[level-1][next]]:[[cx,cy],point,ring[next]]).map(function (p) {return p.join(',');}).join(' '),angle=(angles[i]+(next?angles[next]:Math.PI*2))/2;
+        const shift=25+level*23,delay=(i%4)*55+level*85,turn=(i%2?1:-1)*(8+level*5);
+        svg+='<defs><clipPath id="mirror-clip-'+index+'"><polygon points="'+points+'"/></clipPath></defs><g class="mirror-shard" style="--tx:'+Math.cos(angle)*shift+'px;--ty:'+(30+Math.sin(angle)*shift)+'px;--fall:'+(180+(i%5)*40)+'px;--turn:'+turn+'deg;--tilt:'+(i%2?24:-28)+'deg;--shard-delay:'+delay+'ms"><use href="#mirror-reflection" clip-path="url(#mirror-clip-'+index+')" class="mirror-face"/><polygon class="mirror-edge" points="'+points+'" pathLength="1"/></g>';index++;
+      });});return svg;
     },
     drawWaves:function (waves,now) {
       const ctx=waves.context,w=waves.width,h=waves.height,symmetry=Game.Symmetry.intensity();

@@ -3,7 +3,7 @@
   const effects=[
     {id:'condense',name:'Condense Energy',duration:6.8,text:'The original inward compression, particle trails and Primordial Quanta core. Plays the original Condense score.'},
     {id:'stabilize',name:'Stabilization',duration:2,text:'Field rings align into a retained pattern, then fade.'},
-    {id:'break',name:'Break Symmetry',duration:3.3,text:'The field fractures into separate facets, blacks out, and returns.'},
+    {id:'break',name:'Break Symmetry',duration:6,text:'An off-center impact spreads cracks across the field. Mirrored shards hold, tilt and fall into darkness before the field returns.'},
     {id:'field',name:'Field Excitation',duration:6,text:'The current field-wave renderer. Switch visual directions to compare contour drift and spectral orbital traces.'},
     {id:'production',name:'Energy flow',duration:2,text:'Fading generator-production signals, using the actual in-game effect styles.'},
     {id:'fluct-positive',name:'Positive Fluct',duration:2,text:'The positive Quantum Fluctuation pulse and its audio cue.'},
@@ -18,7 +18,7 @@
     {id:'symmetry',name:'Symmetry buildup',duration:12,text:'Scrub from 0% to 100% to inspect the increasingly symmetric field and Perfect Symmetry geometry.'}
   ];
   Game.Gallery={
-    effect:effects[0],time:0,playing:false,frame:null,lastDraw:-Infinity,serial:0,animations:[],baseWaves:[],lastBeat:-1,
+    effect:effects[0],time:0,playing:false,frame:null,lastDraw:-Infinity,serial:0,animations:[],baseWaves:[],audioMode:null,audioToken:0,audioTimers:[],
     init:function () {
       // A disposable preview model; save, simulation and main modules are absent.
       Game.Loop={catchingUp:false};Game.Offline={busy:false};
@@ -43,15 +43,17 @@
       el('gallery-volume').addEventListener('input',function () {p.settings.volume=Number(this.value);Game.Audio.updateVolume();});
       el('gallery-sound').addEventListener('change',function () {p.settings.sound=Number(this.checked);if(!this.checked)gallery.stopAudio();Game.Audio.updateVolume();});
       el('gallery-fullscreen').addEventListener('click',()=>{if(document.fullscreenElement)document.exitFullscreen();else if(el('preview-stage').requestFullscreen)el('preview-stage').requestFullscreen().catch(()=>{});});
-      document.addEventListener('visibilitychange',()=>{if(document.hidden)gallery.pause(true);});window.addEventListener('pagehide',()=>gallery.pause(true));
+      document.addEventListener('visibilitychange',()=>{if(document.hidden){gallery.pause(true);gallery.stopAudio();}});window.addEventListener('pagehide',()=>{gallery.pause(true);gallery.stopAudio();});
       new ResizeObserver(()=>{gallery.resize();gallery.draw();}).observe(el('preview-stage'));this.select('condense',false);
     },
     stopAudio:function () {
+      this.audioToken++;this.audioMode=null;this.audioTimers.forEach(clearTimeout);this.audioTimers=[];
       Game.AudioDirections.stopPreview();if(Game.Audio.condenseScore)Game.Audio.condenseScore.stop();
       if(Game.Audio.context)Game.Audio.master.gain.setTargetAtTime(0,Game.Audio.context.currentTime,.025);
       document.querySelectorAll('.gallery-audio-card').forEach(card=>card.classList.remove('is-playing'));
+      el('gallery-status').textContent='Audio stopped. Choose a sample or replay an animation.';
     },
-    pause:function (sound) {this.serial++;this.playing=false;cancelAnimationFrame(this.frame);this.frame=null;el('gallery-play').textContent='Play animation';if(sound)this.stopAudio();},
+    pause:function (sound) {this.serial++;this.playing=false;cancelAnimationFrame(this.frame);this.frame=null;el('gallery-play').textContent='Play animation';if(sound && this.audioMode!=='sample')this.stopAudio();},
     select:function (id,autoplay) {
       this.pause(true);this.effect=effects.find(effect=>effect.id===id)||effects[0];this.time=0;
       document.querySelectorAll('[data-effect]').forEach(button=>button.setAttribute('aria-pressed',String(button.dataset.effect===id)));
@@ -80,7 +82,7 @@
         const field=el('energy-effects');for(let i=0;i<(id==='production'?3:1);i++)Game.UI.flashEnergy(event);Array.from(field.children).forEach(node=>{field.appendChild(node.cloneNode(true));node.remove();});
       }
       this.baseWaves=[{started:0,x:.3,y:.35,scale:1,phase:.7},{started:900,x:.68,y:.6,scale:.9,phase:2.1},{started:1800,x:.42,y:.72,scale:1.1,phase:4.2}];p.settings.sound=muted;
-      el('preview-stage').getBoundingClientRect();this.animations=el('preview-stage').getAnimations({subtree:true});this.animations.forEach(animation=>{animation.pause();animation.currentTime=0;});el('gallery-timeline').max=this.duration;this.lastBeat=-1;
+      el('preview-stage').getBoundingClientRect();this.animations=el('preview-stage').getAnimations({subtree:true});this.animations.forEach(animation=>{animation.pause();animation.currentTime=0;});el('gallery-timeline').max=this.duration;
     },
     draw:function () {
       const id=this.effect.id,time=Math.min(this.duration,Math.max(0,this.time));this.animations.forEach(animation=>{animation.currentTime=time*1000;});
@@ -95,19 +97,48 @@
     play:async function () {
       this.pause(true);if(this.time>=this.duration-.005)this.time=0;const serial=this.serial;
       if(Game.player.settings.sound){Game.Audio.start(true);try{if(Game.Audio.context&&Game.Audio.context.state==='suspended')await Game.Audio.context.resume();}catch(error){}Game.Audio.updateVolume();}
-      if(serial!==this.serial)return;this.playing=true;el('gallery-play').textContent='Pause';this.lastBeat=-1;const start=performance.now()-this.time*1000,gallery=this;this.lastDraw=-Infinity;
-      if(this.effect.id==='condense'&&Game.player.settings.sound)Game.Audio.playCondenseMusic();
-      const frame=function (now){if(!gallery.playing)return;gallery.time=Math.min(gallery.duration,(now-start)/1000);if(now-gallery.lastDraw>=25){gallery.lastDraw=now;gallery.draw();gallery.cue();}if(gallery.time>=gallery.duration){gallery.pause(false);gallery.draw();return;}gallery.frame=requestAnimationFrame(frame);};this.frame=requestAnimationFrame(frame);
+      if(serial!==this.serial)return;this.playing=true;el('gallery-play').textContent='Pause';let start=performance.now()-this.time*1000;const gallery=this;this.lastDraw=-Infinity;
+      if(this.audioMode!=='sample')this.startAnimationAudio();
+      const frame=function (now){
+        if(!gallery.playing)return;gallery.time=Math.min(gallery.duration,(now-start)/1000);
+        if(now-gallery.lastDraw>=25){gallery.lastDraw=now;gallery.draw();}
+        if(gallery.time>=gallery.duration){
+          if(el('gallery-loop-visual').checked){gallery.time=0;gallery.prepare();gallery.draw();start=now;}
+          else {gallery.pause(false);gallery.draw();return;}
+        }gallery.frame=requestAnimationFrame(frame);
+      };this.frame=requestAnimationFrame(frame);
     },
-    cue:function () {
-      const id=this.effect.id;if(id==='condense'||!Game.player.settings.sound)return;
-      const repeated=['production','field','symmetry','fluct-positive','fluct-negative'].includes(id),beat=Math.floor(this.time/(id==='fluct-negative'?1.2:.9));if(this.lastBeat===beat||!repeated&&this.lastBeat>=0)return;this.lastBeat=beat;
-      const kind=id==='production'?'generator':id==='field'?'fieldExcitation':id==='symmetry'?'alignment':id.startsWith('fluct-')?'fluctuation':id;if(kind==='break'||kind==='discovery')Game.Presentation.playTone(kind);else Game.Audio.play(kind);
+    startAnimationAudio:function () {
+      if(!Game.player.settings.sound || !Game.player.settings.volume)return;
+      this.audioMode='animation';const token=++this.audioToken,id=this.effect.id,gallery=this;
+      const cycle=function () {
+        if(token!==gallery.audioToken || !Game.player.settings.sound)return;
+        if(id==='condense')Game.Audio.playCondenseMusic();
+        else {
+          const kind=id==='production'?'generator':id==='field'?'fieldExcitation':id==='symmetry'?'alignment':id.startsWith('fluct-')?'fluctuation':id;
+          const repeated=['production','field','symmetry','fluct-positive','fluct-negative'].includes(id),step=id==='fluct-negative'?1.2:.9;
+          for(let at=0;at<(repeated?gallery.duration:.01);at+=step)gallery.audioTimers.push(setTimeout(function () {
+            if(token!==gallery.audioToken)return;if(kind==='break'||kind==='discovery')Game.Presentation.playTone(kind);else Game.Audio.play(kind);
+          },at*1000));
+        }
+        gallery.audioTimers.push(setTimeout(function () {
+          if(token!==gallery.audioToken)return;gallery.audioTimers=[];
+          if(el('gallery-loop-audio').checked)cycle();else gallery.audioMode=null;
+        },Math.max(id==='condense'?9:3.5,gallery.duration)*1000));
+      };cycle();
     },
     sample:async function (index) {
-      this.pause(true);const token=(this.sampleToken||0)+1;this.sampleToken=token;Game.player.settings.audioTheme=index;el('gallery-audio').value=index;if(!Game.player.settings.sound||!Game.player.settings.volume){el('gallery-status').textContent='Enable Sound and raise the volume to hear a sample.';return;}
-      Game.Audio.updateVolume();el('gallery-status').textContent='Playing '+Game.AudioDirections.names[index]+' · press Stop audio to stop.';const card=document.querySelector('[data-audio-card="'+index+'"]');card.classList.add('is-playing');
-      await Game.AudioDirections.previewSelected(()=>{if(token!==this.sampleToken)return;card.classList.remove('is-playing');el('gallery-status').textContent='Sample stopped. Choose another direction to compare.';});
+      this.stopAudio();Game.player.settings.audioTheme=index;el('gallery-audio').value=index;
+      if(!Game.player.settings.sound||!Game.player.settings.volume){el('gallery-status').textContent='Enable Sound and raise the volume to hear a sample.';return;}
+      this.audioMode='sample';const token=++this.audioToken,gallery=this,card=document.querySelector('[data-audio-card="'+index+'"]');
+      const cycle=async function () {
+        if(token!==gallery.audioToken)return;Game.Audio.updateVolume();el('gallery-status').textContent='Playing '+Game.AudioDirections.names[index]+' · press Stop audio to stop.';card.classList.add('is-playing');
+        await Game.AudioDirections.previewSelected(function (completed) {
+          if(token!==gallery.audioToken)return;
+          if(completed && el('gallery-loop-audio').checked){cycle();return;}
+          gallery.audioMode=null;card.classList.remove('is-playing');el('gallery-status').textContent=completed?'Sample complete. Choose another direction to compare.':'Sample stopped.';
+        });
+      };await cycle();
     }
   };
   Game.Gallery.init();

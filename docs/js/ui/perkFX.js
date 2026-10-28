@@ -7,7 +7,7 @@
     },
     play: function (id) {
       Game.Audio.play("perk");
-      if (!Game.player.settings.perkVisuals || document.hidden) return;
+      if (!Game.player.settings.perkVisuals || !Game.player.settings.visuals || document.hidden) return;
       this.clear();
       const node=Game.PrestigeUI.nodes[id];if (!node || !node.getClientRects().length) return;
       const r=node.getBoundingClientRect(), x=r.left+r.width/2, y=r.top+Math.min(22,r.height/2);
