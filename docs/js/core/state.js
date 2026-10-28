@@ -19,7 +19,7 @@
     });
     return {
       automation: {buyers:buyers},
-      symmetry:{amount:D(0),best:D(0),alignment:D(0),alignmentAdded:D(0),pulseElapsed:D(0),upgrades:{unifiedField1:0,unifiedField2:0,quantumCoupling:0,fieldResonance:0,perfectInteraction:0}},
+      symmetry:{amount:D(0),best:D(0),alignment:D(0),alignmentAdded:D(0),pulseElapsed:D(0),upgradeCostAnchor:D(0),upgrades:{unifiedField1:0,unifiedField2:0,quantumCoupling:0,fieldResonance:0,perfectInteraction:0}},
       lateEnergy:{highest:D(0)},
       challenges: {active:0,bestEnergy:D(0),highestEnergy:D(0),rulesVersion:3,elapsed:0,purchases:0,failed:0,qualified:0,resetArmed:0,resetAt:0,resets:0,lastPurchase:0,latestGenerator:0},
       unlocks: { fluctOdds: 0, fieldExcitation: 0 },

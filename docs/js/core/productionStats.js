@@ -120,7 +120,7 @@
       if(Game.Symmetry.unlocked()) {
         entries.push({id:'symmetry-energy',label:'Symmetry and Unified Interaction',factor:symmetryBonus,color:'field',children:this.withShares([
           {id:'symmetry-formula',label:'Symmetry strength'+(Game.Symmetry.has('perfectInteraction')?' · Perfect Interaction':''),tip:'symmetry',factor:Game.Symmetry.multiplier()},
-          {id:'unified-field',label:'Unified Field I',factor:D(Game.Symmetry.has('unifiedField1')?3:1)},
+          {id:'unified-field',label:'Unified Field I',factor:Game.Symmetry.unifiedEnergyMultiplier()},
           {id:'alignment-levels',label:'Field Resonance · Field Alignment levels',factor:Game.Symmetry.alignmentEnergy()}
         ],active),childBasis:'growth'});product=product.mul(symmetryBonus);
       }

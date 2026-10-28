@@ -18,7 +18,7 @@
       });
       Object.keys(Game.CONFIG.SYMMETRY.upgrades).forEach(function (id) {
         const rule=Game.CONFIG.SYMMETRY.upgrades[id],card=document.createElement('article');card.className='unified-upgrade';card.dataset.unified=id;
-        card.innerHTML='<h3>'+(id==='quantumCoupling'?'<button class="info-term" data-tip="symmetryQuanta">'+rule.name+'</button>':rule.name)+'</h3><p>'+rule.description+'</p><p class="unified-cost">Cost: '+rule.cost+' Energy</p><button data-buy-unified>Purchase</button>';
+        card.innerHTML='<h3>'+(id==='quantumCoupling'?'<button class="info-term" data-tip="symmetryQuanta">'+rule.name+'</button>':rule.name)+'</h3><p>'+rule.description+'</p><p class="unified-cost"></p><button data-buy-unified>Purchase</button>';
         card.querySelector('[data-buy-unified]').addEventListener('click',function () { Game.Loop.pump(performance.now());Game.Symmetry.buyUpgrade(id);Game.UI.render(); });
         el('unified-upgrades').appendChild(card);Game.SymmetryUI.upgrades[id]=card;
       });
@@ -43,16 +43,17 @@
       text(el('symmetry-total'),pct);text(el('symmetry-energy-bonus'),'×'+number(S.multiplier(),5)+' Energy');
       text(el('symmetry-production'),S.reached(1)?'Perfect Symmetry · generation capped':number(S.perSecond().mul(100),5)+'% / game second');
       text(el('field-alignment-owned'),'Purchased: '+number(p.symmetry.alignment,0)+' + '+number(p.symmetry.alignmentAdded,0)+' added · Total: '+number(S.alignmentOwned(),0));
-      text(el('field-alignment-output'),number(S.unitProduction().mul(100),5)+'% Symmetry per level / game second'+(S.reached(.1)?' · Aligned fields ×2':''));
+      text(el('field-alignment-output'),number(S.unitProduction().mul(100),5)+'% per level / game second before shared field resistance'+(S.reached(.1)?' · Aligned fields active':''));
       const quote=S.quote(Game.UI.buyAmount),buy=el('buy-field-alignment');buy.disabled=quote.count.lte(0);
       text(buy,quote.count.gt(0)?'Buy '+number(quote.count,0)+' — '+number(quote.cost)+' Energy':'Buy 1 — '+number(S.cost())+' Energy');
-      el('field-alignment-scaling').hidden=!reveal;text(el('field-alignment-scaling'),'SGen1 · cost jumps ×1e10, ×1e20, ×1e40… · exponent doubles per purchase');
+      el('field-alignment-scaling').hidden=!reveal;text(el('field-alignment-scaling'),'SGen1 · first 8 prices scale ×1.1, then cost jumps ×1e10, ×1e20, ×1e40… · shared production limit '+number(Game.D(Game.CONFIG.SYMMETRY.totalProductionLimit).mul(100),5)+'% / game second');
       el('symmetry-locked-note').hidden=open;
       el('unified-interaction').hidden=!(S.discovered(.5)||reveal);
       Object.keys(this.upgrades).forEach(function (id) {
         const card=Game.SymmetryUI.upgrades[id],rule=Game.CONFIG.SYMMETRY.upgrades[id],owned=S.has(id);
         card.hidden=!!rule.perfect && !(S.discovered(1)||reveal);card.classList.toggle('is-owned',owned);
-        const button=card.querySelector('[data-buy-unified]');button.disabled=!S.canBuyUpgrade(id);text(button,owned?'Purchased':Game.Challenges.active()?'Unavailable during challenges':!S.discovered(rule.perfect?1:.5)?'Requires '+(rule.perfect?'Perfect Symmetry':'50% Symmetry'):'Buy · '+rule.cost+' Energy');
+        const cost=number(S.upgradeCost(id));text(card.querySelector('.unified-cost'),'Cost: '+cost+' Energy');
+        const button=card.querySelector('[data-buy-unified]');button.disabled=!S.canBuyUpgrade(id);text(button,owned?'Purchased':Game.Challenges.active()?'Unavailable during challenges':!S.discovered(rule.perfect?1:.5)?'Requires '+(rule.perfect?'Perfect Symmetry':'50% Symmetry'):'Buy · '+cost+' Energy');
       });
       this.milestones.forEach(function (row,index) { const m=Game.CONFIG.SYMMETRY.milestones[index];row.hidden=!(S.discovered(m.at)||reveal);row.classList.toggle('is-active',S.reached(m.at));row.classList.toggle('is-discovered',S.discovered(m.at)); });
       el('symmetry-milestones').parentElement.hidden=!this.milestones.some(function (row) { return !row.hidden; });

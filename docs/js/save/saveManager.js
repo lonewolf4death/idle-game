@@ -135,6 +135,7 @@
 
     }
     const symmetry=player.symmetry;
+    if(!symmetry.upgradeCostAnchor.eq(symmetry.upgradeCostAnchor.floor()) || symmetry.upgradeCostAnchor.gt(0) && (symmetry.upgradeCostAnchor.lt(Game.CONFIG.SYMMETRY.upgradeCostAnchorFloor) || !player.prestige.symmetry || symmetry.best.lt(.5))) throw new Error('Invalid Unified Interaction pricing');
     if(symmetry.pulseElapsed.gte(8) || symmetry.amount.gt(1) || symmetry.best.gt(1) || symmetry.best.lt(symmetry.amount) || !symmetry.alignment.eq(symmetry.alignment.floor()) || !symmetry.alignmentAdded.eq(symmetry.alignmentAdded.floor()) || !Object.values(symmetry.upgrades).every(function (v) { return v===0 || v===1; })) throw new Error('Invalid Symmetry progress');
     if(Object.keys(symmetry.upgrades).some(function(id){return symmetry.upgrades[id] && symmetry.best.lt(Game.CONFIG.SYMMETRY.upgrades[id].perfect?1:.5);})) throw new Error('Invalid Unified Interaction unlock');
     if(![0,1].includes(player.ui.generatorLayer)) throw new Error('Invalid generator layer');

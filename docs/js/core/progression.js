@@ -9,6 +9,7 @@
     // Getters remain read-only so the Stats screen never changes player state.
     captureAchievements: function (player) {
       const p = player || Game.player, a = p.achievements;
+      Game.Symmetry.captureUpgradePricing(p);
       a.firstSparks = Number(Boolean(a.firstSparks || p.stats.manualClicks.gte(Game.CONFIG.CLICK_ACHIEVEMENT.requiredClicks)));
       a.firstGenerator = Number(Boolean(a.firstGenerator || p.stats.generatorsBought.gte(1)));
       a.growingEngine = Number(Boolean(a.growingEngine || p.generators.energyDisturbance.purchased.gte(25)));
