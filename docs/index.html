@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cosmic Idle — Energy</title>
-  <link rel="stylesheet" href="css/main.css?v=2c472bd469eb" />
+  <link rel="stylesheet" href="css/main.css?v=d4b404d61e78" />
 </head>
 <body>
   <main class="game-shell">
@@ -53,7 +53,7 @@
 
     </div>
     <div id="symmetry-controls" hidden>
-      <section class="symmetry-overview"><span class="label">The emerging laws</span><strong id="symmetry-total">0.000%</strong><span id="symmetry-energy-bonus">×1 Energy</span><span id="symmetry-production">0% / game second</span><span id="symmetry-starting" hidden></span></section>
+      <section class="symmetry-overview"><span class="label">The emerging laws</span><div class="symmetry-overview-heading"><strong id="symmetry-total">0.000%</strong><button id="break-symmetry" class="break-symmetry-action" aria-describedby="break-symmetry-reward" hidden disabled>Break Symmetry</button></div><span id="symmetry-energy-bonus">×1 Energy</span><span id="symmetry-production">0% / game second</span><span id="symmetry-starting" hidden></span></section>
       <p id="symmetry-locked-note" class="muted">Unlock Symmetry in the Condense tree for 10,000 Quanta.</p>
       <section class="panel symmetry-generator-panel"><h2>Symmetry generators</h2>
         <article class="generator-card symmetry-generator"><h3><span class="alignment-symbol" aria-hidden="true">◈</span> <span id="alignment-dev-label" hidden>SGen1 · </span>Field Alignment</h3><p>Bring the fields into alignment. Each level contributes to Symmetry, with diminishing returns from alignment capacity and shared field resistance. Symmetry cannot exceed 100%.</p><div class="generator-meta"><strong id="field-alignment-owned">Purchased: 0</strong><span id="field-alignment-output"></span><span id="field-alignment-scaling" class="muted" hidden></span><button id="buy-field-alignment">Buy 1 — 1e1000 Energy</button></div></article>
@@ -84,7 +84,7 @@
         </section>
     <div id="energy-field" class="energy-field" role="group" aria-label="Primordial field. Generator production appears here.">
       <svg class="potential-contours" viewBox="0 0 700 500" preserveAspectRatio="none" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="0.6"><path d="M-40 290 C140 130 210 410 370 240 S570 170 740 235"/><path d="M-40 302 C140 142 210 422 370 252 S570 182 740 247"/><path d="M-40 314 C140 154 210 434 370 264 S570 194 740 259"/><path d="M-40 326 C140 166 210 446 370 276 S570 206 740 271"/><path d="M-40 338 C140 178 210 458 370 288 S570 218 740 283"/></g></svg>
-      <div class="field-caption"><span class="label">Primordial Energy</span><strong id="center-energy">0.00</strong><div class="existence-state"><p><span>State:</span><b id="existence-state">Dormant</b></p><p><span>Structure:</span><b id="existence-structure">None</b></p><p><span>Time:</span><b>Undefined</b></p><div id="symmetry-counter" class="symmetry-counter" hidden><span><button class="info-term" data-tip="symmetry">Symmetry</button></span><strong id="symmetry-amount">0.000%</strong><small id="symmetry-type">Indistinguishable laws</small><button id="break-symmetry" class="break-symmetry-action" aria-describedby="break-symmetry-reward" hidden disabled>Break Symmetry</button></div></div></div>
+      <div class="field-caption"><span class="label">Primordial Energy</span><strong id="center-energy">0.00</strong><div class="existence-state"><p><span>State:</span><b id="existence-state">Dormant</b></p><p><span>Structure:</span><b id="existence-structure">None</b></p><p><span>Time:</span><b>Undefined</b></p><div id="symmetry-counter" class="symmetry-counter" hidden><span><button class="info-term" data-tip="symmetry">Symmetry</button></span><strong id="symmetry-amount">0.000%</strong><small id="symmetry-type">Indistinguishable laws</small></div></div></div>
       <svg class="symmetry-mandala" viewBox="0 0 500 500" aria-hidden="true"><defs><linearGradient id="symmetry-colors" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#b093e4"/><stop offset=".5" stop-color="#72d9d4"/><stop offset="1" stop-color="#ead39b"/></linearGradient></defs><g fill="none" stroke="url(#symmetry-colors)" stroke-width=".7"><circle cx="250" cy="250" r="186"/><circle cx="250" cy="250" r="134"/><path d="M250 64L411 157V343L250 436L89 343V157Z M250 116L366 317H134Z M250 384L134 183H366Z M64 250H436M250 64V436"/><ellipse cx="250" cy="250" rx="186" ry="70"/><ellipse cx="250" cy="250" rx="186" ry="70" transform="rotate(60 250 250)"/><ellipse cx="250" cy="250" rx="186" ry="70" transform="rotate(120 250 250)"/></g></svg>
       <canvas id="field-waves" aria-hidden="true"></canvas>
       <div id="energy-effects" class="energy-effects" aria-hidden="true"></div>
