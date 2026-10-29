@@ -12,7 +12,9 @@
         el('asymmetry-upgrades').appendChild(card);ui.cards[id]=card;
       });
       el('view-asymmetry').addEventListener('click',function () { Game.UI.selectView('asymmetry',true); });
-      el('break-symmetry').addEventListener('click',function () {
+      el('break-symmetry').addEventListener('keydown',function (event) { if(event.key===' ' || event.key==='Enter')event.stopPropagation(); });
+      el('break-symmetry').addEventListener('click',function (event) {
+        event.stopPropagation();
         Game.Loop.pump(performance.now());if(Game.Offline.busy || Game.Asymmetry.reward().lte(0))return;
         ui.owner=Game.player;Game.Asymmetry.confirming=true;ui.render();el('break-dialog').showModal();el('cancel-break').focus();
       });

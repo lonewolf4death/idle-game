@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cosmic Idle — Energy</title>
-  <link rel="stylesheet" href="css/main.css?v=f245c6d97588" />
+  <link rel="stylesheet" href="css/main.css?v=2c472bd469eb" />
 </head>
 <body>
   <main class="game-shell">
@@ -60,7 +60,7 @@
       </section>
       <section id="unified-interaction" class="panel" hidden><h2>Unified Interaction</h2><p class="muted">Permanent Energy purchases · retained through Condense.</p><div id="unified-upgrades"></div></section>
       <details class="symmetry-milestones"><summary>Symmetry milestones</summary><ol id="symmetry-milestones"></ol></details>
-      <section id="symmetry-breaking" class="symmetry-future" hidden><span class="label">Beyond alignment</span><h3>Break Symmetry</h3><p id="break-symmetry-reward"></p><p class="muted">Resets Field Alignment and Unified Interaction purchases, and returns Symmetry to your starting amount. Keeps Energy, Primordial progress and permanent discoveries.</p><button id="break-symmetry" disabled>Break Symmetry</button><button id="view-asymmetry">Asymmetry upgrades</button></section>
+      <section id="symmetry-breaking" class="symmetry-future" hidden><span class="label">Beyond alignment</span><h3>Break Symmetry</h3><p id="break-symmetry-reward"></p><p class="muted">Resets Field Alignment and Unified Interaction purchases, and returns Symmetry to your starting amount. Keeps Energy, Primordial progress and permanent discoveries.</p><button id="view-asymmetry">Asymmetry upgrades</button></section>
       <p id="symmetry-reset-note" class="muted"></p>
     </div>
     </aside>
@@ -82,9 +82,9 @@
           <div class="quantum-resource"><span class="label"><button class="info-term" data-tip="quantumResonance">Quantum Resonance</button></span><strong id="quantum-resonance-display">0</strong><span id="quantum-resonance-timer" class="muted"></span><span id="quantum-resonance-softcap" class="muted" hidden><button class="info-term" data-tip="quantumSoftcap">Fluct effect soft-capped</button></span><span id="resonance-fluct-growth" class="muted"></span></div>
           <div class="energy-resource"><span class="label"><button class="info-term" data-tip="energyResonance">Energy Resonance</button></span><strong id="energy-resonance-display">0</strong><span id="energy-resonance-timer" class="muted"></span><span class="muted">Each adds +1 Energy Disturbance</span></div>
         </section>
-    <div id="energy-field" class="energy-field" role="img" aria-label="Primordial field. Generator production appears here.">
+    <div id="energy-field" class="energy-field" role="group" aria-label="Primordial field. Generator production appears here.">
       <svg class="potential-contours" viewBox="0 0 700 500" preserveAspectRatio="none" aria-hidden="true"><g fill="none" stroke="currentColor" stroke-width="0.6"><path d="M-40 290 C140 130 210 410 370 240 S570 170 740 235"/><path d="M-40 302 C140 142 210 422 370 252 S570 182 740 247"/><path d="M-40 314 C140 154 210 434 370 264 S570 194 740 259"/><path d="M-40 326 C140 166 210 446 370 276 S570 206 740 271"/><path d="M-40 338 C140 178 210 458 370 288 S570 218 740 283"/></g></svg>
-      <div class="field-caption"><span class="label">Primordial Energy</span><strong id="center-energy">0.00</strong><div class="existence-state"><p><span>State:</span><b id="existence-state">Dormant</b></p><p><span>Structure:</span><b id="existence-structure">None</b></p><p><span>Time:</span><b>Undefined</b></p><div id="symmetry-counter" class="symmetry-counter" hidden><span><button class="info-term" data-tip="symmetry">Symmetry</button></span><strong id="symmetry-amount">0.000%</strong><small id="symmetry-type">Indistinguishable laws</small></div></div></div>
+      <div class="field-caption"><span class="label">Primordial Energy</span><strong id="center-energy">0.00</strong><div class="existence-state"><p><span>State:</span><b id="existence-state">Dormant</b></p><p><span>Structure:</span><b id="existence-structure">None</b></p><p><span>Time:</span><b>Undefined</b></p><div id="symmetry-counter" class="symmetry-counter" hidden><span><button class="info-term" data-tip="symmetry">Symmetry</button></span><strong id="symmetry-amount">0.000%</strong><small id="symmetry-type">Indistinguishable laws</small><button id="break-symmetry" class="break-symmetry-action" aria-describedby="break-symmetry-reward" hidden disabled>Break Symmetry</button></div></div></div>
       <svg class="symmetry-mandala" viewBox="0 0 500 500" aria-hidden="true"><defs><linearGradient id="symmetry-colors" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#b093e4"/><stop offset=".5" stop-color="#72d9d4"/><stop offset="1" stop-color="#ead39b"/></linearGradient></defs><g fill="none" stroke="url(#symmetry-colors)" stroke-width=".7"><circle cx="250" cy="250" r="186"/><circle cx="250" cy="250" r="134"/><path d="M250 64L411 157V343L250 436L89 343V157Z M250 116L366 317H134Z M250 384L134 183H366Z M64 250H436M250 64V436"/><ellipse cx="250" cy="250" rx="186" ry="70"/><ellipse cx="250" cy="250" rx="186" ry="70" transform="rotate(60 250 250)"/><ellipse cx="250" cy="250" rx="186" ry="70" transform="rotate(120 250 250)"/></g></svg>
       <canvas id="field-waves" aria-hidden="true"></canvas>
       <div id="energy-effects" class="energy-effects" aria-hidden="true"></div>
@@ -378,12 +378,12 @@
   <script src="js/ui/discovery.js?v=54d147b0f6a0"></script>
   <script src="js/ui/treeMap.js?v=63e38f61743f"></script>
   <script src="js/ui/automation.js?v=07c4d24a8ad4"></script>
-  <script src="js/ui/symmetry.js?v=fc27a16f6ded"></script>
+  <script src="js/ui/symmetry.js?v=cd82d2511325"></script>
   <script src="js/ui/render.js?v=4bdcbb4f2056"></script>
   <script src="js/ui/structure.js?v=9cbe2a9105a3"></script>
   <script src="js/core/gameLoop.js?v=4522cc2858ab"></script>
   <script src="js/core/offline.js?v=a51364542072"></script>
-  <script src="js/ui/asymmetry.js?v=4c9fb123a561"></script>
+  <script src="js/ui/asymmetry.js?v=b1ce5ca1024f"></script>
   <script src="js/ui/presentation.js?v=8a81bd4c94ef"></script>
   <script src="js/ui/audioDirections.js?v=9a340ce5aa93"></script>
   <script src="js/main.js?v=e46e63cb9fc1"></script>
