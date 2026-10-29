@@ -320,9 +320,9 @@
   Game.CONFIG.SYMMETRY.convergence={seconds:1800,bounds:[.94,.95,.96,.97,.98,.99,.999,.9999,1],durations:[20,20,40,80,160,320,640,520]};
   const perfectSkills=[
     ['5-1','Clear harmonics','1e5','3-5-2',{symmetrySpeed:1.5},'Symmetry forms ×1.5 faster, including the final convergence.'],
-    ['5-2','Remembered order','3e5','5-1',{startingSymmetry:.10},'Future resets begin with +10 percentage points of Symmetry. Adds to other starting Symmetry bonuses. Applies on the next reset.'],
+    ['5-2','Remembered order','3e5','5-1',{startingSymmetry:.10},'Add 10 percentage points to current Symmetry and to starting Symmetry on future resets. Stacks with other starting bonuses. Current Symmetry is capped at 100%.'],
     ['5-3','Gentle convergence','1e6','5-2',{lateSymmetrySpeed:2},'Symmetry forms ×2 faster from 94% onward.'],
-    ['5-4','Persistent geometry','3e6','5-3',{startingSymmetry:.25},'Future resets begin with +25 percentage points of Symmetry. With Remembered order, start at 35% before Asymmetry bonuses. Applies on the next reset.'],
+    ['5-4','Persistent geometry','3e6','5-3',{startingSymmetry:.25},'Add 25 percentage points to current Symmetry and to starting Symmetry on future resets. With Remembered order, start at 35% before Asymmetry bonuses. Current Symmetry is capped at 100%.'],
     ['5-5','Perfect cadence','1e7','5-4',{symmetrySpeed:3},'Multiply all Symmetry formation speed by ×3.'],
     ['5-6','Quantized geometry','1e5','4-4-2',{quantaMultiplier:2},'Multiply all Condense Quanta rewards by ×2.'],
     ['5-7','Unbound geometry','5e5','5-6',{energyMultiplier:'1e20'},'Multiply all Energy by ×1e20, after late Energy resistance.'],
@@ -338,7 +338,7 @@
     unboundPotential:{name:'Unbound potential',cost:3,scaling:5,max:10,effect:'1e5',description:'Each level multiplies Energy by ×1e5, after late Energy resistance.'},
     alignedRemnants:{name:'Aligned remnants',cost:5,scaling:5,max:6,effect:.85,description:'Each level reduces accelerating Field Alignment price exponents by 15%. Its opening prices are unchanged.'},
     fracturedPerfection:{name:'Fractured perfection',cost:10,scaling:6,max:5,effect:1.25,description:'Each level multiplies Asymmetry gained by ×1.25. Rewards round down after all bonuses.'},
-    residualOrder:{name:'Residual order',cost:5,scaling:4,max:5,startingSymmetry:.02,description:'Each level adds 2 percentage points of starting Symmetry, up to +10 points. Adds to Perfect Alignment starting bonuses. Applies on the next reset.'}
+    residualOrder:{name:'Residual order',cost:5,scaling:4,max:5,startingSymmetry:.02,description:'Each level adds 2 percentage points to current Symmetry and to starting Symmetry, up to +10 starting points. Adds to Perfect Alignment starting bonuses. Current Symmetry is capped at 100%.'}
   }};
   Game.CONFIG.DISCOVERY_ACHIEVEMENTS.push(
     {id:'resonantReserve',name:'A thousand quiet answers',kind:'resonance',amount:'1000',reward:'generators',multiplier:'1.02',icon:'quantumResonance',requirement:'Produce 1,000 Quantum Resonance over your lifetime.'},

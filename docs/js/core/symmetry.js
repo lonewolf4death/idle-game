@@ -25,6 +25,11 @@
     applyStarting:function (player) {
       const p=player||Game.player;p.symmetry.amount=this.startingAmount(p);p.symmetry.best=Decimal.max(p.symmetry.best,p.symmetry.amount);
     },
+    grantStartingPurchase:function (before) {
+      // Grant only the newly purchased percentage points. Loading, rendering
+      // and resetting never replay a purchase or create an ongoing floor.
+      const gain=this.startingAmount().sub(before);if(gain.gt(0))this.add(gain);
+    },
     alignmentEnergy:function () { return this.has('fieldResonance')?D(Game.CONFIG.SYMMETRY.alignmentEnergyBase).pow(this.alignmentOwned()):D(1); },
     unifiedEnergyMultiplier:function () { return D(this.has('unifiedField1')?Game.CONFIG.SYMMETRY.upgrades.unifiedField1.energyMultiplier:1); },
     perfectFactor:function (property) {
@@ -210,7 +215,11 @@
     },
     cost:function (id) { const rule=Game.CONFIG.ASYMMETRY.upgrades[id];return rule?D(rule.cost).mul(D(rule.scaling).pow(Game.player.asymmetry.upgrades[id])):D(Infinity); },
     canBuy:function (id) { const rule=Game.CONFIG.ASYMMETRY.upgrades[id];return !!rule && this.discovered() && !Game.Challenges.active() && Game.player.asymmetry.upgrades[id]<rule.max && Game.player.asymmetry.amount.gte(this.cost(id)); },
-    buy:function (id) { if(!this.canBuy(id))return false;Game.player.asymmetry.amount=Game.player.asymmetry.amount.sub(this.cost(id));Game.player.asymmetry.upgrades[id]++;Game.Save.save();if(Game.Audio)Game.Audio.play('perk');if(Game.UI)Game.UI.render();return true; }
+    buy:function (id) {
+      if(!this.canBuy(id))return false;
+      const before=Game.Symmetry.startingAmount();Game.player.asymmetry.amount=Game.player.asymmetry.amount.sub(this.cost(id));Game.player.asymmetry.upgrades[id]++;
+      Game.Symmetry.grantStartingPurchase(before);Game.Save.save();if(Game.Audio)Game.Audio.play('perk');if(Game.UI)Game.UI.render();return true;
+    }
   };
 
   Game.LateEnergy={

@@ -18,6 +18,7 @@
       if (!this.canBuySkill(id)) return false;
       const definition = Game.CONFIG.PRESTIGE.skills[id];
       const oldInterval = D(Game.Modifiers.getFluctuationRules().rollInterval);
+      const startingBefore=Game.Symmetry.startingAmount();
       const oldQuantumInterval = Game.Coherence.quantumInterval(), oldEnergyInterval = Game.Coherence.energyInterval();
       const oldDynamics=Game.FieldDynamics.rules();
       const burstGen = Game.Energy.getGenerator("energyDisturbance"), oldBurstInterval = Game.Energy.burstInterval(burstGen), oldFieldInterval = Game.FieldExcitation.interval();
@@ -45,6 +46,7 @@
       }
       if (id === "3-3") Game.player.generatorFocus.elapsed = D(0);
       if (id === "3-4-2") Game.Energy.addGenerators("fieldCoupling", definition.startingCouplings);
+      Game.Symmetry.grantStartingPurchase(startingBefore);
       Game.Achievements.checkFluctMastery();
       Game.Save.save();
       if (Game.UI) Game.UI.render();
