@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cosmic Idle — Energy</title>
-  <link rel="stylesheet" href="css/main.css?v=d4b404d61e78" />
+  <link rel="stylesheet" href="css/main.css?v=12ccf26ed31f" />
 </head>
 <body>
   <main class="game-shell">
@@ -276,6 +276,15 @@
         </div>
         <p id="save-status" class="settings-note" role="status">Autosave enabled.</p>
         <div class="save-recovery-controls"><button id="export-stored-button">Export protected stored save</button><label>Recovery backup<select id="save-backup-select" aria-label="Recovery backup"></select></label><button id="restore-backup-button">Restore selected backup</button><p class="settings-note">Imports and recovery keep the previous data as a backup. A failed load pauses autosaving instead of replacing your progress.</p></div>
+        <section id="confirmation-settings" aria-labelledby="confirmation-settings-title" hidden>
+          <h3 id="confirmation-settings-title">Confirmations</h3>
+          <div class="settings-list">
+            <label><span>Stabilize</span><input id="setting-confirmStabilize" type="checkbox"></label>
+            <label><span>Condense Energy</span><input id="setting-confirmCondense" type="checkbox"></label>
+            <label><span>Break Symmetry</span><input id="setting-confirmBreak" type="checkbox"></label>
+          </div>
+          <p class="settings-note">Ask before performing each action. When disabled, it happens immediately. Automation skips confirmations.</p>
+        </section>
         <div class="settings-list">
           <label><span>Sound direction</span><select id="setting-audioTheme"><option value="0">Eventide · original</option><option value="1">Celestial score</option><option value="2">Glass observatory · new</option><option value="3">Redshift · new</option></select></label>
           <label><span>Visual direction</span><select id="setting-visualTheme"><option value="0">Deep Signal · original</option><option value="1">Spectral lattice · new</option></select></label>
@@ -324,6 +333,7 @@
   <dialog id="challenge-dialog" aria-labelledby="challenge-confirm-title" aria-describedby="challenge-confirm-description"><span class="label">Alter the primordial field</span><h2 id="challenge-confirm-title"></h2><p id="challenge-confirm-description"></p><div class="respec-choices"><button id="challenge-cancel">Keep this run</button><button id="challenge-confirm">Restart run</button></div></dialog>
   <dialog id="respec-dialog" aria-labelledby="respec-title" aria-describedby="respec-description"><span class="label">Reform the constellation</span><h2 id="respec-title">Respec skills?</h2><strong id="respec-refund"></strong><p id="respec-description"></p><div class="respec-choices"><button id="cancel-respec">Keep my skills</button><button id="confirm-respec">Respec · restart run</button></div></dialog>
   <dialog id="stabilization-dialog" aria-labelledby="stabilization-dialog-title"><span class="label">Release the Energy · retain the pattern</span><h2 id="stabilization-dialog-title">Stabilize the Field?</h2><p id="stabilization-dialog-reward"></p><p>Restart Energy, generators and Resonance in a stronger field.</p><p id="stabilization-keeps"></p><div class="respec-choices"><button id="cancel-stabilization">Keep building</button><button id="confirm-stabilization">Stabilize</button></div></dialog>
+  <dialog id="condense-confirm-dialog" aria-labelledby="condense-confirm-title" aria-describedby="condense-confirm-reward condense-confirm-reset condense-confirm-keep"><h2 id="condense-confirm-title">Condense Energy?</h2><p id="condense-confirm-reward"></p><p id="condense-confirm-reset"></p><p id="condense-confirm-keep"></p><div class="respec-choices"><button id="cancel-condense">Keep building</button><button id="confirm-condense">Condense Energy</button></div></dialog>
   <p id="pattern-announcement" class="sr-only" role="status" aria-live="polite"></p>
   <dialog id="break-dialog" aria-labelledby="break-dialog-title"><h2 id="break-dialog-title">Break Symmetry?</h2><p id="break-dialog-reward"></p><p>Resets Field Alignment and every Unified Interaction purchase. Symmetry returns to your starting amount. Keeps Energy, Primordial generators, Quanta, skills, achievements, lore, playtime, Asymmetry and its upgrades.</p><div class="dialog-actions"><button id="cancel-break">Keep aligning</button><button id="confirm-break">Break Symmetry</button></div></dialog>
   <div id="reset-presentation" hidden aria-hidden="true"><div class="reset-geometry"></div><div class="reset-blackout"></div><p class="reset-caption"></p></div>
@@ -348,8 +358,8 @@
   <script src="js/core/namespace.js?v=2be15fd41d03"></script>
   <script src="js/core/config.js?v=2c65144f6e74"></script>
   <script src="js/numbers/decimal.js?v=072eb6e5da4d"></script>
-  <script src="js/core/state.js?v=7aed80f3e76e"></script>
-  <script src="js/core/automation.js?v=b58f0ed9d0a8"></script>
+  <script src="js/core/state.js?v=b1f51742d4e7"></script>
+  <script src="js/core/automation.js?v=3b47fe768054"></script>
   <script src="js/core/symmetry.js?v=3c253180f096"></script>
   <script src="js/time/gameTime.js?v=a3b9af0ff87e"></script>
   <script src="js/core/modifiers.js?v=368e702616dc"></script>
@@ -363,10 +373,10 @@
   <script src="js/core/structure.js?v=4762d080104f"></script>
   <script src="js/core/flow.js?v=d1f1f20dbab7"></script>
   <script src="js/core/productionStats.js?v=9cdac373e95e"></script>
-  <script src="js/save/saveManager.js?v=2157ec8a783d"></script>
+  <script src="js/save/saveManager.js?v=fe131b3a95ce"></script>
   <script src="js/ui/format.js?v=7deb167be06e"></script>
   <script src="js/ui/icons.js?v=dba1c53e8fa3"></script>
-  <script src="js/ui/experience.js?v=d90718becd55"></script>
+  <script src="js/ui/experience.js?v=cf2e243ffe70"></script>
   <script src="js/ui/perkFX.js?v=f9d0cee3875c"></script>
   <script src="js/ui/condenseFX.js?v=a3923dd5d810"></script>
   <script src="js/ui/breakFX.js?v=c1d28e489191"></script>
@@ -374,16 +384,16 @@
   <script src="js/ui/fieldWaves.js?v=4245ba353309"></script>
   <script src="js/ui/stats.js?v=914dfd00bf46"></script>
   <script src="js/ui/achievements.js?v=17c5f1700e67"></script>
-  <script src="js/ui/prestige.js?v=f57351f4cb58"></script>
-  <script src="js/ui/discovery.js?v=54d147b0f6a0"></script>
+  <script src="js/ui/prestige.js?v=6fc858e03fa6"></script>
+  <script src="js/ui/discovery.js?v=42b568b8f748"></script>
   <script src="js/ui/treeMap.js?v=63e38f61743f"></script>
   <script src="js/ui/automation.js?v=07c4d24a8ad4"></script>
   <script src="js/ui/symmetry.js?v=cd82d2511325"></script>
   <script src="js/ui/render.js?v=4bdcbb4f2056"></script>
-  <script src="js/ui/structure.js?v=9cbe2a9105a3"></script>
+  <script src="js/ui/structure.js?v=3e8abc20a95e"></script>
   <script src="js/core/gameLoop.js?v=4522cc2858ab"></script>
   <script src="js/core/offline.js?v=a51364542072"></script>
-  <script src="js/ui/asymmetry.js?v=b1ce5ca1024f"></script>
+  <script src="js/ui/asymmetry.js?v=663c06908e23"></script>
   <script src="js/ui/presentation.js?v=8a81bd4c94ef"></script>
   <script src="js/ui/audioDirections.js?v=9a340ce5aa93"></script>
   <script src="js/main.js?v=e46e63cb9fc1"></script>

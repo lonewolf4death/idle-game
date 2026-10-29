@@ -225,7 +225,7 @@
       this.coherenceQueued = false; this.fieldQueued = false;this.symmetryQueued=false;
       if (Game.UI.syncCollapseState) Game.UI.syncCollapseState();
       const settings = Game.player.settings;
-      ['sound', 'muteUnfocused', 'perkSound', 'perkVisuals', 'generatorSound', 'fluctuationSound', 'coherentSound', 'fieldSound', 'condenseSound', 'condenseVisuals', 'autoDismiss'].forEach(function (key) { byId('setting-' + key).checked = !!settings[key]; });
+      ['sound', 'muteUnfocused', 'perkSound', 'perkVisuals', 'generatorSound', 'fluctuationSound', 'coherentSound', 'fieldSound', 'condenseSound', 'condenseVisuals', 'autoDismiss', 'confirmBreak', 'confirmCondense', 'confirmStabilize'].forEach(function (key) { byId('setting-' + key).checked = !!settings[key]; });
       ['audioTheme','visualTheme'].forEach(function (key) { byId('setting-'+key).value=settings[key]; });
       byId('setting-resetVisuals').checked=!!settings.resetVisuals;
       if(Game.Presentation)Game.Presentation.apply();
@@ -258,7 +258,7 @@
         [byId('achievement-notice'),document.querySelector('.topbar'),document.querySelector('.view-tabs')].forEach(function (node) { observer.observe(node); });
         Game.AchievementNotices.observer=observer;
       }
-      ['sound','muteUnfocused','perkSound','perkVisuals','generatorSound','fluctuationSound','coherentSound','fieldSound','condenseSound','condenseVisuals','autoDismiss','volume','visuals'].forEach(function (key) {
+      ['sound','muteUnfocused','perkSound','perkVisuals','generatorSound','fluctuationSound','coherentSound','fieldSound','condenseSound','condenseVisuals','autoDismiss','volume','visuals','confirmBreak','confirmCondense','confirmStabilize'].forEach(function (key) {
         const input = byId('setting-' + key);
         input.addEventListener(key === 'volume' ? 'input' : 'change', function () {
           Game.player.settings[key] = this.type === 'checkbox' ? Number(this.checked) : Number(this.value);

@@ -16,7 +16,8 @@
       for(let i=0;i<4;i++) trace.appendChild(document.createElement('i'));
       byId('energy-field').appendChild(trace);
       byId('open-stabilization').addEventListener('click',function () {
-        Game.Loop.pump(performance.now());if(!Game.Structure.canStabilize()) return;
+        Game.Loop.pump(performance.now());if(Game.Offline.busy || !Game.Structure.canStabilize()) return;
+        if(!Game.player.settings.confirmStabilize) { Game.Structure.stabilize();return; }
         ui.owner=Game.player;ui.confirming=true;text(byId('stabilization-dialog-reward'),ui.rewardText());
         byId('stabilization-dialog').showModal();byId('cancel-stabilization').focus();
       });

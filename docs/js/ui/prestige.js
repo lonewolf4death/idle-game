@@ -4,7 +4,23 @@
   function setText(node, value) { value = String(value);if (node.textContent !== value) node.textContent = value; }
   function number(value) { return Game.Format.number(value, 0); }
   Game.PrestigeUI = {
-    selected: "1-1", nodes: {}, pinned: false,
+    selected: "1-1", nodes: {}, pinned: false, confirming:false, condenseOwner:null, condenseTrigger:null,
+    updateCondenseConfirmation: function () {
+      const summary=Game.Discovery.resetSummary(false);
+      setText(byId('condense-confirm-reward'),'Gain '+number(Game.Prestige.reward())+' Primordial Quanta.');
+      setText(byId('condense-confirm-reset'),summary.reset);setText(byId('condense-confirm-keep'),summary.keep);
+      byId('confirm-condense').disabled=byId('condense-confirm-dialog').classList.contains('is-dismissing') || this.condenseOwner!==Game.player || Game.Prestige.reward().lte(0);
+    },
+    dismissCondense: function (accept) {
+      const ui=this,dialog=byId('condense-confirm-dialog');if(!dialog.open || dialog.classList.contains('is-dismissing'))return;
+      const owner=this.condenseOwner,trigger=this.condenseTrigger;
+      dialog.classList.add('is-dismissing');byId('confirm-condense').disabled=true;byId('cancel-condense').disabled=true;
+      setTimeout(function () {
+        dialog.close();dialog.classList.remove('is-dismissing');ui.confirming=false;ui.condenseOwner=null;ui.condenseTrigger=null;byId('cancel-condense').disabled=false;
+        if(accept && owner===Game.player) { Game.Loop.pump(performance.now());if(!Game.Offline.busy)Game.Prestige.condense(); }
+        if(trigger && trigger.getClientRects().length)trigger.focus();
+      },2000);
+    },
     activateNode: function (id, event) {
       if (event && event.shiftKey) {
         Game.Loop.pump(performance.now());
@@ -110,13 +126,19 @@
       document.addEventListener("visibilitychange", function () { Game.PrestigeUI.hideDetails(); });
       window.addEventListener("blur", function () { Game.PrestigeUI.hideDetails(); });
       window.addEventListener("resize", function () { Game.PrestigeUI.positionDetails(); });
-      const condense = function () {
+      const condense = function (event) {
         Game.Loop.pump(performance.now());
-        if (Game.Offline && Game.Offline.busy) return;
-        Game.Prestige.condense();
+        if (Game.Offline.busy || Game.Prestige.reward().lte(0)) return;
+        if(!Game.player.settings.confirmCondense) { Game.Prestige.condense();return; }
+        const ui=Game.PrestigeUI,dialog=byId('condense-confirm-dialog');if(dialog.open)return;
+        ui.condenseOwner=Game.player;ui.condenseTrigger=event.currentTarget;ui.confirming=true;ui.updateCondenseConfirmation();
+        dialog.showModal();byId('cancel-condense').focus();
       };
       byId("condense-button").addEventListener("click", condense);
       byId("milestone-condense").addEventListener("click", condense);
+      byId('confirm-condense').addEventListener('click',function () { Game.PrestigeUI.dismissCondense(true); });
+      byId('cancel-condense').addEventListener('click',function () { Game.PrestigeUI.dismissCondense(false); });
+      byId('condense-confirm-dialog').addEventListener('cancel',function (event) { event.preventDefault();Game.PrestigeUI.dismissCondense(false); });
       byId("respec-skills").addEventListener("click", function () {
         if (!Game.Prestige.canRespec()) return;
         const dialog=byId("respec-dialog");
@@ -140,6 +162,10 @@
     },
     render: function (reveal) {
       Game.TreeMap.syncMode();
+      if(this.confirming) {
+        this.updateCondenseConfirmation();
+        if(this.condenseOwner!==Game.player)this.dismissCondense(false);
+      }
       const sym=byId('unlock-symmetry'),symOwned=Game.player.prestige.symmetry;
       sym.disabled=!Game.Prestige.canUnlockSymmetry();setText(sym,symOwned?'Unlocked · 10,000 Quanta':'Unlock · 10,000 Quanta');
       setText(byId('symmetry-state'),symOwned?'Unlocked · switch beneath the game title':'Disconnected · future layer');

@@ -64,6 +64,9 @@
       const note=document.getElementById('stats-introduction');if(note)note.textContent=condensed||preview?'Production bonuses and the history of condensation.':'Production bonuses.';
       [['fluctuationSound',this.generator('quantumFluctuation')],['coherentSound',this.generator('coherentEnergy')],['fieldSound',this.generator('fieldExcitation')],['condenseSound',condensed||Game.Prestige.reward().gt(0)],['condenseVisuals',condensed||Game.Prestige.reward().gt(0)],['perkSound',condensed],['perkVisuals',condensed]].forEach(function (entry) { document.getElementById('setting-'+entry[0]).closest('label').hidden=!(preview||entry[1]); });
       document.getElementById('preview-perk-sound').hidden=!(preview||condensed);
+      const confirmations=[['confirmStabilize',Game.player.structure.stabilizations.gt(0)||Game.player.generators.coherentEnergy.purchased.gt(0)||Game.player.lore.stabilizationSeen],['confirmCondense',condensed||Game.Prestige.reward().gt(0)],['confirmBreak',Game.Asymmetry.discovered()]];
+      confirmations.forEach(function (entry) { document.getElementById('setting-'+entry[0]).closest('label').hidden=!(preview||entry[1]); });
+      document.getElementById('confirmation-settings').hidden=!confirmations.some(function (entry) { return preview||entry[1]; });
       const history=document.getElementById('stats-condense-tab');history.hidden=!(false || Game.player.prestige.times.gt(0));
       if(history.hidden && Game.StatsUI.page==='condense') Game.StatsUI.selectPage('production');
     }

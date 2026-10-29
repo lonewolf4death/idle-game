@@ -127,6 +127,7 @@
     if (!player.fluctuation.rollReductionStacks.eq(player.fluctuation.rollReductionStacks.floor())) throw new Error('Invalid Fluct reduction stack');
     if (player.generatorFocus.elapsed.gte(Game.D(Game.CONFIG.PRESTIGE.skills["3-3"].focusSeconds).mul(Game.CONFIG.GENERATORS.length))) throw new Error('Invalid generator focus timer');
     const settings = player.settings;
+    if(![settings.confirmBreak,settings.confirmCondense,settings.confirmStabilize].every(function (value) { return value===0 || value===1; })) throw new Error('Invalid confirmation settings');
     if(!Object.values(settings.animations).every(function (value) { return value===0 || value===1; })) throw new Error('Invalid animation settings');
     if(![0,1,2,3].includes(settings.audioTheme) || ![0,1].includes(settings.visualTheme) || ![0,1].includes(settings.resetVisuals)) throw new Error('Invalid presentation settings');
     if(!Object.values(player.ui.attention).every(function (value) { return Number.isSafeInteger(value) && value>=0; })) throw new Error('Invalid discovery acknowledgement');

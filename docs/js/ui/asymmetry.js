@@ -16,6 +16,7 @@
       el('break-symmetry').addEventListener('click',function (event) {
         event.stopPropagation();
         Game.Loop.pump(performance.now());if(Game.Offline.busy || Game.Asymmetry.reward().lte(0))return;
+        if(!Game.player.settings.confirmBreak) { Game.Asymmetry.breakSymmetry();return; }
         ui.owner=Game.player;Game.Asymmetry.confirming=true;ui.render();el('break-dialog').showModal();el('cancel-break').focus();
       });
       const close=function (accept) {
