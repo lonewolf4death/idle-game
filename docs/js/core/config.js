@@ -201,7 +201,7 @@
     {name:"Fading momentum",unlockEnergy:"1e125",startExponent:15,exponentStep:6,description:"Energy production falls continuously to 85% of its previous strength each real second. Any successful generator or Disturb purchase resets this suppression."}
   ];
   Game.CONFIG.CHALLENGES[4].unlockEnergy="1e95";
-  Game.CONFIG.SYMMETRY={cost:"10000",baseCost:"1e1000",costScaling:"1e10",costExponentGrowth:"2",starterPurchases:8,starterCostScaling:"1.1",production:"0.0003",unitProductionLimit:"0.00015",totalProductionLimit:"0.000635",upgradeCostAnchorFloor:1200,alignmentEnergyBase:"1e3",
+  Game.CONFIG.SYMMETRY={cost:"10000",baseCost:"1e1000",costScaling:"1e10",costExponentGrowth:"2",starterPurchases:8,starterCostScaling:"1.1",production:"0.0003",unitProductionLimit:"0.00015",totalProductionLimit:"0.000635",alignmentEnergyBase:"1e3",
     lore:"The laws of physics are still indistinguishable from one another.",
     milestones:[
       {at:.1,type:'Aligned fields',reward:'Double raw Field Alignment generation. Alignment resistance still applies.'},
@@ -213,11 +213,11 @@
       {at:1,type:'Perfect Symmetry',reward:'Perfect Symmetry reached. Condense gains an additional ×100 Quanta while at 100%. Perfect Interaction is available.'}
     ],
     upgrades:{
-      unifiedField1:{name:'Unified Field I',costOffset:25,energyMultiplier:'1e40',description:'Multiply all Energy by ×1e40. Applies after late Energy resistance.'},
-      unifiedField2:{name:'Unified Field II',costOffset:175,unitLimitMultiplier:'2',description:'Double raw Symmetry generation and each Field Alignment level’s alignment capacity. Shared field resistance still applies.'},
-      quantumCoupling:{name:'Quantum Coupling',costOffset:350,description:'Unspent Primordial Quanta strengthen Symmetry generation with diminishing returns. Hover the name for details.'},
-      fieldResonance:{name:'Field Resonance',costOffset:550,description:'Every owned Field Alignment multiplies Energy by ×1e3. Applies after late Energy resistance.'},
-      perfectInteraction:{name:'Perfect Interaction',costOffset:850,perfect:true,description:'Raise the Symmetry Energy multiplier to the power of 1.15. Unlocked by reaching Perfect Symmetry once.'}
+      unifiedField1:{name:'Unified Field I',cost:'1e1225',energyMultiplier:'1e40',description:'Multiply all Energy by ×1e40. Applies after late Energy resistance.'},
+      unifiedField2:{name:'Unified Field II',cost:'1e1375',unitLimitMultiplier:'2',description:'Double raw Symmetry generation and each Field Alignment level’s alignment capacity. Shared field resistance still applies.'},
+      quantumCoupling:{name:'Quantum Coupling',cost:'1e1550',description:'Unspent Primordial Quanta strengthen Symmetry generation with diminishing returns. Hover the name for details.'},
+      fieldResonance:{name:'Field Resonance',cost:'1e1750',description:'Every owned Field Alignment multiplies Energy by ×1e3. Applies after late Energy resistance.'},
+      perfectInteraction:{name:'Perfect Interaction',cost:'1e2050',perfect:true,description:'Raise the Symmetry Energy multiplier to the power of 1.15. Unlocked by reaching Perfect Symmetry once.'}
     }
   };
   Game.CONFIG.CHALLENGES.forEach(function (rule,index) {

@@ -84,7 +84,6 @@
       p.amount=Decimal.min(1,p.amount.add(amount));
       Game.CONFIG.SYMMETRY.milestones.forEach(function (m) { if(p.amount.add(1e-12).gte(m.at) && p.amount.lt(m.at)) p.amount=D(m.at); });
       p.best=Decimal.max(p.best,p.amount);
-      this.captureUpgradePricing(Game.player);
       Game.CONFIG.SYMMETRY.milestones.forEach(function (m) {
         const narrated=Game.CONFIG.STORY.some(function (entry) {return entry.kind==='symmetry' && Game.D(entry.amount).eq(m.at);});
         if(!narrated && before.add(1e-12).lt(m.at) && p.best.add(1e-12).gte(m.at) && Game.Experience) Game.Experience.enqueue({kind:'Symmetry milestone',title:m.type,text:m.reward});
@@ -139,30 +138,20 @@
       Game.player.lateEnergy.highest=Decimal.max(Game.player.lateEnergy.highest,Game.player.resources.energy);Game.player.resources.energy=Game.player.resources.energy.sub(quote.cost);Game.player.symmetry.alignment=Game.player.symmetry.alignment.add(quote.count);
       Game.Achievements.capture(Game.player,true);if(Game.Audio) Game.Audio.play('alignment');Game.Save.save();return true;
     },
-    captureUpgradePricing:function (player) {
-      const p=player||Game.player;
-      if(p.prestige.symmetry && p.symmetry.best.gte(.5) && p.symmetry.upgradeCostAnchor.eq(0)) {
-        // Older saves may already have restarted since discovering this shop.
-        const historical=p.symmetry.amount.lt(.5)?p.challenges.highestEnergy:D(0);
-        p.symmetry.upgradeCostAnchor=D(Math.ceil(Math.max(Game.CONFIG.SYMMETRY.upgradeCostAnchorFloor,p.resources.energy.gt(0)?p.resources.energy.log10():0,p.lateEnergy.highest.gt(0)?p.lateEnergy.highest.log10():0,historical.gt(0)?historical.log10():0)));
-      }
-    },
     upgradeCost:function (id) {
       const rule=Game.CONFIG.SYMMETRY.upgrades[id];
-      return rule?D(10).pow(Decimal.max(Game.CONFIG.SYMMETRY.upgradeCostAnchorFloor,Game.player.symmetry.upgradeCostAnchor).add(rule.costOffset)):D(Infinity);
+      return rule?D(rule.cost):D(Infinity);
     },
     canBuyUpgrade:function (id) {
       const rule=Game.CONFIG.SYMMETRY.upgrades[id];return !!rule && !Game.Challenges.active() && this.discovered(rule.perfect?1:.5) && !this.has(id) && Game.player.resources.energy.gte(this.upgradeCost(id));
     },
     buyUpgrade:function (id) {
       if(!this.canBuyUpgrade(id)) return false;
-      this.captureUpgradePricing(Game.player);
-      if(Game.player.resources.energy.lt(this.upgradeCost(id))) return false;
       Game.player.lateEnergy.highest=Decimal.max(Game.player.lateEnergy.highest,Game.player.resources.energy);Game.player.resources.energy=Game.player.resources.energy.sub(this.upgradeCost(id));Game.player.symmetry.upgrades[id]=1;
       if(Game.Audio) Game.Audio.play('perk');Game.Save.save();return true;
     },
     preserve:function (old,fresh) {
-      fresh.symmetry.best=old.symmetry.best;fresh.symmetry.upgrades=old.symmetry.upgrades;fresh.symmetry.upgradeCostAnchor=old.symmetry.upgradeCostAnchor;
+      fresh.symmetry.best=old.symmetry.best;fresh.symmetry.upgrades=old.symmetry.upgrades;
       fresh.asymmetry=old.asymmetry;
       this.applyStarting(fresh);
       // Field Alignment resets; current Symmetry returns to the owned starting bonuses.
@@ -203,10 +192,9 @@
       const p=Game.player,s=p.symmetry;
       Game.Achievements.capture(p,true);
       p.asymmetry.amount=p.asymmetry.amount.add(reward);p.asymmetry.total=p.asymmetry.total.add(reward);p.asymmetry.times=p.asymmetry.times.add(1);
-      s.amount=D(0);s.alignment=D(0);s.alignmentAdded=D(0);s.pulseElapsed=D(0);s.upgradeCostAnchor=D(0);
+      s.amount=D(0);s.alignment=D(0);s.alignmentAdded=D(0);s.pulseElapsed=D(0);
       Object.keys(s.upgrades).forEach(function (id) { s.upgrades[id]=0; });
       Game.Symmetry.applyStarting(p);
-      Game.Symmetry.captureUpgradePricing(p);
       Game.Achievements.capture(p,true);
       if(Game.Loop) { Game.Loop.accumulator=0;Game.Loop.lastTime=performance.now(); }
       Game.Save.save();if(Game.UI)Game.UI.render();

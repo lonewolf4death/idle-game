@@ -28,7 +28,7 @@
       automation: {buyers:buyers},
       flow:{seedElapsed:D(0),growthElapsed:D(0),pulses:D(0)},
       structure: {economyVersion:1,stabilizations:D(0),bestEnergy:D(0),recoveryTarget:D(0),elapsed:0,recovered:0,recoverySeconds:0,migrated:0},
-      symmetry:{amount:D(0),best:D(0),alignment:D(0),alignmentAdded:D(0),pulseElapsed:D(0),upgradeCostAnchor:D(0),upgrades:{unifiedField1:0,unifiedField2:0,quantumCoupling:0,fieldResonance:0,perfectInteraction:0}},
+      symmetry:{amount:D(0),best:D(0),alignment:D(0),alignmentAdded:D(0),pulseElapsed:D(0),upgrades:{unifiedField1:0,unifiedField2:0,quantumCoupling:0,fieldResonance:0,perfectInteraction:0}},
       asymmetry:{amount:D(0),total:D(0),times:D(0),upgrades:asymmetryUpgrades},
       lateEnergy:{highest:D(0)},
       challenges: {active:0,bestEnergy:D(0),highestEnergy:D(0),rulesVersion:3,elapsed:0,purchases:0,failed:0,qualified:0,resetArmed:0,resetAt:0,resets:0,lastPurchase:0,latestGenerator:0},
